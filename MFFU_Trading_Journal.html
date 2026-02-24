@@ -1,0 +1,1353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MFFU — Trading Journal</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+:root {
+  --bg:      #f7f6f3;
+  --bg2:     #ffffff;
+  --bg3:     #f0ede8;
+  --border:  #e0dbd3;
+  --border2: #ccc7bf;
+  --text:    #1a1916;
+  --muted:   #8a8479;
+  --subtle:  #b5b0a8;
+  --green:   #2d6a4f;
+  --green-bg:#edf7f1;
+  --red:     #9b2335;
+  --red-bg:  #fdf0f2;
+  --amber:   #92650a;
+  --amber-bg:#fdf6e3;
+  --blue:    #1a4a7a;
+  --blue-bg: #eef3fa;
+  --ink:     #1a1916;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+header {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  padding: 0 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 52px;
+  position: sticky; top:0; z-index:100;
+}
+
+.logo {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  color: var(--ink);
+  text-transform: uppercase;
+}
+.logo em { color: var(--muted); font-style: normal; font-weight: 300; }
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+#live-clock { color: var(--text); font-weight: 500; }
+#session-indicator { display:inline-flex; align-items:center; gap:0.4rem; }
+#session-dot { width:6px; height:6px; border-radius:50%; background:var(--subtle); transition:background 0.3s; }
+#session-dot.live { background:var(--green); box-shadow:0 0 6px rgba(45,106,79,0.5); }
+
+nav {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  padding: 0 2rem;
+}
+
+.tab {
+  padding: 0.65rem 1.25rem;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 400;
+  color: var(--muted);
+  cursor: pointer;
+  border: none;
+  background: none;
+  border-bottom: 1.5px solid transparent;
+  transition: all 0.15s;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--ink); border-bottom-color: var(--ink); font-weight: 500; }
+
+main { padding: 2rem; max-width: 1300px; margin: 0 auto; }
+
+.page { display:none; }
+.page.active { display:block; animation: rise 0.2s ease; }
+@keyframes rise { from{opacity:0;transform:translateY(5px)} to{opacity:1;transform:translateY(0)} }
+
+.card { background:var(--bg2); border:1px solid var(--border); border-radius:6px; }
+.card-body { padding:1.5rem; }
+.card-header {
+  padding:0.9rem 1.5rem;
+  border-bottom:1px solid var(--border);
+  font-family:'DM Mono',monospace;
+  font-size:0.68rem;
+  font-weight:500;
+  text-transform:uppercase;
+  letter-spacing:0.1em;
+  color:var(--muted);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.kpi-row {
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:1px;
+  background:var(--border);
+  border:1px solid var(--border);
+  border-radius:6px;
+  overflow:hidden;
+  margin-bottom:1.5rem;
+}
+.kpi { background:var(--bg2); padding:1.25rem 1.5rem; }
+.kpi-label { font-family:'DM Mono',monospace; font-size:0.65rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--subtle); margin-bottom:0.4rem; }
+.kpi-val { font-family:'DM Mono',monospace; font-size:1.55rem; font-weight:500; color:var(--ink); line-height:1; }
+.kpi-val.pos { color:var(--green); }
+.kpi-val.neg { color:var(--red); }
+.kpi-val.warn { color:var(--amber); }
+
+.prog-wrap { height:3px; background:var(--bg3); border-radius:2px; overflow:hidden; margin:0.5rem 0; }
+.prog-fill { height:100%; border-radius:2px; background:var(--ink); transition:width 0.6s cubic-bezier(.4,0,.2,1); }
+.prog-fill.ok { background:var(--green); }
+.prog-fill.warn { background:var(--amber); }
+.prog-fill.danger { background:var(--red); }
+
+.prog-labels { display:flex; justify-content:space-between; font-family:'DM Mono',monospace; font-size:0.68rem; color:var(--muted); }
+
+.pill { display:inline-flex; align-items:center; gap:0.35rem; padding:0.2rem 0.7rem; border-radius:100px; font-family:'DM Mono',monospace; font-size:0.65rem; font-weight:500; letter-spacing:0.04em; }
+.pill.progress { background:var(--blue-bg); color:var(--blue); }
+.pill.pass     { background:var(--green-bg); color:var(--green); }
+.pill.blown    { background:var(--red-bg); color:var(--red); }
+.pill.warn     { background:var(--amber-bg); color:var(--amber); }
+
+.g2 { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; margin-top:1.5rem; }
+.g4 { display:grid; grid-template-columns:repeat(4,1fr); gap:0.75rem; }
+
+.stat-mini { text-align:center; padding:0.75rem; }
+.stat-mini-num { font-family:'DM Mono',monospace; font-size:1.3rem; font-weight:500; color:var(--ink); }
+.stat-mini-lbl { font-family:'DM Mono',monospace; font-size:0.62rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--subtle); margin-top:0.2rem; }
+
+.divider { height:1px; background:var(--border); margin:1.25rem 0; }
+
+.rule-item { display:flex; align-items:flex-start; gap:0.75rem; padding:0.6rem 0; border-bottom:1px solid var(--bg3); cursor:pointer; }
+.rule-item:last-child { border-bottom:none; padding-bottom:0; }
+.rule-box { width:15px; height:15px; border:1px solid var(--border2); border-radius:2px; flex-shrink:0; margin-top:2px; display:flex; align-items:center; justify-content:center; transition:all 0.15s; font-size:9px; color:transparent; }
+.rule-item.done .rule-box { background:var(--ink); border-color:var(--ink); color:var(--bg2); }
+.rule-item.done .rule-text { color:var(--muted); text-decoration:line-through; }
+.rule-text { font-size:0.8rem; color:var(--text); line-height:1.45; }
+
+.dst-row { display:flex; gap:1rem; align-items:flex-start; padding:0.6rem 0; border-bottom:1px solid var(--bg3); font-size:0.8rem; }
+.dst-row:last-child { border-bottom:none; padding-bottom:0; }
+.dst-date-col { font-family:'DM Mono',monospace; font-size:0.72rem; font-weight:500; min-width:90px; color:var(--ink); padding-top:1px; }
+.dst-desc-col { color:var(--muted); line-height:1.5; }
+.dst-desc-col strong { color:var(--text); font-weight:500; }
+.dst-row.alert .dst-date-col { color:var(--amber); }
+.dst-badge { font-family:'DM Mono',monospace; font-size:0.62rem; background:var(--amber-bg); color:var(--amber); padding:0.1rem 0.45rem; border-radius:3px; margin-right:0.4rem; }
+
+/* FORM */
+.form-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.1rem; }
+.form-full { grid-column:1/-1; }
+.form-group { display:flex; flex-direction:column; gap:0.35rem; }
+label { font-family:'DM Mono',monospace; font-size:0.65rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--muted); font-weight:500; }
+
+input[type=text],input[type=number],input[type=date],input[type=week],select,textarea {
+  background:var(--bg);
+  border:1px solid var(--border);
+  border-radius:4px;
+  padding:0.55rem 0.8rem;
+  font-family:'DM Mono',monospace;
+  font-size:0.8rem;
+  color:var(--text);
+  outline:none;
+  transition:border-color 0.15s;
+  width:100%;
+  -webkit-appearance:none;
+}
+input:focus,select:focus,textarea:focus { border-color:var(--ink); }
+select { cursor:pointer; }
+textarea { resize:vertical; min-height:72px; font-family:'DM Sans',sans-serif; font-size:0.82rem; }
+
+.calc-box { background:var(--bg3); border:1px solid var(--border); border-radius:4px; padding:0.65rem 0.8rem; font-family:'DM Mono',monospace; font-size:0.82rem; color:var(--muted); min-height:38px; }
+.calc-pos { color:var(--green); font-weight:500; }
+.calc-neg { color:var(--red); font-weight:500; }
+
+/* SCREENSHOT UPLOAD */
+.upload-zone {
+  border:1.5px dashed var(--border2);
+  border-radius:6px;
+  padding:1.5rem;
+  text-align:center;
+  cursor:pointer;
+  transition:all 0.2s;
+  background:var(--bg);
+  position:relative;
+}
+.upload-zone:hover { border-color:var(--ink); background:var(--bg3); }
+.upload-zone.drag  { border-color:var(--green); background:var(--green-bg); }
+.upload-icon { font-size:1.4rem; margin-bottom:0.3rem; opacity:0.35; }
+.upload-text { font-size:0.78rem; color:var(--muted); }
+.upload-text strong { color:var(--text); }
+input[type=file] { position:absolute; inset:0; opacity:0; cursor:pointer; }
+
+.ss-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:0.6rem; margin-top:0.6rem; }
+.ss-thumb { position:relative; aspect-ratio:16/10; border-radius:4px; overflow:hidden; border:1px solid var(--border); cursor:pointer; }
+.ss-thumb img { width:100%; height:100%; object-fit:cover; transition:transform 0.2s; }
+.ss-thumb:hover img { transform:scale(1.04); }
+.ss-del { position:absolute; top:4px; right:4px; width:18px; height:18px; background:rgba(26,25,22,0.65); color:#fff; border:none; border-radius:50%; font-size:9px; cursor:pointer; display:none; align-items:center; justify-content:center; }
+.ss-thumb:hover .ss-del { display:flex; }
+
+/* LIGHTBOX */
+#lightbox { display:none; position:fixed; inset:0; background:rgba(26,25,22,0.9); z-index:999; align-items:center; justify-content:center; flex-direction:column; gap:1rem; }
+#lightbox.open { display:flex; }
+#lightbox img { max-width:90vw; max-height:82vh; border-radius:4px; object-fit:contain; }
+#lb-close { background:none; border:1px solid rgba(255,255,255,0.2); color:rgba(255,255,255,0.7); width:32px; height:32px; border-radius:50%; font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; position:absolute; top:1.5rem; right:1.5rem; }
+#lb-close:hover { background:rgba(255,255,255,0.1); }
+#lb-nav { display:flex; gap:1rem; }
+.lb-nav-btn { background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:rgba(255,255,255,0.8); padding:0.4rem 1rem; border-radius:4px; cursor:pointer; font-family:'DM Mono',monospace; font-size:0.75rem; }
+.lb-nav-btn:hover { background:rgba(255,255,255,0.2); }
+#lb-counter { font-family:'DM Mono',monospace; font-size:0.72rem; color:rgba(255,255,255,0.5); }
+
+/* BUTTONS */
+.btn { padding:0.6rem 1.25rem; border:none; border-radius:4px; font-family:'DM Mono',monospace; font-size:0.75rem; font-weight:500; cursor:pointer; letter-spacing:0.04em; transition:all 0.15s; }
+.btn-dark { background:var(--ink); color:var(--bg2); }
+.btn-dark:hover { background:#333; }
+.btn-ghost { background:transparent; color:var(--muted); border:1px solid var(--border); }
+.btn-ghost:hover { border-color:var(--ink); color:var(--ink); }
+.btn-red { background:var(--red-bg); color:var(--red); border:1px solid rgba(155,35,53,0.2); }
+.btn-red:hover { background:#fce0e4; }
+.btn-sm { padding:0.3rem 0.75rem; font-size:0.68rem; }
+.form-actions { display:flex; gap:0.75rem; margin-top:1.5rem; justify-content:flex-end; }
+
+/* TABLE */
+.table-wrap { overflow-x:auto; border:1px solid var(--border); border-radius:6px; }
+table { width:100%; border-collapse:collapse; font-size:0.78rem; }
+thead th { background:var(--bg3); padding:0.65rem 1rem; text-align:left; font-family:'DM Mono',monospace; font-size:0.62rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--muted); font-weight:500; border-bottom:1px solid var(--border); white-space:nowrap; }
+tbody tr { border-bottom:1px solid var(--border); transition:background 0.1s; }
+tbody tr:last-child { border-bottom:none; }
+tbody tr:hover { background:var(--bg3); }
+td { padding:0.65rem 1rem; color:var(--text); white-space:nowrap; font-family:'DM Mono',monospace; font-size:0.75rem; }
+td.note-td { font-family:'DM Sans',sans-serif; font-size:0.78rem; max-width:180px; overflow:hidden; text-overflow:ellipsis; color:var(--muted); }
+
+.tag { display:inline-flex; padding:0.15rem 0.5rem; border-radius:3px; font-size:0.68rem; font-family:'DM Mono',monospace; font-weight:500; }
+.tag.win  { background:var(--green-bg); color:var(--green); }
+.tag.loss { background:var(--red-bg); color:var(--red); }
+.tag.skip { background:var(--amber-bg); color:var(--amber); }
+.tag.be   { background:var(--bg3); color:var(--muted); }
+
+.pnl-pos { color:var(--green); }
+.pnl-neg { color:var(--red); }
+
+.empty-state { text-align:center; padding:3.5rem 1rem; color:var(--subtle); font-size:0.82rem; }
+.empty-icon  { font-size:1.75rem; margin-bottom:0.6rem; opacity:0.5; }
+
+.filter-tabs { display:flex; }
+.ftab { padding:0.4rem 1rem; font-family:'DM Mono',monospace; font-size:0.68rem; text-transform:uppercase; letter-spacing:0.06em; border:1px solid var(--border); background:var(--bg2); color:var(--muted); cursor:pointer; transition:all 0.1s; margin-left:-1px; }
+.ftab:first-child { border-radius:4px 0 0 4px; }
+.ftab:last-child  { border-radius:0 4px 4px 0; }
+.ftab.active { background:var(--ink); color:var(--bg2); border-color:var(--ink); z-index:1; }
+
+/* REFERENCE */
+.ref-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+.ref-row { display:flex; gap:1rem; padding:0.55rem 1rem; border-bottom:1px solid var(--bg3); font-size:0.78rem; }
+.ref-row:last-child { border-bottom:none; }
+.ref-key { font-family:'DM Mono',monospace; font-weight:500; min-width:72px; color:var(--ink); font-size:0.75rem; flex-shrink:0; }
+.ref-val { color:var(--muted); line-height:1.5; }
+
+/* WEEKLY */
+.w-block { margin-bottom:1.25rem; }
+.w-block-title { font-family:'DM Mono',monospace; font-size:0.68rem; font-weight:500; text-transform:uppercase; letter-spacing:0.1em; color:var(--muted); margin-bottom:0.85rem; padding-bottom:0.5rem; border-bottom:1px solid var(--border); }
+
+/* TOAST */
+#toast { position:fixed; bottom:1.5rem; right:1.5rem; background:var(--ink); color:var(--bg2); padding:0.65rem 1.1rem; border-radius:4px; font-family:'DM Mono',monospace; font-size:0.75rem; transform:translateY(80px); opacity:0; transition:all 0.25s ease; z-index:1000; }
+#toast.show { transform:translateY(0); opacity:1; }
+#toast.err  { background:var(--red); }
+
+::-webkit-scrollbar { width:5px; height:5px; }
+::-webkit-scrollbar-track { background:var(--bg3); }
+::-webkit-scrollbar-thumb { background:var(--border2); border-radius:3px; }
+
+.del-row { opacity:0; transition:opacity 0.1s; }
+tr:hover .del-row { opacity:1; }
+
+/* WIN RATE BY SETUP GRADE */
+.grade-row { display:flex; align-items:center; gap:1rem; padding:0.6rem 0; border-bottom:1px solid var(--bg3); }
+.grade-row:last-child { border-bottom:none; }
+.grade-label { font-family:'DM Mono',monospace; font-weight:500; font-size:0.78rem; min-width:64px; }
+.grade-bar-wrap { flex:1; height:6px; background:var(--bg3); border-radius:3px; overflow:hidden; }
+.grade-bar-fill { height:100%; border-radius:3px; background:var(--ink); transition:width 0.5s ease; }
+.grade-bar-fill.high { background:var(--green); }
+.grade-bar-fill.mid  { background:var(--amber); }
+.grade-bar-fill.low  { background:var(--red); }
+.grade-stat { font-family:'DM Mono',monospace; font-size:0.72rem; color:var(--muted); min-width:80px; text-align:right; }
+
+/* STREAK TRACKER */
+.streak-wrap { display:flex; align-items:center; gap:1.5rem; }
+.streak-box { text-align:center; flex:1; padding:1rem; background:var(--bg3); border-radius:6px; }
+.streak-num { font-family:'DM Mono',monospace; font-size:2rem; font-weight:500; line-height:1; }
+.streak-num.win-streak  { color:var(--green); }
+.streak-num.loss-streak { color:var(--red); }
+.streak-num.neutral     { color:var(--ink); }
+.streak-lbl { font-family:'DM Mono',monospace; font-size:0.62rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--subtle); margin-top:0.3rem; }
+.streak-dots { display:flex; gap:4px; flex-wrap:wrap; margin-top:0.75rem; }
+.streak-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+.streak-dot.w { background:var(--green); }
+.streak-dot.l { background:var(--red); }
+.streak-dot.s { background:var(--border2); }
+.streak-dot.b { background:var(--amber); }
+
+/* ECONOMIC CALENDAR */
+.news-banner { padding:0.75rem 1rem; border-radius:6px; margin-bottom:1rem; font-size:0.8rem; display:flex; align-items:center; gap:0.75rem; }
+.news-banner.danger { background:var(--red-bg); border:1px solid rgba(155,35,53,0.2); color:var(--red); }
+.news-banner.warning { background:var(--amber-bg); border:1px solid rgba(146,101,10,0.2); color:var(--amber); }
+.news-banner.clear  { background:var(--green-bg); border:1px solid rgba(45,106,79,0.2); color:var(--green); }
+.news-banner-icon { font-size:1.1rem; flex-shrink:0; }
+.news-day-row { display:flex; align-items:flex-start; gap:0.75rem; padding:0.55rem 0; border-bottom:1px solid var(--bg3); font-size:0.78rem; }
+.news-day-row:last-child { border-bottom:none; }
+.news-day-date { font-family:'DM Mono',monospace; font-size:0.72rem; font-weight:500; min-width:90px; color:var(--ink); }
+.news-day-events { color:var(--muted); line-height:1.5; }
+.news-tag { display:inline-flex; padding:0.1rem 0.4rem; border-radius:3px; font-family:'DM Mono',monospace; font-size:0.65rem; font-weight:500; margin-right:0.3rem; }
+.news-tag.high { background:var(--red-bg); color:var(--red); }
+.news-tag.med  { background:var(--amber-bg); color:var(--amber); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">MFFU <em>25k Flex</em> — Journal</div>
+  <div class="header-right">
+    <div id="session-indicator">
+      <div id="session-dot"></div>
+      <span id="session-label">14:30–15:30 UK</span>
+    </div>
+    <span id="live-clock">—</span>
+  </div>
+</header>
+
+<nav>
+  <button class="tab active" onclick="showPage('dashboard',this)">Dashboard</button>
+  <button class="tab" onclick="showPage('log',this)">Log Trade</button>
+  <button class="tab" onclick="showPage('history',this)">History</button>
+  <button class="tab" onclick="showPage('reference',this)">Reference</button>
+  <button class="tab" onclick="showPage('weekly',this)">Weekly Review</button>
+  <button class="tab" onclick="showPage('tpcalc',this)">TP Calculator</button>
+</nav>
+
+<main>
+
+<!-- DASHBOARD -->
+<div class="page active" id="page-dashboard">
+  <div class="kpi-row">
+    <div class="kpi"><div class="kpi-label">Total P&amp;L</div><div class="kpi-val" id="kpi-pnl">$0.00</div></div>
+    <div class="kpi"><div class="kpi-label">Win Rate</div><div class="kpi-val" id="kpi-wr">—</div></div>
+    <div class="kpi"><div class="kpi-label">Drawdown Used</div><div class="kpi-val" id="kpi-dd">$0.00</div></div>
+    <div class="kpi"><div class="kpi-label">Days Traded</div><div class="kpi-val" id="kpi-days">0</div></div>
+  </div>
+
+  <div class="card" style="margin-bottom:1.5rem;">
+    <div class="card-header">Evaluation Progress <span id="eval-status" class="pill progress">In Progress</span></div>
+    <div class="card-body">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.3rem;">
+        <span style="font-size:0.78rem;color:var(--muted);">Profit Target</span>
+        <span id="pnl-pct" style="font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--muted);">0%</span>
+      </div>
+      <div class="prog-wrap"><div class="prog-fill" id="profit-bar" style="width:0%"></div></div>
+      <div class="prog-labels"><span id="pnl-lbl">$0 earned</span><span>$1,500 target</span></div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;margin:1rem 0 0.3rem;">
+        <span style="font-size:0.78rem;color:var(--muted);">Drawdown Buffer Remaining</span>
+        <span id="cons-badge" class="pill pass" style="font-size:0.62rem;">Consistency OK</span>
+      </div>
+      <div class="prog-wrap"><div class="prog-fill ok" id="dd-bar" style="width:0%"></div></div>
+      <div class="prog-labels"><span id="dd-lbl">$1,000 remaining</span><span>$1,000 max</span></div>
+
+      <div class="divider"></div>
+      <div class="g4">
+        <div class="stat-mini"><div class="stat-mini-num" id="s-wins">0</div><div class="stat-mini-lbl">Wins</div></div>
+        <div class="stat-mini"><div class="stat-mini-num" id="s-losses">0</div><div class="stat-mini-lbl">Losses</div></div>
+        <div class="stat-mini"><div class="stat-mini-num" id="s-skips">0</div><div class="stat-mini-lbl">Skips</div></div>
+        <div class="stat-mini"><div class="stat-mini-num" id="s-needed">$1,500</div><div class="stat-mini-lbl">Still Needed</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <!-- Streak + Grade analysis row -->
+    <div class="card">
+      <div class="card-header">Current Streak</div>
+      <div class="card-body">
+        <div class="streak-wrap">
+          <div class="streak-box">
+            <div class="streak-num" id="streak-num">0</div>
+            <div class="streak-lbl" id="streak-lbl">No trades yet</div>
+          </div>
+          <div style="flex:2;">
+            <div style="font-family:'DM Mono',monospace;font-size:0.65rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--subtle);margin-bottom:0.5rem;">Last 10 trades</div>
+            <div class="streak-dots" id="streak-dots"></div>
+            <div style="display:flex;gap:1rem;margin-top:0.75rem;font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--muted);">
+              <span><span style="color:var(--green);">●</span> Win</span>
+              <span><span style="color:var(--red);">●</span> Loss</span>
+              <span><span style="color:var(--amber);">●</span> BE</span>
+              <span><span style="color:var(--border2);">●</span> Skip</span>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:1rem;padding:0.6rem 0.8rem;background:var(--bg3);border-radius:4px;font-size:0.75rem;color:var(--muted);" id="streak-advice">Log trades to see streak analysis</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">Win Rate by Setup Grade</div>
+      <div class="card-body" id="grade-breakdown">
+        <div style="text-align:center;padding:1.5rem;color:var(--subtle);font-size:0.8rem;">Log trades to see grade breakdown</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="g2" style="margin-top:1.5rem;">
+    <!-- Economic calendar -->
+    <div class="card">
+      <div class="card-header">Economic Calendar — No Trade Days</div>
+      <div class="card-body" style="padding-top:0.75rem;">
+        <div id="news-today-banner"></div>
+        <div id="news-list">
+          <div class="news-day-row"><div class="news-day-date">Loading...</div><div class="news-day-events"></div></div>
+        </div>
+        <div style="margin-top:0.85rem;padding:0.65rem 0.8rem;background:var(--bg3);border-radius:4px;font-size:0.72rem;color:var(--muted);">
+          These are the main high-impact US news events. Always verify at <strong style="color:var(--text);">forexfactory.com</strong> each morning.
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">Daily Rules Checklist <button class="btn btn-ghost btn-sm" onclick="resetRules()">Reset</button></div>
+      <div class="card-body" style="padding-top:0.75rem;">
+        <div id="rules-list">
+          <div class="rule-item" onclick="toggleRule(this)"><div class="rule-box">✓</div><div class="rule-text">Check economic calendar — no trading on NFP / CPI / FOMC days</div></div>
+          <div class="rule-item" onclick="toggleRule(this)"><div class="rule-box">✓</div><div class="rule-text">Mark overnight high &amp; low + previous day high / low / close</div></div>
+          <div class="rule-item" onclick="toggleRule(this)"><div class="rule-box">✓</div><div class="rule-text">Do nothing for first 15 mins (14:30–14:45 UK)</div></div>
+          <div class="rule-item" onclick="toggleRule(this)"><div class="rule-box">✓</div><div class="rule-text">Mark the opening range high and low on the 5-min chart</div></div>
+          <div class="rule-item" onclick="toggleRule(this)"><div class="rule-box">✓</div><div class="rule-text">Wait for clean breakout close above / below range — not just a wick</div></div>
+          <div class="rule-item" onclick="toggleRule(this)"><div class="rule-box">✓</div><div class="rule-text">Wait for retest + confirmation candle before entry</div></div>
+          <div class="rule-item" onclick="toggleRule(this)"><div class="rule-box">✓</div><div class="rule-text">Set hard stop loss before entering — 10 pts from entry (5 MES)</div></div>
+          <div class="rule-item" onclick="toggleRule(this)"><div class="rule-box">✓</div><div class="rule-text">Target at 20 pts — move stop to breakeven at +10 pts</div></div>
+          <div class="rule-item" onclick="toggleRule(this)"><div class="rule-box">✓</div><div class="rule-text">Max 1 trade per day — if it loses, close platform and walk away</div></div>
+          <div class="rule-item" onclick="toggleRule(this)"><div class="rule-box">✓</div><div class="rule-text">Close all positions by 15:30 UK — no afternoon trading</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:1.5rem;">
+    <div class="card">
+      <div class="card-header">Session Time Changes — 2026</div>
+      <div class="card-body" style="padding-top:0.75rem;display:grid;grid-template-columns:1fr 1fr;gap:0 2rem;">
+        <div class="dst-row alert"><div class="dst-date-col">9 Mar 2026</div><div class="dst-desc-col"><span class="dst-badge">!</span><strong>US springs forward.</strong> Open moves to <strong>13:30 UK</strong></div></div>
+        <div class="dst-row"><div class="dst-date-col">9–29 Mar</div><div class="dst-desc-col">Session window: <strong>13:30–14:30 UK</strong></div></div>
+        <div class="dst-row alert"><div class="dst-date-col">29 Mar 2026</div><div class="dst-desc-col"><span class="dst-badge">!</span><strong>UK springs forward.</strong> Back to <strong>14:30 UK</strong></div></div>
+        <div class="dst-row"><div class="dst-date-col">29 Mar–2 Nov</div><div class="dst-desc-col">Session window: <strong>14:30–15:30 UK</strong> — normal</div></div>
+        <div class="dst-row alert"><div class="dst-date-col">2 Nov 2026</div><div class="dst-desc-col"><span class="dst-badge">!</span><strong>US falls back.</strong> Open moves to <strong>15:30 UK</strong></div></div>
+        <div class="dst-row alert"><div class="dst-date-col">25 Oct 2026</div><div class="dst-desc-col"><span class="dst-badge">!</span><strong>UK falls back first.</strong> Verify broker clock this week</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LOG TRADE -->
+<div class="page" id="page-log">
+  <div style="max-width:680px;margin:0 auto;">
+    <div class="card">
+      <div class="card-header">Log New Trade</div>
+      <div class="card-body">
+        <div class="form-grid">
+          <div class="form-group"><label>Date</label><input type="date" id="f-date"></div>
+          <div class="form-group"><label>Direction</label>
+            <select id="f-dir">
+              <option value="">— Select —</option>
+              <option>Long</option><option>Short</option><option>Skip</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Session Quality</label>
+            <select id="f-sess">
+              <option value="">— Select —</option>
+              <option value="A+">A+ — Perfect trending open</option>
+              <option value="A">A — Good clean move</option>
+              <option value="B">B — Decent, some chop</option>
+              <option value="C">C — Choppy, marginal</option>
+              <option value="F">F — No business trading</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Setup Grade</label>
+            <select id="f-setup">
+              <option value="">— Select —</option>
+              <option value="A+">A+ — Textbook retest &amp; rejection</option>
+              <option value="A">A — Clean break and retest</option>
+              <option value="B">B — Decent, minor flaws</option>
+              <option value="C">C — Marginal, should have waited</option>
+              <option value="No Setup">No Setup — Nothing fired</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Entry Price</label><input type="number" id="f-entry" placeholder="e.g. 6897.00" step="0.25" oninput="calcPnl()"></div>
+          <div class="form-group"><label>Exit Price</label><input type="number" id="f-exit" placeholder="e.g. 6877.00" step="0.25" oninput="calcPnl()"></div>
+          <div class="form-group"><label>Stop Loss Price</label><input type="number" id="f-stop" placeholder="e.g. 6907.00" step="0.25"></div>
+          <div class="form-group"><label>Result</label>
+            <select id="f-result">
+              <option value="">— Select —</option>
+              <option value="Win">Win</option>
+              <option value="Loss">Loss</option>
+              <option value="Breakeven">Breakeven</option>
+              <option value="Skip">Skip</option>
+            </select>
+          </div>
+          <div class="form-group form-full"><label>P&amp;L Preview</label><div class="calc-box" id="calc-box">Enter entry &amp; exit prices above</div></div>
+          <div class="form-group"><label>What triggered the entry?</label><textarea id="f-trigger" placeholder="e.g. Clean break below OR low, retest held, bearish engulfing candle on 5-min..."></textarea></div>
+          <div class="form-group"><label>What could I have done better?</label><textarea id="f-improve" placeholder="e.g. Entered a candle too early, should have waited for close above level..."></textarea></div>
+
+          <div class="form-group form-full">
+            <label>Setup Screenshots</label>
+            <div class="upload-zone" id="upload-zone" ondragover="dragOver(event)" ondragleave="dragLeave()" ondrop="dropFiles(event)">
+              <input type="file" id="f-ss" accept="image/*" multiple onchange="handleFiles(this.files)">
+              <div class="upload-icon">↑</div>
+              <div class="upload-text"><strong>Click to upload</strong> or drag &amp; drop &nbsp;·&nbsp; PNG, JPG, WEBP</div>
+            </div>
+            <div class="ss-grid" id="preview-grid"></div>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-ghost" onclick="clearForm()">Clear</button>
+          <button class="btn btn-dark" onclick="saveTrade()">Save Trade</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HISTORY -->
+<div class="page" id="page-history">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;">
+    <div class="filter-tabs">
+      <button class="ftab active" onclick="doFilter('all',this)">All</button>
+      <button class="ftab" onclick="doFilter('Win',this)">Wins</button>
+      <button class="ftab" onclick="doFilter('Loss',this)">Losses</button>
+      <button class="ftab" onclick="doFilter('Skip',this)">Skips</button>
+    </div>
+    <button class="btn btn-red btn-sm" onclick="clearAll()">Clear All</button>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr>
+        <th>Date</th><th>Session</th><th>Setup</th><th>Dir</th>
+        <th>Entry</th><th>Exit</th><th>Stop</th><th>Pts</th>
+        <th>Result</th><th>$ P&L</th><th>Running</th><th>Buffer</th>
+        <th>Notes</th><th>Charts</th><th></th>
+      </tr></thead>
+      <tbody id="t-body"><tr><td colspan="15"><div class="empty-state"><div class="empty-icon">📋</div>No trades yet — use Log Trade to get started</div></td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- REFERENCE -->
+<div class="page" id="page-reference">
+  <div class="ref-grid">
+    <div class="card">
+      <div class="card-header">Session Quality</div>
+      <div class="ref-row"><div class="ref-key">A+</div><div class="ref-val">Perfect trending open, strong directional move from the bell</div></div>
+      <div class="ref-row"><div class="ref-key">A</div><div class="ref-val">Good clean move, clear trend, easy to read</div></div>
+      <div class="ref-row"><div class="ref-key">B</div><div class="ref-val">Decent session, some chop but tradeable</div></div>
+      <div class="ref-row"><div class="ref-key">C</div><div class="ref-val">Choppy, unclear direction, marginal</div></div>
+      <div class="ref-row"><div class="ref-key">F</div><div class="ref-val">No business trading — news day, erratic, avoid</div></div>
+    </div>
+    <div class="card">
+      <div class="card-header">Setup Grade</div>
+      <div class="ref-row"><div class="ref-key">A+</div><div class="ref-val">Textbook — clean break, perfect retest, strong rejection candle</div></div>
+      <div class="ref-row"><div class="ref-key">A</div><div class="ref-val">Clean break and retest, good confirmation</div></div>
+      <div class="ref-row"><div class="ref-key">B</div><div class="ref-val">Decent setup, minor flaws but acceptable entry</div></div>
+      <div class="ref-row"><div class="ref-key">C</div><div class="ref-val">Marginal — entered but should have waited</div></div>
+      <div class="ref-row"><div class="ref-key">No Setup</div><div class="ref-val">Nothing fired — correct to skip</div></div>
+    </div>
+    <div class="card">
+      <div class="card-header">Direction &amp; Result</div>
+      <div class="ref-row"><div class="ref-key">Long</div><div class="ref-val">Bought above OR high — bullish breakout</div></div>
+      <div class="ref-row"><div class="ref-key">Short</div><div class="ref-val">Sold below OR low — bearish breakout</div></div>
+      <div class="ref-row"><div class="ref-key">Win</div><div class="ref-val">Hit 20-point target — +$500 (5 MES)</div></div>
+      <div class="ref-row"><div class="ref-key">Loss</div><div class="ref-val">Hit 10-point stop — -$250 (5 MES)</div></div>
+      <div class="ref-row"><div class="ref-key">Breakeven</div><div class="ref-val">Stopped at entry after moving stop — $0</div></div>
+    </div>
+    <div class="card">
+      <div class="card-header">Position Sizing — 5 MES</div>
+      <div class="ref-row"><div class="ref-key">Per point</div><div class="ref-val">$5 × 5 contracts = $25 per point</div></div>
+      <div class="ref-row"><div class="ref-key">Stop 10 pts</div><div class="ref-val">$250 risk per trade</div></div>
+      <div class="ref-row"><div class="ref-key">TP1 20 pts</div><div class="ref-val">$500 reward — 1:2 R:R</div></div>
+      <div class="ref-row"><div class="ref-key">TP2 30 pts</div><div class="ref-val">$750 reward — 1:3 R:R</div></div>
+      <div class="ref-row"><div class="ref-key">Max loss</div><div class="ref-val">4 losses = $1,000 — eval blown</div></div>
+    </div>
+    <div class="card">
+      <div class="card-header">MFFU 25K Flex Rules</div>
+      <div class="ref-row"><div class="ref-key">Target</div><div class="ref-val">$1,500 profit (6%)</div></div>
+      <div class="ref-row"><div class="ref-key">Drawdown</div><div class="ref-val">$1,000 EOD max</div></div>
+      <div class="ref-row"><div class="ref-key">Daily limit</div><div class="ref-val">None ✓</div></div>
+      <div class="ref-row"><div class="ref-key">Consistency</div><div class="ref-val">No day &gt;50% of total profit</div></div>
+      <div class="ref-row"><div class="ref-key">Min days</div><div class="ref-val">2 trading days minimum</div></div>
+    </div>
+    <div class="card">
+      <div class="card-header">Daily Rules — Never Break</div>
+      <div class="ref-row"><div class="ref-key">1 trade max</div><div class="ref-val">First trade loses — close platform, walk away</div></div>
+      <div class="ref-row"><div class="ref-key">Hard stop</div><div class="ref-val">Set stop before entry. Never widen it</div></div>
+      <div class="ref-row"><div class="ref-key">News days</div><div class="ref-val">No trading on NFP, CPI, FOMC — log as Skip</div></div>
+      <div class="ref-row"><div class="ref-key">Session</div><div class="ref-val">14:45–15:30 UK only. 15 min wait at open</div></div>
+      <div class="ref-row"><div class="ref-key">Consistency</div><div class="ref-val">No day can be &gt;50% of eval total profit</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- WEEKLY REVIEW -->
+<div class="page" id="page-weekly">
+  <div style="max-width:720px;margin:0 auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
+      <div>
+        <div style="font-size:1rem;font-weight:600;">Weekly Review</div>
+        <div style="font-size:0.78rem;color:var(--muted);margin-top:0.15rem;">Fill in every Friday after your last session</div>
+      </div>
+      <div style="display:flex;gap:0.6rem;align-items:center;">
+        <input type="week" id="w-week" style="width:auto;">
+        <button class="btn btn-ghost btn-sm" onclick="loadWeekly()">Load</button>
+        <button class="btn btn-dark btn-sm" onclick="saveWeekly()">Save</button>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:1.25rem;">
+      <div class="card-header">Performance This Week</div>
+      <div class="card-body">
+        <div class="g4">
+          <div class="stat-mini"><div class="stat-mini-num" id="ww">0</div><div class="stat-mini-lbl">Wins</div></div>
+          <div class="stat-mini"><div class="stat-mini-num" id="wl">0</div><div class="stat-mini-lbl">Losses</div></div>
+          <div class="stat-mini"><div class="stat-mini-num" id="ws">0</div><div class="stat-mini-lbl">Skips</div></div>
+          <div class="stat-mini"><div class="stat-mini-num" id="wp">$0</div><div class="stat-mini-lbl">P&amp;L</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <div class="w-block">
+          <div class="w-block-title">✓ What Worked Well</div>
+          <div class="form-grid">
+            <div class="form-group"><label>Setup quality</label><textarea id="wg1" placeholder="Were setups clean A/A+ grades?"></textarea></div>
+            <div class="form-group"><label>Execution</label><textarea id="wg2" placeholder="Did you wait for the retest?"></textarea></div>
+            <div class="form-group form-full"><label>Discipline / emotions</label><textarea id="wg3" placeholder="Did you follow the 1 trade rule?"></textarea></div>
+          </div>
+        </div>
+        <div class="w-block">
+          <div class="w-block-title">✗ What Didn't Work</div>
+          <div class="form-grid">
+            <div class="form-group"><label>FOMO / chasing</label><textarea id="wb1" placeholder="Did you enter too early or chase moves?"></textarea></div>
+            <div class="form-group"><label>Rule violations</label><textarea id="wb2" placeholder="Any rules broken this week?"></textarea></div>
+            <div class="form-group form-full"><label>Emotional decisions</label><textarea id="wb3" placeholder="Revenge trades, panic exits, moved stops?"></textarea></div>
+          </div>
+        </div>
+        <div class="w-block">
+          <div class="w-block-title">→ Next Week</div>
+          <div class="form-grid">
+            <div class="form-group"><label>Key lessons</label><textarea id="wn1" placeholder="What will make you better next week?"></textarea></div>
+            <div class="form-group"><label>Focus area</label><textarea id="wn2" placeholder="One specific thing to improve"></textarea></div>
+          </div>
+        </div>
+        <div class="w-block" style="margin-bottom:0;">
+          <div class="w-block-title">Mindset Check</div>
+          <div class="form-grid">
+            <div class="form-group"><label>How did I handle losses?</label><textarea id="wm1" placeholder="Did losses affect the next trade or day?"></textarea></div>
+            <div class="form-group"><label>Confidence going into next week (1–10)</label><input type="number" id="wm2" min="1" max="10" placeholder="e.g. 7"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TP CALCULATOR -->
+<div class="page" id="page-tpcalc">
+  <div style="max-width:600px;margin:0 auto;">
+    <div class="card">
+      <div class="card-header">Take Profit Calculator — 5 MES Contracts</div>
+      <div class="card-body">
+
+        <div class="form-grid" style="margin-bottom:1.25rem;">
+          <div class="form-group">
+            <label>Direction</label>
+            <select id="tc-dir" onchange="calcTP()">
+              <option value="Long">Long</option>
+              <option value="Short">Short</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Entry Price</label>
+            <input type="number" id="tc-entry" placeholder="e.g. 6897.00" step="0.25" oninput="calcTP()">
+          </div>
+          <div class="form-group form-full">
+            <label>Stop Loss Price</label>
+            <input type="number" id="tc-sl" placeholder="e.g. 6907.00" step="0.25" oninput="calcTP()">
+          </div>
+        </div>
+
+        <!-- Risk summary -->
+        <div id="tc-risk-row" style="display:none; margin-bottom:1.5rem;">
+          <div style="background:var(--red-bg);border:1px solid rgba(155,35,53,0.15);border-radius:6px;padding:1rem 1.25rem;display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <div style="font-family:'DM Mono',monospace;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:0.25rem;">Risk if SL hit</div>
+              <div style="font-family:'DM Mono',monospace;font-size:1.3rem;font-weight:500;color:var(--red);" id="tc-risk-usd">—</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-family:'DM Mono',monospace;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:0.25rem;">Stop Distance</div>
+              <div style="font-family:'DM Mono',monospace;font-size:1.3rem;font-weight:500;color:var(--ink);" id="tc-sl-pts">—</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-family:'DM Mono',monospace;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:0.25rem;">$ per point</div>
+              <div style="font-family:'DM Mono',monospace;font-size:1.3rem;font-weight:500;color:var(--ink);">$25.00</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TP levels table -->
+        <div id="tc-levels" style="display:none;">
+          <div style="font-family:'DM Mono',monospace;font-size:0.65rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--subtle);margin-bottom:0.75rem;">Take Profit Levels</div>
+
+          <div style="border:1px solid var(--border);border-radius:6px;overflow:hidden;">
+            <table style="width:100%;border-collapse:collapse;">
+              <thead>
+                <tr style="background:var(--bg3);">
+                  <th style="padding:0.6rem 1rem;text-align:left;font-family:'DM Mono',monospace;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);border-bottom:1px solid var(--border);font-weight:500;">R:R</th>
+                  <th style="padding:0.6rem 1rem;text-align:left;font-family:'DM Mono',monospace;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);border-bottom:1px solid var(--border);font-weight:500;">TP Price</th>
+                  <th style="padding:0.6rem 1rem;text-align:left;font-family:'DM Mono',monospace;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);border-bottom:1px solid var(--border);font-weight:500;">Points</th>
+                  <th style="padding:0.6rem 1rem;text-align:left;font-family:'DM Mono',monospace;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);border-bottom:1px solid var(--border);font-weight:500;">Profit</th>
+                  <th style="padding:0.6rem 1rem;text-align:left;font-family:'DM Mono',monospace;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);border-bottom:1px solid var(--border);font-weight:500;"></th>
+                </tr>
+              </thead>
+              <tbody id="tc-tbody"></tbody>
+            </table>
+          </div>
+
+          <!-- Breakeven reminder -->
+          <div style="margin-top:1rem;padding:0.75rem 1rem;background:var(--bg3);border-radius:5px;font-size:0.78rem;color:var(--muted);line-height:1.6;">
+            <strong style="color:var(--text);font-size:0.75rem;font-family:'DM Mono',monospace;">Strategy reminder</strong><br>
+            Move stop to breakeven once price reaches <strong style="color:var(--ink);">1:1</strong>. Close all contracts at <strong style="color:var(--ink);">1:2 (TP1)</strong> during evaluation. Only use TP2/TP3 once you are sim-funded and consistent.
+          </div>
+
+          <!-- Breakeven price -->
+          <div style="margin-top:0.75rem;display:flex;align-items:center;justify-content:space-between;padding:0.75rem 1rem;background:var(--amber-bg);border:1px solid rgba(146,101,10,0.2);border-radius:5px;">
+            <span style="font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--amber);font-weight:500;text-transform:uppercase;letter-spacing:0.06em;">Move stop to BE when price hits →</span>
+            <span style="font-family:'DM Mono',monospace;font-size:1.1rem;font-weight:500;color:var(--amber);" id="tc-be-price">—</span>
+          </div>
+        </div>
+
+        <div id="tc-empty" style="text-align:center;padding:2rem;color:var(--subtle);font-size:0.82rem;">
+          Enter your entry price and stop loss above to calculate targets
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Quick reference -->
+    <div class="card" style="margin-top:1.25rem;">
+      <div class="card-header">Quick Reference — 5 MES Standard Setup</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);">
+        <div style="background:var(--bg2);padding:1rem;text-align:center;">
+          <div style="font-family:'DM Mono',monospace;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--subtle);margin-bottom:0.4rem;">Stop (10 pts)</div>
+          <div style="font-family:'DM Mono',monospace;font-size:1.2rem;font-weight:500;color:var(--red);">−$250</div>
+        </div>
+        <div style="background:var(--bg2);padding:1rem;text-align:center;">
+          <div style="font-family:'DM Mono',monospace;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--subtle);margin-bottom:0.4rem;">TP1 1:2 (20 pts)</div>
+          <div style="font-family:'DM Mono',monospace;font-size:1.2rem;font-weight:500;color:var(--green);">+$500</div>
+        </div>
+        <div style="background:var(--bg2);padding:1rem;text-align:center;">
+          <div style="font-family:'DM Mono',monospace;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--subtle);margin-bottom:0.4rem;">TP2 1:3 (30 pts)</div>
+          <div style="font-family:'DM Mono',monospace;font-size:1.2rem;font-weight:500;color:var(--green);">+$750</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<!-- Lightbox -->
+<div id="lightbox" onclick="lbBgClick(event)">
+  <button id="lb-close" onclick="closeLb()">✕</button>
+  <img id="lb-img" src="" alt="">
+  <div id="lb-nav" style="display:none;">
+    <button class="lb-nav-btn" onclick="lbPrev()">← Prev</button>
+    <span id="lb-counter"></span>
+    <button class="lb-nav-btn" onclick="lbNext()">Next →</button>
+  </div>
+</div>
+
+<div id="toast">Saved</div>
+
+<script type="module">
+// ── FIREBASE SETUP ────────────────────────────────────────────
+import { initializeApp }                          from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getFirestore, doc, getDoc, setDoc,
+         collection, getDocs, addDoc, deleteDoc,
+         onSnapshot, query, orderBy }             from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyDsRaMPHswJv8aHWGTS2hRnJcu-I4TlKWM",
+  authDomain:        "mffu-journal.firebaseapp.com",
+  projectId:         "mffu-journal",
+  storageBucket:     "mffu-journal.firebasestorage.app",
+  messagingSenderId: "744809349043",
+  appId:             "1:744809349043:web:76602c3e8834027aa155c6"
+};
+
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+
+// ── DATA LAYER ────────────────────────────────────────────────
+// Trades are stored as individual Firestore docs in /trades
+// Weekly reviews stored as single merged doc in /weekly/data
+
+let _trades  = [];   // local cache, kept in sync via onSnapshot
+let _weekly  = {};
+
+// Live listener — updates UI on any device the moment data changes
+const tradesQ = query(collection(db, 'trades'), orderBy('date', 'asc'));
+onSnapshot(tradesQ, snap => {
+  _trades = snap.docs.map(d => ({ _fid: d.id, ...d.data() }));
+  updateDash();
+  renderTable();
+  updateWeekStats();
+}, err => console.error('Firestore listener error', err));
+
+async function addTrade(trade) {
+  try {
+    await addDoc(collection(db, 'trades'), trade);
+  } catch(e) { toast('Save failed — check connection', true); console.error(e); }
+}
+
+async function removeTrade(fid) {
+  try {
+    await deleteDoc(doc(db, 'trades', fid));
+  } catch(e) { toast('Delete failed', true); }
+}
+
+async function removeAllTrades() {
+  try {
+    const snap = await getDocs(collection(db, 'trades'));
+    await Promise.all(snap.docs.map(d => deleteDoc(d.ref)));
+  } catch(e) { toast('Clear failed', true); }
+}
+
+async function loadWeeklyFromDB() {
+  try {
+    const snap = await getDoc(doc(db, 'weekly', 'data'));
+    _weekly = snap.exists() ? snap.data() : {};
+  } catch(e) { console.error(e); }
+}
+
+async function saveWeeklyToDB(data) {
+  try {
+    await setDoc(doc(db, 'weekly', 'data'), data);
+  } catch(e) { toast('Save failed', true); }
+}
+
+// ── NAV ──────────────────────────────────────────────────────
+function showPage(id, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if (el) el.classList.add('active');
+  if (id==='dashboard') updateDash();
+  if (id==='history')   renderTable();
+  if (id==='weekly')    updateWeekStats();
+}
+window.showPage = showPage;
+
+// ── CLOCK ────────────────────────────────────────────────────
+function tick() {
+  try {
+    const now = new Date();
+    const londonStr = now.toLocaleString('en-GB', { timeZone: 'Europe/London', hour12: false,
+      hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const parts = londonStr.split(':');
+    if (parts.length === 3 && !parts.some(p => isNaN(parseInt(p)))) {
+      const h = parseInt(parts[0]), m2 = parseInt(parts[1]), s = parseInt(parts[2]);
+      const p = n => String(n).padStart(2,'0');
+      document.getElementById('live-clock').textContent = `${p(h)}:${p(m2)}:${p(s)} UK`;
+      const totalMins = h * 60 + m2;
+      const live = totalMins >= 14*60+30 && totalMins < 15*60+30;
+      document.getElementById('session-dot').className = live ? 'live' : '';
+      document.getElementById('session-label').textContent = live ? 'Session Live' : '14:30–15:30 UK';
+    } else {
+      const p = n => String(n).padStart(2,'0');
+      document.getElementById('live-clock').textContent = `${p(now.getUTCHours())}:${p(now.getUTCMinutes())}:${p(now.getUTCSeconds())} UK`;
+    }
+  } catch(e) {
+    const now = new Date();
+    const p = n => String(n).padStart(2,'0');
+    document.getElementById('live-clock').textContent = `${p(now.getUTCHours())}:${p(now.getUTCMinutes())}:${p(now.getUTCSeconds())} UTC`;
+  }
+}
+setInterval(tick, 1000); tick();
+
+// ── SCREENSHOTS ──────────────────────────────────────────────
+let pending = [];
+
+function handleFiles(files) {
+  Array.from(files).forEach(f => {
+    if (!f.type.startsWith('image/')) return;
+    const r = new FileReader();
+    r.onload = e => { pending.push({ name: f.name, dataUrl: e.target.result }); renderPreviews(); };
+    r.readAsDataURL(f);
+  });
+}
+window.handleFiles = handleFiles;
+
+function renderPreviews() {
+  document.getElementById('preview-grid').innerHTML = pending.map((ss, i) => `
+    <div class="ss-thumb" onclick="openLb(['${ss.dataUrl}'],0)">
+      <img src="${ss.dataUrl}" alt="${ss.name}">
+      <button class="ss-del" onclick="event.stopPropagation();rmPending(${i})">✕</button>
+    </div>`).join('');
+}
+function rmPending(i) { pending.splice(i, 1); renderPreviews(); }
+window.rmPending = rmPending;
+function dragOver(e)  { e.preventDefault(); document.getElementById('upload-zone').classList.add('drag'); }
+function dragLeave()  { document.getElementById('upload-zone').classList.remove('drag'); }
+function dropFiles(e) { e.preventDefault(); dragLeave(); handleFiles(e.dataTransfer.files); }
+window.dragOver = dragOver; window.dragLeave = dragLeave; window.dropFiles = dropFiles;
+
+// ── LIGHTBOX ─────────────────────────────────────────────────
+let lbUrls = [], lbIdx = 0;
+function openLb(urls, idx = 0) {
+  lbUrls = urls; lbIdx = idx;
+  document.getElementById('lb-img').src = urls[idx];
+  document.getElementById('lightbox').classList.add('open');
+  const nav = document.getElementById('lb-nav');
+  nav.style.display = urls.length > 1 ? 'flex' : 'none';
+  if (urls.length > 1) document.getElementById('lb-counter').textContent = `${idx+1} / ${urls.length}`;
+}
+function closeLb() { document.getElementById('lightbox').classList.remove('open'); }
+function lbBgClick(e) { if (e.target === document.getElementById('lightbox')) closeLb(); }
+function lbPrev() { lbIdx = (lbIdx-1+lbUrls.length)%lbUrls.length; document.getElementById('lb-img').src = lbUrls[lbIdx]; document.getElementById('lb-counter').textContent = `${lbIdx+1} / ${lbUrls.length}`; }
+function lbNext() { lbIdx = (lbIdx+1)%lbUrls.length; document.getElementById('lb-img').src = lbUrls[lbIdx]; document.getElementById('lb-counter').textContent = `${lbIdx+1} / ${lbUrls.length}`; }
+function openLbById(id) { const urls = (window._ssMap||{})[id]; if (urls&&urls.length) openLb(urls, 0); }
+window.openLb = openLb; window.closeLb = closeLb; window.lbBgClick = lbBgClick;
+window.lbPrev = lbPrev; window.lbNext = lbNext; window.openLbById = openLbById;
+
+// ── FORM ─────────────────────────────────────────────────────
+document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
+
+function calcPnl() {
+  const en  = parseFloat(document.getElementById('f-entry').value);
+  const ex  = parseFloat(document.getElementById('f-exit').value);
+  const dir = document.getElementById('f-dir').value;
+  const box = document.getElementById('calc-box');
+  if (isNaN(en)||isNaN(ex)) { box.innerHTML = 'Enter entry &amp; exit prices above'; box.className = 'calc-box'; return; }
+  const pts = dir==='Short' ? en-ex : ex-en;
+  const usd = pts * 25;
+  const c   = usd >= 0 ? 'calc-pos' : 'calc-neg';
+  const s   = usd >= 0 ? '+' : '';
+  box.innerHTML = `Points: <span class="${c}">${s}${pts.toFixed(2)}</span> &nbsp;·&nbsp; Dollar P&L (5 MES): <span class="${c}">${s}$${usd.toFixed(2)}</span>`;
+}
+window.calcPnl = calcPnl;
+
+function clearForm() {
+  ['f-date','f-dir','f-sess','f-setup','f-entry','f-exit','f-stop','f-result','f-trigger','f-improve'].forEach(id => {
+    const el = document.getElementById(id);
+    el.value = id === 'f-date' ? new Date().toISOString().split('T')[0] : '';
+  });
+  document.getElementById('calc-box').innerHTML = 'Enter entry &amp; exit prices above';
+  pending = []; renderPreviews();
+  document.getElementById('f-ss').value = '';
+}
+window.clearForm = clearForm;
+
+async function saveTrade() {
+  const date   = document.getElementById('f-date').value;
+  const result = document.getElementById('f-result').value;
+  if (!date||!result) { toast('Please fill in Date and Result', true); return; }
+  const dir = document.getElementById('f-dir').value;
+  const en  = parseFloat(document.getElementById('f-entry').value) || 0;
+  const ex  = parseFloat(document.getElementById('f-exit').value)  || 0;
+  let pts   = 0;
+  if (dir==='Short' && en && ex) pts = en - ex;
+  if (dir==='Long'  && en && ex) pts = ex - en;
+  const trade = {
+    id:     Date.now(),
+    date, dir,
+    sess:   document.getElementById('f-sess').value,
+    setup:  document.getElementById('f-setup').value,
+    entry: en, exit: ex,
+    stop:  parseFloat(document.getElementById('f-stop').value) || 0,
+    pts, usd: pts * 25, result,
+    trigger: document.getElementById('f-trigger').value,
+    improve: document.getElementById('f-improve').value,
+    notes:  [document.getElementById('f-trigger').value, document.getElementById('f-improve').value].filter(Boolean).join(' | '),
+    screenshots: [...pending]
+  };
+  toast('Saving…');
+  await addTrade(trade);
+  clearForm();
+  toast('Trade saved ✓');
+}
+window.saveTrade = saveTrade;
+
+// ── DASHBOARD ────────────────────────────────────────────────
+function updateDash() {
+  const trades  = _trades;
+  const wins    = trades.filter(t => t.result==='Win').length;
+  const losses  = trades.filter(t => t.result==='Loss').length;
+  const skips   = trades.filter(t => t.result==='Skip').length;
+  const actual  = wins + losses;
+  const total   = trades.reduce((s,t) => s+(t.usd||0), 0);
+  let run = 0, worst = 0;
+  trades.forEach(t => { run += (t.usd||0); if (run < worst) worst = run; });
+  const ddUsed  = Math.abs(Math.min(0, worst));
+  const ddLeft  = 1000 - ddUsed;
+
+  const pe = document.getElementById('kpi-pnl');
+  pe.textContent = (total>=0?'+':'') + '$' + total.toFixed(2);
+  pe.className   = 'kpi-val ' + (total>0?'pos':total<0?'neg':'');
+  document.getElementById('kpi-wr').textContent = actual > 0 ? Math.round(wins/actual*100)+'%' : '—';
+  const de = document.getElementById('kpi-dd');
+  de.textContent = '$' + ddUsed.toFixed(2);
+  de.className   = 'kpi-val ' + (ddUsed>700?'neg':ddUsed>400?'warn':'');
+  document.getElementById('kpi-days').textContent = trades.length;
+
+  const pp = Math.min(100, Math.max(0, total/1500*100));
+  const pb = document.getElementById('profit-bar');
+  pb.style.width = pp + '%';
+  pb.className   = 'prog-fill ' + (pp>=100?'ok':'');
+  document.getElementById('pnl-pct').textContent = Math.round(pp) + '%';
+  document.getElementById('pnl-lbl').textContent = '$' + Math.max(0,total).toFixed(2) + ' earned';
+
+  const dp = Math.min(100, ddUsed/1000*100);
+  const db = document.getElementById('dd-bar');
+  db.style.width = dp + '%';
+  db.className   = 'prog-fill ' + (dp>70?'danger':dp>40?'warn':'ok');
+  document.getElementById('dd-lbl').textContent = '$' + ddLeft.toFixed(2) + ' remaining';
+
+  document.getElementById('s-wins').textContent   = wins;
+  document.getElementById('s-losses').textContent = losses;
+  document.getElementById('s-skips').textContent  = skips;
+  document.getElementById('s-needed').textContent = '$' + Math.max(0, 1500-total).toFixed(0);
+
+  const badge = document.getElementById('eval-status');
+  if (total >= 1500)   { badge.className='pill pass';     badge.textContent='Target Hit — Submit!'; }
+  else if (ddLeft <= 0){ badge.className='pill blown';    badge.textContent='Account Blown'; }
+  else                 { badge.className='pill progress'; badge.textContent='In Progress'; }
+
+  const dayMap = {};
+  trades.forEach(t => { dayMap[t.date] = (dayMap[t.date]||0) + (t.usd||0); });
+  const maxDay = Math.max(0, ...Object.values(dayMap));
+  const ok     = total <= 0 || maxDay/total <= 0.5;
+  const cb     = document.getElementById('cons-badge');
+  cb.textContent = ok ? 'Consistency OK' : '⚠ Consistency Warning';
+  cb.className   = ok ? 'pill pass' : 'pill warn';
+
+  updateStreak(trades);
+  updateGradeBreakdown(trades);
+  updateCalendar();
+}
+
+// ── STREAK ───────────────────────────────────────────────────
+function updateStreak(trades) {
+  const actual = trades.filter(t => t.result !== 'Skip');
+  const last10 = trades.slice(-10);
+  let streak = 0, streakType = '';
+  for (let i = actual.length-1; i >= 0; i--) {
+    const r = actual[i].result;
+    if (i === actual.length-1) { streakType = r; streak = 1; }
+    else if (r === streakType) streak++;
+    else break;
+  }
+  const sn = document.getElementById('streak-num');
+  const sl = document.getElementById('streak-lbl');
+  const sa = document.getElementById('streak-advice');
+  if (actual.length === 0) {
+    sn.textContent = '0'; sn.className = 'streak-num neutral';
+    sl.textContent = 'No trades yet';
+    sa.textContent = 'Log trades to see streak analysis';
+  } else {
+    sn.textContent = streak;
+    if (streakType==='Win')       { sn.className='streak-num win-streak';  sl.textContent='Win streak 🔥'; sa.textContent=streak>=3?'Strong streak — stay disciplined, stick to the plan':'Good momentum — keep executing the same way'; }
+    if (streakType==='Loss')      { sn.className='streak-num loss-streak'; sl.textContent='Loss streak ⚠'; sa.textContent=streak>=2?'Stop. Review your setups before trading again — are you entering on B/C grade setups?':'One loss is fine. Reset mentally and wait for the next A+ setup'; }
+    if (streakType==='Breakeven') { sn.className='streak-num neutral';     sl.textContent='Breakeven streak'; sa.textContent='Good discipline moving stop to breakeven. Wait for cleaner setups'; }
+  }
+  document.getElementById('streak-dots').innerHTML = last10.map(t => {
+    const c = t.result==='Win'?'w':t.result==='Loss'?'l':t.result==='Breakeven'?'b':'s';
+    return `<div class="streak-dot ${c}" title="${t.date} — ${t.result}"></div>`;
+  }).join('');
+}
+
+// ── GRADE BREAKDOWN ──────────────────────────────────────────
+function updateGradeBreakdown(trades) {
+  const grades = ['A+','A','B','C'];
+  const el     = document.getElementById('grade-breakdown');
+  const actual = trades.filter(t => t.result !== 'Skip' && t.setup);
+  if (!actual.length) {
+    el.innerHTML = '<div style="text-align:center;padding:1.5rem;color:var(--subtle);font-size:0.8rem;">Log trades to see grade breakdown</div>';
+    return;
+  }
+  el.innerHTML = grades.map(g => {
+    const gt = actual.filter(t => t.setup === g);
+    if (!gt.length) return `<div class="grade-row"><div class="grade-label">${g}</div><div class="grade-bar-wrap"><div class="grade-bar-fill" style="width:0%"></div></div><div class="grade-stat" style="color:var(--subtle);">No data</div></div>`;
+    const wr  = Math.round(gt.filter(t => t.result==='Win').length / gt.length * 100);
+    const cls = wr>=70?'high':wr>=50?'mid':'low';
+    return `<div class="grade-row">
+      <div class="grade-label">${g}</div>
+      <div class="grade-bar-wrap"><div class="grade-bar-fill ${cls}" style="width:${wr}%"></div></div>
+      <div class="grade-stat">${wr}% <span style="color:var(--subtle);">(${gt.length} trade${gt.length!==1?'s':''})</span></div>
+    </div>`;
+  }).join('');
+}
+
+// ── ECONOMIC CALENDAR ────────────────────────────────────────
+function updateCalendar() {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const events = [
+    { date:'2026-03-06', label:'NFP — Non-Farm Payrolls', tag:'high' },
+    { date:'2026-03-11', label:'CPI — Consumer Price Index', tag:'high' },
+    { date:'2026-03-18', label:'FOMC Meeting', tag:'high' },
+    { date:'2026-03-19', label:'FOMC Rate Decision + Press Conference', tag:'high' },
+    { date:'2026-03-26', label:'GDP (Final Q4)', tag:'med' },
+    { date:'2026-04-03', label:'NFP — Non-Farm Payrolls', tag:'high' },
+    { date:'2026-04-10', label:'CPI — Consumer Price Index', tag:'high' },
+    { date:'2026-04-28', label:'FOMC Meeting', tag:'high' },
+    { date:'2026-04-29', label:'FOMC Rate Decision + Press Conference', tag:'high' },
+    { date:'2026-05-01', label:'NFP — Non-Farm Payrolls', tag:'high' },
+    { date:'2026-05-12', label:'CPI — Consumer Price Index', tag:'high' },
+    { date:'2026-06-05', label:'NFP — Non-Farm Payrolls', tag:'high' },
+    { date:'2026-06-10', label:'CPI — Consumer Price Index', tag:'high' },
+    { date:'2026-06-17', label:'FOMC Meeting', tag:'high' },
+    { date:'2026-06-18', label:'FOMC Rate Decision + Press Conference', tag:'high' },
+    { date:'2026-07-02', label:'NFP — Non-Farm Payrolls', tag:'high' },
+    { date:'2026-07-14', label:'CPI — Consumer Price Index', tag:'high' },
+    { date:'2026-07-28', label:'FOMC Meeting', tag:'high' },
+    { date:'2026-07-29', label:'FOMC Rate Decision + Press Conference', tag:'high' },
+    { date:'2026-08-07', label:'NFP — Non-Farm Payrolls', tag:'high' },
+    { date:'2026-09-04', label:'NFP — Non-Farm Payrolls', tag:'high' },
+    { date:'2026-09-15', label:'FOMC Meeting', tag:'high' },
+    { date:'2026-09-16', label:'FOMC Rate Decision + Press Conference', tag:'high' },
+    { date:'2026-10-02', label:'NFP — Non-Farm Payrolls', tag:'high' },
+    { date:'2026-11-03', label:'FOMC Meeting', tag:'high' },
+    { date:'2026-11-04', label:'FOMC Rate Decision + Press Conference', tag:'high' },
+    { date:'2026-11-04', label:'NFP — Non-Farm Payrolls', tag:'high' },
+    { date:'2026-12-04', label:'NFP — Non-Farm Payrolls', tag:'high' },
+    { date:'2026-12-15', label:'FOMC Meeting', tag:'high' },
+    { date:'2026-12-16', label:'FOMC Rate Decision + Press Conference', tag:'high' },
+  ];
+  const todayStr    = today.toISOString().split('T')[0];
+  const todayEvents = events.filter(e => e.date === todayStr);
+  const banner      = document.getElementById('news-today-banner');
+  if (todayEvents.length) {
+    banner.innerHTML = `<div class="news-banner danger"><div class="news-banner-icon">🚫</div><div><strong>DO NOT TRADE TODAY</strong> — ${todayEvents.map(e=>e.label).join(', ')} scheduled. Log as Skip.</div></div>`;
+  } else {
+    const tmr     = new Date(today); tmr.setDate(today.getDate()+1);
+    const tmrStr  = tmr.toISOString().split('T')[0];
+    const tmrEvts = events.filter(e => e.date === tmrStr);
+    if (tmrEvts.length) {
+      banner.innerHTML = `<div class="news-banner warning"><div class="news-banner-icon">⚠</div><div><strong>News tomorrow</strong> — ${tmrEvts.map(e=>e.label).join(', ')}. Plan accordingly.</div></div>`;
+    } else {
+      banner.innerHTML = `<div class="news-banner clear"><div class="news-banner-icon">✓</div><div><strong>Clear today</strong> — No major US events. Always verify at forexfactory.com</div></div>`;
+    }
+  }
+  const upcoming = events.map(e => ({...e, d:new Date(e.date+'T12:00')})).filter(e => e.d >= today).sort((a,b) => a.d-b.d).slice(0,6);
+  document.getElementById('news-list').innerHTML = upcoming.map(e => {
+    const ds = e.d.toLocaleDateString('en-GB', {weekday:'short',day:'2-digit',month:'short'});
+    return `<div class="news-day-row">
+      <div class="news-day-date">${ds}</div>
+      <div class="news-day-events"><span class="news-tag ${e.tag}">${e.tag.toUpperCase()}</span>${e.label}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── HISTORY TABLE ────────────────────────────────────────────
+let activeFilter = 'all';
+function doFilter(f, el) {
+  activeFilter = f;
+  document.querySelectorAll('.ftab').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderTable();
+}
+window.doFilter = doFilter;
+
+function renderTable() {
+  const trades   = _trades;
+  const filtered = activeFilter==='all' ? trades : trades.filter(t => t.result===activeFilter);
+  const tbody    = document.getElementById('t-body');
+  if (!filtered.length) {
+    tbody.innerHTML = '<tr><td colspan="15"><div class="empty-state"><div class="empty-icon">📋</div>No trades found.</div></td></tr>';
+    return;
+  }
+  window._ssMap = {};
+  filtered.forEach(t => { if ((t.screenshots||[]).length) window._ssMap[t._fid||t.id] = t.screenshots.map(s => s.dataUrl); });
+  let running = 0;
+  tbody.innerHTML = filtered.map(t => {
+    running += (t.usd||0);
+    const ddLeft     = 1000 + Math.min(0, running);
+    const pc         = (t.usd||0) >= 0 ? 'pnl-pos' : 'pnl-neg';
+    const rc         = running >= 0 ? 'pnl-pos' : 'pnl-neg';
+    const dc         = ddLeft < 300 ? 'pnl-neg' : '';
+    const sgn        = v => (v>=0?'+':'') + '$' + Math.abs(v).toFixed(2);
+    const tag        = r => r==='Win'?'<span class="tag win">Win</span>':r==='Loss'?'<span class="tag loss">Loss</span>':r==='Skip'?'<span class="tag skip">Skip</span>':'<span class="tag be">BE</span>';
+    const ds         = t.date ? new Date(t.date+'T12:00').toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'2-digit'}) : '—';
+    const ss         = t.screenshots||[];
+    const ssKey      = t._fid || t.id;
+    const ssBtn      = ss.length ? `<button class="btn btn-ghost btn-sm" onclick="openLbById('${ssKey}')">📷 ${ss.length}</button>` : '—';
+    const fid        = t._fid || '';
+    return `<tr>
+      <td>${ds}</td><td>${t.sess||'—'}</td><td>${t.setup||'—'}</td><td>${t.dir||'—'}</td>
+      <td>${t.entry||'—'}</td><td>${t.exit||'—'}</td><td>${t.stop||'—'}</td>
+      <td class="${pc}">${t.pts?(t.pts>0?'+':'')+t.pts.toFixed(2):'—'}</td>
+      <td>${tag(t.result)}</td>
+      <td class="${pc}">${sgn(t.usd||0)}</td>
+      <td class="${rc}">${sgn(running)}</td>
+      <td class="${dc}">$${ddLeft.toFixed(0)}</td>
+      <td class="note-td" title="${(t.notes||'').replace(/"/g,"'")}">${t.notes||'—'}</td>
+      <td>${ssBtn}</td>
+      <td><button class="btn btn-red btn-sm del-row" onclick="delTrade('${fid}')">✕</button></td>
+    </tr>`;
+  }).join('');
+}
+
+async function delTrade(fid) {
+  if (!confirm('Delete this trade?')) return;
+  await removeTrade(fid);
+  toast('Deleted');
+}
+window.delTrade = delTrade;
+
+async function clearAll() {
+  if (!confirm('Delete ALL trades? This cannot be undone.')) return;
+  await removeAllTrades();
+  toast('Cleared');
+}
+window.clearAll = clearAll;
+
+// ── RULES ────────────────────────────────────────────────────
+function toggleRule(el) { el.classList.toggle('done'); }
+function resetRules()   { document.querySelectorAll('.rule-item').forEach(r => r.classList.remove('done')); }
+window.toggleRule = toggleRule; window.resetRules = resetRules;
+
+// ── WEEKLY ───────────────────────────────────────────────────
+function updateWeekStats() {
+  const week = document.getElementById('w-week').value;
+  if (!week) return;
+  const [yr, wk] = week.split('-W').map(Number);
+  const jan4     = new Date(yr, 0, 4);
+  const start    = new Date(jan4);
+  start.setDate(jan4.getDate() - ((jan4.getDay()||7)-1) + (wk-1)*7);
+  const end = new Date(start); end.setDate(start.getDate()+6);
+  const wt  = _trades.filter(t => {
+    if (!t.date) return false;
+    const d = new Date(t.date+'T12:00');
+    return d >= start && d <= end;
+  });
+  const pnl = wt.reduce((s,t) => s+(t.usd||0), 0);
+  document.getElementById('ww').textContent = wt.filter(t=>t.result==='Win').length;
+  document.getElementById('wl').textContent = wt.filter(t=>t.result==='Loss').length;
+  document.getElementById('ws').textContent = wt.filter(t=>t.result==='Skip').length;
+  document.getElementById('wp').textContent = (pnl>=0?'+':'')+'$'+pnl.toFixed(0);
+}
+document.getElementById('w-week').addEventListener('change', () => { updateWeekStats(); loadWeekly(); });
+
+const WF = ['wg1','wg2','wg3','wb1','wb2','wb3','wn1','wn2','wm1','wm2'];
+async function saveWeekly() {
+  const week = document.getElementById('w-week').value;
+  if (!week) { toast('Select a week first', true); return; }
+  await loadWeeklyFromDB();
+  _weekly[week] = {};
+  WF.forEach(id => _weekly[week][id] = document.getElementById(id).value);
+  await saveWeeklyToDB(_weekly);
+  toast('Weekly review saved ✓');
+}
+async function loadWeekly() {
+  await loadWeeklyFromDB();
+  const week = document.getElementById('w-week').value;
+  const data = _weekly[week] || {};
+  WF.forEach(id => document.getElementById(id).value = data[id] || '');
+}
+window.saveWeekly = saveWeekly; window.loadWeekly = loadWeekly;
+
+// ── TP CALCULATOR ────────────────────────────────────────────
+function calcTP() {
+  const dir   = document.getElementById('tc-dir').value;
+  const entry = parseFloat(document.getElementById('tc-entry').value);
+  const sl    = parseFloat(document.getElementById('tc-sl').value);
+  const empty   = document.getElementById('tc-empty');
+  const levels  = document.getElementById('tc-levels');
+  const riskRow = document.getElementById('tc-risk-row');
+  if (isNaN(entry)||isNaN(sl)) { empty.style.display='block'; levels.style.display='none'; riskRow.style.display='none'; return; }
+  const slPts = dir==='Long' ? entry-sl : sl-entry;
+  if (slPts <= 0) { empty.style.display='block'; empty.textContent='⚠ Stop loss must be on the correct side of entry for '+dir+' trades'; levels.style.display='none'; riskRow.style.display='none'; return; }
+  riskRow.style.display='block';
+  document.getElementById('tc-risk-usd').textContent = '−$'+(slPts*25).toFixed(2);
+  document.getElementById('tc-sl-pts').textContent   = slPts.toFixed(2)+' pts';
+  document.getElementById('tc-be-price').textContent = (dir==='Long' ? entry+slPts : entry-slPts).toFixed(2);
+  const rrs = [
+    { rr:'1:1', mult:1, note:'Move stop to BE here' },
+    { rr:'1:2', mult:2, note:'← Close ALL here during eval ✓' },
+    { rr:'1:3', mult:3, note:'Once sim-funded' },
+    { rr:'1:4', mult:4, note:'' },
+    { rr:'1:5', mult:5, note:'' },
+  ];
+  document.getElementById('tc-tbody').innerHTML = rrs.map((r,i) => {
+    const pts = slPts*r.mult, tp = dir==='Long'?entry+pts:entry-pts, profit = pts*25;
+    const isMain=i===1, isBe=i===0;
+    return `<tr style="border-bottom:1px solid var(--border);${isMain?'background:var(--green-bg);':''}">
+      <td style="padding:0.7rem 1rem;font-family:'DM Mono',monospace;font-size:0.8rem;${isMain?'color:var(--green);font-weight:600;':isBe?'color:var(--amber);':''}">${r.rr}</td>
+      <td style="padding:0.7rem 1rem;font-family:'DM Mono',monospace;font-size:0.88rem;${isMain?'color:var(--green);font-weight:600;':isBe?'color:var(--amber);':''}">${tp.toFixed(2)}</td>
+      <td style="padding:0.7rem 1rem;font-family:'DM Mono',monospace;font-size:0.8rem;color:var(--muted);">+${pts.toFixed(2)}</td>
+      <td style="padding:0.7rem 1rem;font-family:'DM Mono',monospace;font-size:0.88rem;${isMain?'color:var(--green);font-weight:600;':''}">+$${profit.toFixed(2)}</td>
+      <td style="padding:0.7rem 1rem;font-size:0.72rem;color:var(--muted);font-style:italic;">${r.note}</td>
+    </tr>`;
+  }).join('');
+  empty.style.display='none'; levels.style.display='block';
+}
+window.calcTP = calcTP;
+
+// ── TOAST ────────────────────────────────────────────────────
+function toast(msg, err=false) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.className = err ? 'err show' : 'show';
+  setTimeout(() => el.className = err ? 'err' : '', 2400);
+}
+
+// ── INIT ─────────────────────────────────────────────────────
+updateDash();
+const now  = new Date(), yr = now.getFullYear();
+const jan4 = new Date(yr, 0, 4);
+const wk   = Math.ceil(((now - new Date(jan4.getTime() - ((jan4.getDay()||7)-1)*86400000)) / 86400000) / 7);
+document.getElementById('w-week').value = `${yr}-W${String(wk).padStart(2,'0')}`;
+</script>
+</body>
+</html>
