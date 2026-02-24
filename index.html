@@ -338,6 +338,48 @@ tr:hover .del-row { opacity:1; }
 .news-tag { display:inline-flex; padding:0.1rem 0.4rem; border-radius:3px; font-family:'DM Mono',monospace; font-size:0.65rem; font-weight:500; margin-right:0.3rem; }
 .news-tag.high { background:var(--red-bg); color:var(--red); }
 .news-tag.med  { background:var(--amber-bg); color:var(--amber); }
+
+/* PSYCHOLOGY */
+.psych-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+.emotion-group { display:flex; flex-wrap:wrap; gap:0.4rem; }
+.emotion-btn { padding:0.45rem 0.8rem; border:1.5px solid var(--border); border-radius:4px; background:var(--bg); font-family:'DM Sans',sans-serif; font-size:0.78rem; cursor:pointer; transition:all 0.15s; color:var(--muted); }
+.emotion-btn:hover { border-color:var(--ink); color:var(--ink); }
+.emotion-btn.sel { border-color:var(--ink); background:var(--ink); color:var(--bg2); }
+.conf-slider { width:100%; accent-color:var(--ink); cursor:pointer; height:4px; }
+.conf-labels { display:flex; justify-content:space-between; font-family:'DM Mono',monospace; font-size:0.65rem; color:var(--subtle); margin-top:0.3rem; }
+.conf-val { font-family:'DM Mono',monospace; font-size:1rem; font-weight:500; color:var(--ink); text-align:center; margin-bottom:0.4rem; }
+
+/* PSYCH STATS DASHBOARD */
+.psych-stat-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--border); border-radius:6px; overflow:hidden; border:1px solid var(--border); margin-bottom:1rem; }
+.psych-stat { background:var(--bg2); padding:0.9rem; text-align:center; }
+.psych-stat-num { font-family:'DM Mono',monospace; font-size:1.15rem; font-weight:500; color:var(--ink); }
+.psych-stat-lbl { font-family:'DM Mono',monospace; font-size:0.6rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--subtle); margin-top:0.2rem; }
+.psych-insight { padding:0.6rem 0.9rem; border-radius:4px; font-size:0.78rem; margin-bottom:0.5rem; line-height:1.5; border-left:3px solid; }
+.psych-insight:last-child { margin-bottom:0; }
+.psych-insight.warn { background:var(--amber-bg); color:var(--amber); border-color:var(--amber); }
+.psych-insight.good { background:var(--green-bg); color:var(--green); border-color:var(--green); }
+.psych-insight.info { background:var(--blue-bg); color:var(--blue); border-color:var(--blue); }
+
+/* TRADE DETAIL & EDIT MODAL */
+#modal-overlay { display:none; position:fixed; inset:0; background:rgba(26,25,22,0.55); z-index:200; align-items:center; justify-content:center; padding:1.5rem; }
+#modal-overlay.open { display:flex; }
+#modal-box { background:var(--bg2); border:1px solid var(--border); border-radius:8px; width:100%; max-width:700px; max-height:90vh; overflow-y:auto; animation:rise 0.2s ease; }
+.modal-header { padding:1rem 1.5rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; position:sticky; top:0; background:var(--bg2); z-index:1; }
+.modal-title { font-family:'DM Mono',monospace; font-size:0.78rem; font-weight:500; text-transform:uppercase; letter-spacing:0.08em; color:var(--ink); }
+.modal-close { background:none; border:1px solid var(--border); color:var(--muted); width:28px; height:28px; border-radius:50%; cursor:pointer; font-size:13px; display:flex; align-items:center; justify-content:center; }
+.modal-close:hover { border-color:var(--ink); color:var(--ink); }
+.modal-body { padding:1.5rem; }
+.modal-section { margin-bottom:1.25rem; }
+.modal-section:last-child { margin-bottom:0; }
+.modal-section-title { font-family:'DM Mono',monospace; font-size:0.62rem; text-transform:uppercase; letter-spacing:0.12em; color:var(--subtle); margin-bottom:0.6rem; padding-bottom:0.4rem; border-bottom:1px solid var(--bg3); }
+.modal-row { display:flex; justify-content:space-between; align-items:center; padding:0.4rem 0; border-bottom:1px solid var(--bg3); }
+.modal-row:last-child { border-bottom:none; }
+.modal-key { color:var(--muted); font-size:0.78rem; }
+.modal-val { font-family:'DM Mono',monospace; font-size:0.78rem; font-weight:500; color:var(--ink); }
+.modal-text { font-size:0.82rem; color:var(--text); line-height:1.6; }
+.modal-actions { display:flex; gap:0.75rem; padding:1rem 1.5rem; border-top:1px solid var(--border); justify-content:flex-end; background:var(--bg3); border-radius:0 0 8px 8px; }
+.modal-form-grid { display:grid; grid-template-columns:1fr 1fr; gap:0.85rem; }
+.modal-form-full { grid-column:1/-1; }
 </style>
 </head>
 <body>
@@ -480,6 +522,26 @@ tr:hover .del-row { opacity:1; }
       </div>
     </div>
   </div>
+
+  <!-- PSYCHOLOGY STATS -->
+  <div style="margin-top:1.5rem;">
+    <div class="card">
+      <div class="card-header">Psychology Insights</div>
+      <div class="card-body">
+        <div class="psych-stat-grid" id="psych-stats-grid">
+          <div class="psych-stat"><div class="psych-stat-num" id="ps-calm-wr">—</div><div class="psych-stat-lbl">Win rate when Calm</div></div>
+          <div class="psych-stat"><div class="psych-stat-num" id="ps-rules-wr">—</div><div class="psych-stat-lbl">Win rate — rules followed</div></div>
+          <div class="psych-stat"><div class="psych-stat-num" id="ps-avg-conf">—</div><div class="psych-stat-lbl">Avg confidence on wins</div></div>
+          <div class="psych-stat"><div class="psych-stat-num" id="ps-broken-wr">—</div><div class="psych-stat-lbl">Win rate — rules broken</div></div>
+          <div class="psych-stat"><div class="psych-stat-num" id="ps-anxious-wr">—</div><div class="psych-stat-lbl">Win rate when Anxious</div></div>
+          <div class="psych-stat"><div class="psych-stat-num" id="ps-avg-conf-loss">—</div><div class="psych-stat-lbl">Avg confidence on losses</div></div>
+        </div>
+        <div id="psych-insights">
+          <div class="psych-insight info">Log trades with psychology data to see personalised insights here.</div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- LOG TRADE -->
@@ -532,6 +594,61 @@ tr:hover .del-row { opacity:1; }
           <div class="form-group"><label>What triggered the entry?</label><textarea id="f-trigger" placeholder="e.g. Clean break below OR low, retest held, bearish engulfing candle on 5-min..."></textarea></div>
           <div class="form-group"><label>What could I have done better?</label><textarea id="f-improve" placeholder="e.g. Entered a candle too early, should have waited for close above level..."></textarea></div>
 
+          <!-- PSYCHOLOGY SECTION -->
+          <div class="form-full" style="margin-top:0.5rem;">
+            <div style="font-family:'DM Mono',monospace;font-size:0.65rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--subtle);margin-bottom:1rem;padding-top:0.75rem;border-top:1px solid var(--border);">Psychology</div>
+            <div class="psych-grid">
+              <div class="form-group">
+                <label>Emotions before the trade</label>
+                <div class="emotion-group" id="em-before">
+                  <button type="button" class="emotion-btn" onclick="toggleEmotion(this,'before')">Calm</button>
+                  <button type="button" class="emotion-btn" onclick="toggleEmotion(this,'before')">Confident</button>
+                  <button type="button" class="emotion-btn" onclick="toggleEmotion(this,'before')">Anxious</button>
+                  <button type="button" class="emotion-btn" onclick="toggleEmotion(this,'before')">Excited</button>
+                  <button type="button" class="emotion-btn" onclick="toggleEmotion(this,'before')">Impatient</button>
+                  <button type="button" class="emotion-btn" onclick="toggleEmotion(this,'before')">Fearful</button>
+                  <button type="button" class="emotion-btn" onclick="toggleEmotion(this,'before')">Focused</button>
+                  <button type="button" class="emotion-btn" onclick="toggleEmotion(this,'before')">Distracted</button>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Emotions after the trade</label>
+                <div class="emotion-group" id="em-after">
+                  <button type="button" class="emotion-btn" onclick="toggleEmotion(this,'after')">Satisfied</button>
+                  <button type="button" class="emotion-btn" onclick="toggleEmotion(this,'after')">Relieved</button>
+                  <button type="button" class="emotion-btn" onclick="toggleEmotion(this,'after')">Frustrated</button>
+                  <button type="button" class="emotion-btn" onclick="toggleEmotion(this,'after')">Regret</button>
+                  <button type="button" class="emotion-btn" onclick="toggleEmotion(this,'after')">Proud</button>
+                  <button type="button" class="emotion-btn" onclick="toggleEmotion(this,'after')">Disappointed</button>
+                  <button type="button" class="emotion-btn" onclick="toggleEmotion(this,'after')">Neutral</button>
+                  <button type="button" class="emotion-btn" onclick="toggleEmotion(this,'after')">Greedy</button>
+                </div>
+              </div>
+            </div>
+            <div class="psych-grid" style="margin-top:1rem;">
+              <div class="form-group">
+                <label>Confidence in setup (1–10)</label>
+                <div class="conf-val" id="conf-val-display">5</div>
+                <input type="range" class="conf-slider" id="f-confidence" min="1" max="10" value="5" oninput="document.getElementById('conf-val-display').textContent=this.value">
+                <div class="conf-labels"><span>1 — Unsure</span><span>10 — Certain</span></div>
+              </div>
+              <div class="form-group">
+                <label>Did you follow your rules?</label>
+                <select id="f-rules-followed">
+                  <option value="">— Select —</option>
+                  <option value="Yes">Yes — followed all rules</option>
+                  <option value="Mostly">Mostly — minor deviation</option>
+                  <option value="No">No — broke a rule</option>
+                  <option value="N/A">N/A — no trade taken</option>
+                </select>
+              </div>
+              <div class="form-group form-full">
+                <label>Psychological notes</label>
+                <textarea id="f-psych-notes" placeholder="e.g. Felt FOMO after missing the initial move, waited patiently for the retest anyway..."></textarea>
+              </div>
+            </div>
+          </div>
+
           <div class="form-group form-full">
             <label>Setup Screenshots</label>
             <div class="upload-zone" id="upload-zone" ondragover="dragOver(event)" ondragleave="dragLeave()" ondrop="dropFiles(event)">
@@ -568,9 +685,9 @@ tr:hover .del-row { opacity:1; }
         <th>Date</th><th>Session</th><th>Setup</th><th>Dir</th>
         <th>Entry</th><th>Exit</th><th>Stop</th><th>Pts</th>
         <th>Result</th><th>$ P&L</th><th>Running</th><th>Buffer</th>
-        <th>Notes</th><th>Charts</th><th></th>
+        <th>Mood</th><th>Charts</th><th></th><th></th><th></th>
       </tr></thead>
-      <tbody id="t-body"><tr><td colspan="15"><div class="empty-state"><div class="empty-icon">📋</div>No trades yet — use Log Trade to get started</div></td></tr></tbody>
+      <tbody id="t-body"><tr><td colspan="17"><div class="empty-state"><div class="empty-icon">📋</div>No trades yet — use Log Trade to get started</div></td></tr></tbody>
     </table>
   </div>
 </div>
@@ -798,6 +915,18 @@ tr:hover .del-row { opacity:1; }
 
 </main>
 
+<!-- TRADE DETAIL MODAL -->
+<div id="modal-overlay" onclick="closeModal(event)">
+  <div id="modal-box">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">Trade Detail</div>
+      <button class="modal-close" onclick="closeModalDirect()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-actions" id="modal-actions"></div>
+  </div>
+</div>
+
 <!-- Lightbox -->
 <div id="lightbox" onclick="lbBgClick(event)">
   <button id="lb-close" onclick="closeLb()">✕</button>
@@ -980,15 +1109,31 @@ function calcPnl() {
 window.calcPnl = calcPnl;
 
 function clearForm() {
-  ['f-date','f-dir','f-sess','f-setup','f-entry','f-exit','f-stop','f-result','f-trigger','f-improve'].forEach(id => {
+  ['f-date','f-dir','f-sess','f-setup','f-entry','f-exit','f-stop','f-result','f-trigger','f-improve','f-rules-followed','f-psych-notes'].forEach(id => {
     const el = document.getElementById(id);
-    el.value = id === 'f-date' ? new Date().toISOString().split('T')[0] : '';
+    if (el) el.value = id === 'f-date' ? new Date().toISOString().split('T')[0] : '';
   });
   document.getElementById('calc-box').innerHTML = 'Enter entry &amp; exit prices above';
+  clearEmotions();
   pending = []; renderPreviews();
   document.getElementById('f-ss').value = '';
 }
 window.clearForm = clearForm;
+
+// ── PSYCHOLOGY HELPERS ───────────────────────────────────────
+function toggleEmotion(btn, group) {
+  btn.classList.toggle('sel');
+}
+window.toggleEmotion = toggleEmotion;
+
+function getSelectedEmotions(groupId) {
+  return Array.from(document.querySelectorAll(`#${groupId} .emotion-btn.sel`)).map(b => b.textContent);
+}
+function clearEmotions() {
+  document.querySelectorAll('.emotion-btn').forEach(b => b.classList.remove('sel'));
+  document.getElementById('f-confidence').value = 5;
+  document.getElementById('conf-val-display').textContent = '5';
+}
 
 async function saveTrade() {
   const date   = document.getElementById('f-date').value;
@@ -1011,6 +1156,12 @@ async function saveTrade() {
     trigger: document.getElementById('f-trigger').value,
     improve: document.getElementById('f-improve').value,
     notes:  [document.getElementById('f-trigger').value, document.getElementById('f-improve').value].filter(Boolean).join(' | '),
+    // Psychology
+    emotionsBefore:  getSelectedEmotions('em-before'),
+    emotionsAfter:   getSelectedEmotions('em-after'),
+    confidence:      parseInt(document.getElementById('f-confidence').value),
+    rulesFollowed:   document.getElementById('f-rules-followed').value,
+    psychNotes:      document.getElementById('f-psych-notes').value,
     screenshots: [...pending]
   };
   toast('Saving…');
@@ -1076,6 +1227,7 @@ function updateDash() {
   updateStreak(trades);
   updateGradeBreakdown(trades);
   updateCalendar();
+  updatePsychStats(trades);
 }
 
 // ── STREAK ───────────────────────────────────────────────────
@@ -1190,6 +1342,208 @@ function updateCalendar() {
   }).join('');
 }
 
+// ── PSYCHOLOGY STATS ─────────────────────────────────────────
+function updatePsychStats(trades) {
+  const actual = trades.filter(t => t.result !== 'Skip');
+  const pct    = (arr) => arr.length ? Math.round(arr.filter(t=>t.result==='Win').length/arr.length*100)+'%' : '—';
+  const avgConf= (arr) => { const c=arr.filter(t=>t.confidence>0); return c.length ? (c.reduce((s,t)=>s+t.confidence,0)/c.length).toFixed(1) : '—'; };
+
+  const calm      = actual.filter(t => (t.emotionsBefore||[]).includes('Calm'));
+  const anxious   = actual.filter(t => (t.emotionsBefore||[]).includes('Anxious'));
+  const followed  = actual.filter(t => t.rulesFollowed==='Yes');
+  const broken    = actual.filter(t => t.rulesFollowed==='No');
+  const wins      = actual.filter(t => t.result==='Win');
+  const losses    = actual.filter(t => t.result==='Loss');
+
+  document.getElementById('ps-calm-wr').textContent      = pct(calm);
+  document.getElementById('ps-rules-wr').textContent     = pct(followed);
+  document.getElementById('ps-avg-conf').textContent     = avgConf(wins);
+  document.getElementById('ps-broken-wr').textContent    = pct(broken);
+  document.getElementById('ps-anxious-wr').textContent   = pct(anxious);
+  document.getElementById('ps-avg-conf-loss').textContent= avgConf(losses);
+
+  // Generate insights
+  const insights = [];
+  if (calm.length >= 3 && anxious.length >= 3) {
+    const calmWR = calm.filter(t=>t.result==='Win').length/calm.length;
+    const anxWR  = anxious.filter(t=>t.result==='Win').length/anxious.length;
+    if (calmWR > anxWR + 0.2) insights.push({ type:'good', text:`You win ${Math.round(calmWR*100)}% when calm vs ${Math.round(anxWR*100)}% when anxious. Your pre-session routine is clearly working.` });
+    else if (anxWR > calmWR + 0.1) insights.push({ type:'info', text:`Interesting — you actually win more when anxious. You may be more focused under pressure.` });
+  }
+  if (followed.length >= 3 && broken.length >= 2) {
+    const fWR = followed.filter(t=>t.result==='Win').length/followed.length;
+    const bWR = broken.filter(t=>t.result==='Win').length/broken.length;
+    if (fWR > bWR) insights.push({ type:'good', text:`Following rules: ${Math.round(fWR*100)}% win rate. Breaking rules: ${Math.round(bWR*100)}% win rate. The rules exist for good reason.` });
+    else insights.push({ type:'warn', text:`You're winning even when breaking rules — be careful this doesn't encourage bad habits that will hurt you later.` });
+  }
+  if (wins.length >= 3 && losses.length >= 3) {
+    const wc = wins.filter(t=>t.confidence>0);
+    const lc = losses.filter(t=>t.confidence>0);
+    if (wc.length && lc.length) {
+      const wAvg = wc.reduce((s,t)=>s+t.confidence,0)/wc.length;
+      const lAvg = lc.reduce((s,t)=>s+t.confidence,0)/lc.length;
+      if (wAvg > lAvg + 1) insights.push({ type:'good', text:`Your confidence is a reliable signal — avg ${wAvg.toFixed(1)}/10 on wins vs ${lAvg.toFixed(1)}/10 on losses. Trust your gut more.` });
+      else if (lAvg > wAvg + 1) insights.push({ type:'warn', text:`High confidence doesn't correlate with wins (avg ${wAvg.toFixed(1)} wins vs ${lAvg.toFixed(1)} losses). You may be overconfident on weaker setups.` });
+    }
+  }
+  if (broken.length >= 3) {
+    insights.push({ type:'warn', text:`You've broken your rules ${broken.length} times. Review what keeps triggering this — is it impatience, FOMO, or a specific session type?` });
+  }
+  if (actual.length < 5) {
+    insights.push({ type:'info', text:'Log at least 5 trades with psychology data to see meaningful patterns.' });
+  }
+
+  const el = document.getElementById('psych-insights');
+  el.innerHTML = insights.length
+    ? insights.map(i => `<div class="psych-insight ${i.type}">${i.text}</div>`).join('')
+    : '<div class="psych-insight good">No significant patterns detected yet — keep logging consistently.</div>';
+}
+
+// ── MODALS ───────────────────────────────────────────────────
+function closeModal(e) { if (e.target === document.getElementById('modal-overlay')) closeModalDirect(); }
+function closeModalDirect() { document.getElementById('modal-overlay').classList.remove('open'); }
+window.closeModal = closeModal; window.closeModalDirect = closeModalDirect;
+
+function viewTrade(fid) {
+  const t = _trades.find(t => (t._fid||String(t.id)) === String(fid));
+  if (!t) return;
+  const tag = r => r==='Win'?'<span class="tag win">Win</span>':r==='Loss'?'<span class="tag loss">Loss</span>':r==='Skip'?'<span class="tag skip">Skip</span>':'<span class="tag be">BE</span>';
+  const ds  = t.date ? new Date(t.date+'T12:00').toLocaleDateString('en-GB',{weekday:'long',day:'2-digit',month:'long',year:'numeric'}) : '—';
+  const ss  = t.screenshots||[];
+
+  document.getElementById('modal-title').textContent = `Trade — ${t.date||''}`;
+  document.getElementById('modal-body').innerHTML = `
+    <div class="modal-section">
+      <div class="modal-section-title">Trade Details</div>
+      <div class="modal-row"><span class="modal-key">Date</span><span class="modal-val">${ds}</span></div>
+      <div class="modal-row"><span class="modal-key">Direction</span><span class="modal-val">${t.dir||'—'}</span></div>
+      <div class="modal-row"><span class="modal-key">Session Quality</span><span class="modal-val">${t.sess||'—'}</span></div>
+      <div class="modal-row"><span class="modal-key">Setup Grade</span><span class="modal-val">${t.setup||'—'}</span></div>
+      <div class="modal-row"><span class="modal-key">Entry</span><span class="modal-val">${t.entry||'—'}</span></div>
+      <div class="modal-row"><span class="modal-key">Exit</span><span class="modal-val">${t.exit||'—'}</span></div>
+      <div class="modal-row"><span class="modal-key">Stop Loss</span><span class="modal-val">${t.stop||'—'}</span></div>
+      <div class="modal-row"><span class="modal-key">Points</span><span class="modal-val">${t.pts?(t.pts>0?'+':'')+t.pts.toFixed(2):'—'}</span></div>
+      <div class="modal-row"><span class="modal-key">Result</span><span class="modal-val">${tag(t.result)}</span></div>
+      <div class="modal-row"><span class="modal-key">P&L</span><span class="modal-val ${(t.usd||0)>=0?'pnl-pos':'pnl-neg'}">${(t.usd>=0?'+':'')+'$'+(t.usd||0).toFixed(2)}</span></div>
+    </div>
+    ${t.trigger||t.improve ? `<div class="modal-section">
+      <div class="modal-section-title">Trade Notes</div>
+      ${t.trigger?`<div style="margin-bottom:0.75rem;"><div style="font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.3rem;">Entry trigger</div><div class="modal-text">${t.trigger}</div></div>`:''}
+      ${t.improve?`<div><div style="font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.3rem;">Could have done better</div><div class="modal-text">${t.improve}</div></div>`:''}
+    </div>` : ''}
+    ${(t.emotionsBefore||[]).length || (t.emotionsAfter||[]).length || t.confidence || t.psychNotes ? `<div class="modal-section">
+      <div class="modal-section-title">Psychology</div>
+      ${(t.emotionsBefore||[]).length?`<div class="modal-row"><span class="modal-key">Before trade</span><span class="modal-val" style="font-family:'DM Sans',sans-serif;font-weight:400;">${t.emotionsBefore.join(', ')}</span></div>`:''}
+      ${(t.emotionsAfter||[]).length?`<div class="modal-row"><span class="modal-key">After trade</span><span class="modal-val" style="font-family:'DM Sans',sans-serif;font-weight:400;">${t.emotionsAfter.join(', ')}</span></div>`:''}
+      ${t.confidence?`<div class="modal-row"><span class="modal-key">Confidence</span><span class="modal-val">${t.confidence}/10</span></div>`:''}
+      ${t.rulesFollowed?`<div class="modal-row"><span class="modal-key">Rules followed</span><span class="modal-val">${t.rulesFollowed}</span></div>`:''}
+      ${t.psychNotes?`<div style="margin-top:0.5rem;"><div style="font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.3rem;">Notes</div><div class="modal-text">${t.psychNotes}</div></div>`:''}
+    </div>` : ''}
+    ${ss.length ? `<div class="modal-section">
+      <div class="modal-section-title">Screenshots (${ss.length})</div>
+      <div class="ss-grid">${ss.map((s,i)=>`<div class="ss-thumb" onclick="openLb(window._ssMap['${t._fid||t.id}'],${i})"><img src="${s.dataUrl}" alt="chart"></div>`).join('')}</div>
+    </div>` : ''}
+  `;
+  document.getElementById('modal-actions').innerHTML = `
+    <button class="btn btn-ghost" onclick="closeModalDirect()">Close</button>
+    <button class="btn btn-dark" onclick="closeModalDirect();editTrade('${t._fid||t.id}')">Edit Trade</button>
+  `;
+  document.getElementById('modal-overlay').classList.add('open');
+}
+window.viewTrade = viewTrade;
+
+function editTrade(fid) {
+  const t = _trades.find(t => (t._fid||String(t.id)) === String(fid));
+  if (!t) return;
+  const tag = r => r==='Win'?'<span class="tag win">Win</span>':r==='Loss'?'<span class="tag loss">Loss</span>':r==='Skip'?'<span class="tag skip">Skip</span>':'<span class="tag be">BE</span>';
+
+  document.getElementById('modal-title').textContent = `Edit Trade — ${t.date||''}`;
+  document.getElementById('modal-body').innerHTML = `
+    <div class="modal-form-grid">
+      <div class="form-group"><label>Date</label><input type="date" id="e-date" value="${t.date||''}"></div>
+      <div class="form-group"><label>Direction</label>
+        <select id="e-dir">
+          <option ${t.dir==='Long'?'selected':''}>Long</option>
+          <option ${t.dir==='Short'?'selected':''}>Short</option>
+          <option ${t.dir==='Skip'?'selected':''}>Skip</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Session Quality</label>
+        <select id="e-sess">
+          <option value="">—</option>
+          ${['A+','A','B','C','F'].map(v=>`<option value="${v}" ${t.sess===v?'selected':''}>${v}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group"><label>Setup Grade</label>
+        <select id="e-setup">
+          <option value="">—</option>
+          ${['A+','A','B','C','No Setup'].map(v=>`<option value="${v}" ${t.setup===v?'selected':''}>${v}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group"><label>Entry</label><input type="number" id="e-entry" value="${t.entry||''}" step="0.25"></div>
+      <div class="form-group"><label>Exit</label><input type="number" id="e-exit" value="${t.exit||''}" step="0.25"></div>
+      <div class="form-group"><label>Stop</label><input type="number" id="e-stop" value="${t.stop||''}" step="0.25"></div>
+      <div class="form-group"><label>Result</label>
+        <select id="e-result">
+          ${['Win','Loss','Breakeven','Skip'].map(v=>`<option value="${v}" ${t.result===v?'selected':''}>${v}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group modal-form-full"><label>Entry trigger</label><textarea id="e-trigger">${t.trigger||''}</textarea></div>
+      <div class="form-group modal-form-full"><label>Could have done better</label><textarea id="e-improve">${t.improve||''}</textarea></div>
+      <div class="form-group"><label>Confidence (1–10)</label><input type="number" id="e-conf" min="1" max="10" value="${t.confidence||5}"></div>
+      <div class="form-group"><label>Rules followed</label>
+        <select id="e-rules">
+          <option value="">—</option>
+          ${['Yes','Mostly','No','N/A'].map(v=>`<option value="${v}" ${t.rulesFollowed===v?'selected':''}>${v}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group modal-form-full"><label>Psychology notes</label><textarea id="e-psych">${t.psychNotes||''}</textarea></div>
+    </div>
+  `;
+  document.getElementById('modal-actions').innerHTML = `
+    <button class="btn btn-ghost" onclick="closeModalDirect()">Cancel</button>
+    <button class="btn btn-red" onclick="closeModalDirect();delTrade('${t._fid||t.id}')">Delete</button>
+    <button class="btn btn-dark" onclick="saveEditedTrade('${t._fid||t.id}')">Save Changes</button>
+  `;
+  document.getElementById('modal-overlay').classList.add('open');
+}
+window.editTrade = editTrade;
+
+async function saveEditedTrade(fid) {
+  const t = _trades.find(t => (t._fid||String(t.id)) === String(fid));
+  if (!t) return;
+  const dir = document.getElementById('e-dir').value;
+  const en  = parseFloat(document.getElementById('e-entry').value) || 0;
+  const ex  = parseFloat(document.getElementById('e-exit').value)  || 0;
+  let pts   = 0;
+  if (dir==='Short' && en && ex) pts = en - ex;
+  if (dir==='Long'  && en && ex) pts = ex - en;
+  const updated = {
+    ...t,
+    date:          document.getElementById('e-date').value,
+    dir,
+    sess:          document.getElementById('e-sess').value,
+    setup:         document.getElementById('e-setup').value,
+    entry: en, exit: ex,
+    stop:          parseFloat(document.getElementById('e-stop').value) || 0,
+    pts, usd: pts * 25,
+    result:        document.getElementById('e-result').value,
+    trigger:       document.getElementById('e-trigger').value,
+    improve:       document.getElementById('e-improve').value,
+    notes:         [document.getElementById('e-trigger').value, document.getElementById('e-improve').value].filter(Boolean).join(' | '),
+    confidence:    parseInt(document.getElementById('e-conf').value) || 5,
+    rulesFollowed: document.getElementById('e-rules').value,
+    psychNotes:    document.getElementById('e-psych').value,
+  };
+  delete updated._fid;
+  try {
+    await setDoc(doc(db, 'trades', fid), updated);
+    closeModalDirect();
+    toast('Trade updated ✓');
+  } catch(e) { toast('Update failed', true); console.error(e); }
+}
+window.saveEditedTrade = saveEditedTrade;
+
 // ── HISTORY TABLE ────────────────────────────────────────────
 let activeFilter = 'all';
 function doFilter(f, el) {
@@ -1205,7 +1559,7 @@ function renderTable() {
   const filtered = activeFilter==='all' ? trades : trades.filter(t => t.result===activeFilter);
   const tbody    = document.getElementById('t-body');
   if (!filtered.length) {
-    tbody.innerHTML = '<tr><td colspan="15"><div class="empty-state"><div class="empty-icon">📋</div>No trades found.</div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="17"><div class="empty-state"><div class="empty-icon">📋</div>No trades found.</div></td></tr>';
     return;
   }
   window._ssMap = {};
@@ -1213,17 +1567,22 @@ function renderTable() {
   let running = 0;
   tbody.innerHTML = filtered.map(t => {
     running += (t.usd||0);
-    const ddLeft     = 1000 + Math.min(0, running);
-    const pc         = (t.usd||0) >= 0 ? 'pnl-pos' : 'pnl-neg';
-    const rc         = running >= 0 ? 'pnl-pos' : 'pnl-neg';
-    const dc         = ddLeft < 300 ? 'pnl-neg' : '';
-    const sgn        = v => (v>=0?'+':'') + '$' + Math.abs(v).toFixed(2);
-    const tag        = r => r==='Win'?'<span class="tag win">Win</span>':r==='Loss'?'<span class="tag loss">Loss</span>':r==='Skip'?'<span class="tag skip">Skip</span>':'<span class="tag be">BE</span>';
-    const ds         = t.date ? new Date(t.date+'T12:00').toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'2-digit'}) : '—';
-    const ss         = t.screenshots||[];
-    const ssKey      = t._fid || t.id;
-    const ssBtn      = ss.length ? `<button class="btn btn-ghost btn-sm" onclick="openLbById('${ssKey}')">📷 ${ss.length}</button>` : '—';
-    const fid        = t._fid || '';
+    const ddLeft  = 1000 + Math.min(0, running);
+    const pc      = (t.usd||0) >= 0 ? 'pnl-pos' : 'pnl-neg';
+    const rc      = running >= 0 ? 'pnl-pos' : 'pnl-neg';
+    const dc      = ddLeft < 300 ? 'pnl-neg' : '';
+    const sgn     = v => (v>=0?'+':'') + '$' + Math.abs(v).toFixed(2);
+    const tag     = r => r==='Win'?'<span class="tag win">Win</span>':r==='Loss'?'<span class="tag loss">Loss</span>':r==='Skip'?'<span class="tag skip">Skip</span>':'<span class="tag be">BE</span>';
+    const ds      = t.date ? new Date(t.date+'T12:00').toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'2-digit'}) : '—';
+    const ss      = t.screenshots||[];
+    const ssKey   = t._fid || t.id;
+    const ssBtn   = ss.length ? `<button class="btn btn-ghost btn-sm" onclick="openLbById('${ssKey}')">📷 ${ss.length}</button>` : '—';
+    const fid     = t._fid || '';
+    // Mood pill — show first emotion before trade if any
+    const mood    = (t.emotionsBefore||[])[0];
+    const moodCol = mood==='Calm'||mood==='Confident'||mood==='Focused' ? 'var(--green)' : mood==='Anxious'||mood==='Fearful'||mood==='Distracted' ? 'var(--red)' : mood==='Impatient'||mood==='Excited' ? 'var(--amber)' : 'var(--muted)';
+    const moodEl  = mood ? `<span style="font-size:0.7rem;color:${moodCol};font-family:'DM Mono',monospace;">${mood}</span>` : '—';
+    const confEl  = t.confidence ? `<span style="font-size:0.7rem;font-family:'DM Mono',monospace;color:var(--muted);">${t.confidence}/10</span>` : '';
     return `<tr>
       <td>${ds}</td><td>${t.sess||'—'}</td><td>${t.setup||'—'}</td><td>${t.dir||'—'}</td>
       <td>${t.entry||'—'}</td><td>${t.exit||'—'}</td><td>${t.stop||'—'}</td>
@@ -1232,8 +1591,10 @@ function renderTable() {
       <td class="${pc}">${sgn(t.usd||0)}</td>
       <td class="${rc}">${sgn(running)}</td>
       <td class="${dc}">$${ddLeft.toFixed(0)}</td>
-      <td class="note-td" title="${(t.notes||'').replace(/"/g,"'")}">${t.notes||'—'}</td>
+      <td style="white-space:nowrap;">${moodEl}${confEl ? ' · '+confEl : ''}</td>
       <td>${ssBtn}</td>
+      <td><button class="btn btn-ghost btn-sm" onclick="viewTrade('${fid}')">View</button></td>
+      <td><button class="btn btn-ghost btn-sm" onclick="editTrade('${fid}')">Edit</button></td>
       <td><button class="btn btn-red btn-sm del-row" onclick="delTrade('${fid}')">✕</button></td>
     </tr>`;
   }).join('');
