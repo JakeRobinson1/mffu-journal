@@ -27,6 +27,135 @@
   --ink:     #1a1916;
 }
 
+[data-theme="dark"] {
+  --bg:      #0f0f0e;
+  --bg2:     #1a1916;
+  --bg3:     #242320;
+  --border:  #2e2c28;
+  --border2: #3d3a35;
+  --text:    #e8e4dc;
+  --muted:   #7a7570;
+  --subtle:  #4a4740;
+  --green:   #4ade80;
+  --green-bg:#0d2818;
+  --red:     #f87171;
+  --red-bg:  #2a0f12;
+  --amber:   #fbbf24;
+  --amber-bg:#2a1f06;
+  --blue:    #60a5fa;
+  --blue-bg: #0a1628;
+  --ink:     #e8e4dc;
+}
+
+/* LOGIN SCREEN */
+#login-screen {
+  display:none;
+  position:fixed;
+  inset:0;
+  background:var(--bg);
+  z-index:500;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+}
+#login-screen.show { display:flex; }
+.login-card {
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:2.5rem;
+  width:100%;
+  max-width:380px;
+  text-align:center;
+}
+.login-logo {
+  font-family:'DM Mono',monospace;
+  font-size:1rem;
+  font-weight:500;
+  color:var(--ink);
+  margin-bottom:0.25rem;
+}
+.login-sub {
+  font-size:0.78rem;
+  color:var(--muted);
+  margin-bottom:2rem;
+}
+.login-divider {
+  height:1px;
+  background:var(--border);
+  margin:1.5rem 0;
+}
+.btn-google {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:0.75rem;
+  width:100%;
+  padding:0.75rem 1rem;
+  background:var(--bg2);
+  border:1.5px solid var(--border);
+  border-radius:6px;
+  font-family:'DM Sans',sans-serif;
+  font-size:0.88rem;
+  font-weight:500;
+  color:var(--text);
+  cursor:pointer;
+  transition:all 0.15s;
+}
+.btn-google:hover { border-color:var(--ink); background:var(--bg3); }
+.login-note { font-size:0.72rem; color:var(--subtle); margin-top:1rem; line-height:1.5; }
+
+/* THEME TOGGLE */
+.theme-toggle {
+  display:flex;
+  align-items:center;
+  gap:0.5rem;
+  padding:0.3rem 0.7rem;
+  border:1px solid var(--border);
+  border-radius:20px;
+  background:var(--bg3);
+  cursor:pointer;
+  font-family:'DM Mono',monospace;
+  font-size:0.7rem;
+  color:var(--muted);
+  transition:all 0.15s;
+  user-select:none;
+}
+.theme-toggle:hover { border-color:var(--ink); color:var(--ink); }
+.theme-toggle-icon { font-size:0.85rem; transition:transform 0.3s; }
+
+/* USER AVATAR */
+.user-btn {
+  display:flex;
+  align-items:center;
+  gap:0.5rem;
+  padding:0.25rem 0.6rem 0.25rem 0.25rem;
+  border:1px solid var(--border);
+  border-radius:20px;
+  background:var(--bg3);
+  cursor:pointer;
+  font-size:0.72rem;
+  color:var(--muted);
+  font-family:'DM Mono',monospace;
+  transition:all 0.15s;
+}
+.user-btn:hover { border-color:var(--red); color:var(--red); }
+.user-avatar {
+  width:22px; height:22px;
+  border-radius:50%;
+  object-fit:cover;
+  border:1px solid var(--border);
+}
+.user-avatar-fallback {
+  width:22px; height:22px;
+  border-radius:50%;
+  background:var(--ink);
+  color:var(--bg2);
+  display:flex; align-items:center; justify-content:center;
+  font-size:0.65rem;
+  font-weight:600;
+}
+
 * { margin:0; padding:0; box-sizing:border-box; }
 
 body {
@@ -384,6 +513,22 @@ tr:hover .del-row { opacity:1; }
 </head>
 <body>
 
+<!-- LOGIN SCREEN -->
+<div id="login-screen" class="show">
+  <div class="login-card">
+    <div class="login-logo">MFFU <em>25k Flex</em></div>
+    <div class="login-sub">Trading Journal — Private Access</div>
+    <div style="font-size:2rem;margin-bottom:1rem;">📈</div>
+    <p style="font-size:0.82rem;color:var(--muted);line-height:1.6;margin-bottom:1.5rem;">Sign in with your Google account to access your journal. Your data is private and synced across all your devices.</p>
+    <div class="login-divider"></div>
+    <button class="btn-google" onclick="signInWithGoogle()">
+      <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Continue with Google
+    </button>
+    <div class="login-note">Only your Google account can access this journal.<br>No one else can view or modify your trades.</div>
+  </div>
+</div>
+
 <header>
   <div class="logo">MFFU <em>25k Flex</em> — Journal</div>
   <div class="header-right">
@@ -392,6 +537,14 @@ tr:hover .del-row { opacity:1; }
       <span id="session-label">14:30–15:30 UK</span>
     </div>
     <span id="live-clock">—</span>
+    <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn" title="Toggle dark/light mode">
+      <span class="theme-toggle-icon" id="theme-icon">☀️</span>
+      <span id="theme-label">Light</span>
+    </button>
+    <div class="user-btn" onclick="signOut()" id="user-btn" title="Sign out" style="display:none;">
+      <div class="user-avatar-fallback" id="user-avatar">?</div>
+      <span id="user-name">—</span>
+    </div>
   </div>
 </header>
 
@@ -946,6 +1099,9 @@ import { initializeApp }                          from 'https://www.gstatic.com/
 import { getFirestore, doc, getDoc, setDoc,
          collection, getDocs, addDoc, deleteDoc,
          onSnapshot, query, orderBy }             from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import { getAuth, GoogleAuthProvider,
+         signInWithPopup, onAuthStateChanged,
+         signOut as fbSignOut }                   from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 
 const firebaseConfig = {
   apiKey:            "AIzaSyDsRaMPHswJv8aHWGTS2hRnJcu-I4TlKWM",
@@ -956,54 +1112,132 @@ const firebaseConfig = {
   appId:             "1:744809349043:web:76602c3e8834027aa155c6"
 };
 
-const app = initializeApp(firebaseConfig);
-const db  = getFirestore(app);
+const app      = initializeApp(firebaseConfig);
+const db       = getFirestore(app);
+const auth     = getAuth(app);
+const provider = new GoogleAuthProvider();
+
+// ── AUTH ──────────────────────────────────────────────────────
+let _unsubscribeTrades = null;
+
+async function signInWithGoogle() {
+  try {
+    await signInWithPopup(auth, provider);
+  } catch(e) {
+    console.error('Sign in failed', e);
+    toast('Sign in failed — try again', true);
+  }
+}
+window.signInWithGoogle = signInWithGoogle;
+
+async function signOut() {
+  if (!confirm('Sign out of your journal?')) return;
+  if (_unsubscribeTrades) { _unsubscribeTrades(); _unsubscribeTrades = null; }
+  await fbSignOut(auth);
+}
+window.signOut = signOut;
+
+onAuthStateChanged(auth, user => {
+  if (user) {
+    // Signed in — hide login, show app
+    document.getElementById('login-screen').classList.remove('show');
+    document.getElementById('user-btn').style.display = 'flex';
+
+    // Show user info
+    const initials = (user.displayName||user.email||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+    document.getElementById('user-avatar').textContent = initials;
+    document.getElementById('user-name').textContent   = (user.displayName||user.email||'').split(' ')[0];
+
+    // Start listening to this user's trades
+    startTradesListener(user.uid);
+    loadWeeklyFromDB(user.uid);
+    updateDash();
+  } else {
+    // Signed out — show login, hide app content
+    document.getElementById('login-screen').classList.add('show');
+    document.getElementById('user-btn').style.display = 'none';
+    _trades = [];
+    if (_unsubscribeTrades) { _unsubscribeTrades(); _unsubscribeTrades = null; }
+  }
+});
+
+// ── THEME ─────────────────────────────────────────────────────
+const savedTheme = localStorage.getItem('mffu_theme') || 'light';
+applyTheme(savedTheme);
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  document.getElementById('theme-icon').textContent  = theme === 'dark' ? '🌙' : '☀️';
+  document.getElementById('theme-label').textContent = theme === 'dark' ? 'Dark' : 'Light';
+  localStorage.setItem('mffu_theme', theme);
+}
+
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme') || 'light';
+  applyTheme(current === 'dark' ? 'light' : 'dark');
+}
+window.toggleTheme = toggleTheme;
 
 // ── DATA LAYER ────────────────────────────────────────────────
-// Trades are stored as individual Firestore docs in /trades
-// Weekly reviews stored as single merged doc in /weekly/data
+// Each user's data lives at /users/{uid}/trades and /users/{uid}/weekly
+// This means only the authenticated user can access their own data
 
-let _trades  = [];   // local cache, kept in sync via onSnapshot
+let _trades  = [];
 let _weekly  = {};
 
-// Live listener — updates UI on any device the moment data changes
-const tradesQ = query(collection(db, 'trades'), orderBy('date', 'asc'));
-onSnapshot(tradesQ, snap => {
-  _trades = snap.docs.map(d => ({ _fid: d.id, ...d.data() }));
-  updateDash();
-  renderTable();
-  updateWeekStats();
-}, err => console.error('Firestore listener error', err));
+function tradesRef(uid)  { return collection(db, 'users', uid, 'trades'); }
+function weeklyRef(uid)  { return doc(db, 'users', uid, 'weekly', 'data'); }
+
+function startTradesListener(uid) {
+  if (_unsubscribeTrades) _unsubscribeTrades();
+  const q = query(tradesRef(uid), orderBy('date', 'asc'));
+  _unsubscribeTrades = onSnapshot(q, snap => {
+    _trades = snap.docs.map(d => ({ _fid: d.id, ...d.data() }));
+    updateDash();
+    renderTable();
+    updateWeekStats();
+  }, err => console.error('Firestore listener error', err));
+}
 
 async function addTrade(trade) {
+  const uid = auth.currentUser?.uid;
+  if (!uid) return;
   try {
-    await addDoc(collection(db, 'trades'), trade);
+    await addDoc(tradesRef(uid), trade);
   } catch(e) { toast('Save failed — check connection', true); console.error(e); }
 }
 
 async function removeTrade(fid) {
+  const uid = auth.currentUser?.uid;
+  if (!uid) return;
   try {
-    await deleteDoc(doc(db, 'trades', fid));
+    await deleteDoc(doc(db, 'users', uid, 'trades', fid));
   } catch(e) { toast('Delete failed', true); }
 }
 
 async function removeAllTrades() {
+  const uid = auth.currentUser?.uid;
+  if (!uid) return;
   try {
-    const snap = await getDocs(collection(db, 'trades'));
+    const snap = await getDocs(tradesRef(uid));
     await Promise.all(snap.docs.map(d => deleteDoc(d.ref)));
   } catch(e) { toast('Clear failed', true); }
 }
 
-async function loadWeeklyFromDB() {
+async function loadWeeklyFromDB(uid) {
+  const u = uid || auth.currentUser?.uid;
+  if (!u) return;
   try {
-    const snap = await getDoc(doc(db, 'weekly', 'data'));
+    const snap = await getDoc(weeklyRef(u));
     _weekly = snap.exists() ? snap.data() : {};
   } catch(e) { console.error(e); }
 }
 
 async function saveWeeklyToDB(data) {
+  const uid = auth.currentUser?.uid;
+  if (!uid) return;
   try {
-    await setDoc(doc(db, 'weekly', 'data'), data);
+    await setDoc(weeklyRef(uid), data);
   } catch(e) { toast('Save failed', true); }
 }
 
@@ -1537,7 +1771,9 @@ async function saveEditedTrade(fid) {
   };
   delete updated._fid;
   try {
-    await setDoc(doc(db, 'trades', fid), updated);
+    const uid = auth.currentUser?.uid;
+    if (!uid) { toast('Not signed in', true); return; }
+    await setDoc(doc(db, 'users', uid, 'trades', fid), updated);
     closeModalDirect();
     toast('Trade updated ✓');
   } catch(e) { toast('Update failed', true); console.error(e); }
@@ -1704,7 +1940,8 @@ function toast(msg, err=false) {
 }
 
 // ── INIT ─────────────────────────────────────────────────────
-updateDash();
+// Dashboard updates are triggered by onAuthStateChanged above
+// Just set the week picker default
 const now  = new Date(), yr = now.getFullYear();
 const jan4 = new Date(yr, 0, 4);
 const wk   = Math.ceil(((now - new Date(jan4.getTime() - ((jan4.getDay()||7)-1)*86400000)) / 86400000) / 7);
