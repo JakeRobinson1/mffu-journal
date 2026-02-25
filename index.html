@@ -509,6 +509,26 @@ tr:hover .del-row { opacity:1; }
 .modal-actions { display:flex; gap:0.75rem; padding:1rem 1.5rem; border-top:1px solid var(--border); justify-content:flex-end; background:var(--bg3); border-radius:0 0 8px 8px; }
 .modal-form-grid { display:grid; grid-template-columns:1fr 1fr; gap:0.85rem; }
 .modal-form-full { grid-column:1/-1; }
+
+/* BACKTEST */
+.bt-kpi-row { display:grid; grid-template-columns:repeat(5,1fr); gap:1px; background:var(--border); border-radius:8px; overflow:hidden; border:1px solid var(--border); margin-bottom:1.5rem; }
+.bt-kpi { background:var(--bg2); padding:0.9rem 1rem; text-align:center; }
+.bt-kpi-val { font-family:'DM Mono',monospace; font-size:1.15rem; font-weight:500; color:var(--ink); }
+.bt-kpi-lbl { font-family:'DM Mono',monospace; font-size:0.6rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--subtle); margin-top:0.2rem; }
+.bt-grade-row { display:flex; align-items:center; gap:1rem; padding:0.55rem 0; border-bottom:1px solid var(--bg3); font-size:0.78rem; }
+.bt-grade-row:last-child { border-bottom:none; }
+.bt-grade-lbl { font-family:'DM Mono',monospace; font-weight:500; font-size:0.78rem; min-width:56px; color:var(--ink); }
+.bt-grade-bar-wrap { flex:1; height:6px; background:var(--bg3); border-radius:3px; overflow:hidden; }
+.bt-grade-bar { height:100%; border-radius:3px; transition:width 0.4s ease; }
+.bt-grade-bar.high { background:var(--green); }
+.bt-grade-bar.mid  { background:var(--amber); }
+.bt-grade-bar.low  { background:var(--red); }
+.bt-grade-stat { font-family:'DM Mono',monospace; font-size:0.72rem; color:var(--muted); min-width:90px; text-align:right; }
+.bt-insight { padding:0.6rem 0.9rem; border-radius:4px; font-size:0.78rem; margin-bottom:0.5rem; line-height:1.5; border-left:3px solid; }
+.bt-insight:last-child { margin-bottom:0; }
+.bt-insight.good { background:var(--green-bg); color:var(--green); border-color:var(--green); }
+.bt-insight.warn { background:var(--amber-bg); color:var(--amber); border-color:var(--amber); }
+.bt-insight.info { background:var(--blue-bg); color:var(--blue); border-color:var(--blue); }
 </style>
 </head>
 <body>
@@ -555,6 +575,7 @@ tr:hover .del-row { opacity:1; }
   <button class="tab" onclick="showPage('reference',this)">Reference</button>
   <button class="tab" onclick="showPage('weekly',this)">Weekly Review</button>
   <button class="tab" onclick="showPage('tpcalc',this)">TP Calculator</button>
+  <button class="tab" onclick="showPage('backtest',this)">Backtest</button>
 </nav>
 
 <main>
@@ -1066,6 +1087,141 @@ tr:hover .del-row { opacity:1; }
   </div>
 </div>
 
+<!-- BACKTEST -->
+<div class="page" id="page-backtest">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;">
+    <div>
+      <div style="font-size:0.95rem;font-weight:600;color:var(--ink);">Backtest Log</div>
+      <div style="font-size:0.75rem;color:var(--muted);margin-top:0.15rem;">ORB Strategy — Historical Trade Review</div>
+    </div>
+    <button class="btn btn-dark" onclick="showBtForm()">+ Log Backtest</button>
+  </div>
+
+  <!-- Stats bar -->
+  <div class="bt-kpi-row">
+    <div class="bt-kpi"><div class="bt-kpi-val" id="bt-total">0</div><div class="bt-kpi-lbl">Total Trades</div></div>
+    <div class="bt-kpi"><div class="bt-kpi-val" id="bt-wr">—</div><div class="bt-kpi-lbl">Win Rate</div></div>
+    <div class="bt-kpi"><div class="bt-kpi-val" id="bt-pts">0</div><div class="bt-kpi-lbl">Total Points</div></div>
+    <div class="bt-kpi"><div class="bt-kpi-val" id="bt-expectancy">—</div><div class="bt-kpi-lbl">Avg pts/trade</div></div>
+    <div class="bt-kpi"><div class="bt-kpi-val" id="bt-streak">—</div><div class="bt-kpi-lbl">Best streak</div></div>
+  </div>
+
+  <div class="g2" style="margin-bottom:1.5rem;">
+    <!-- Grade breakdown -->
+    <div class="card">
+      <div class="card-header">Win Rate by Setup Grade</div>
+      <div class="card-body" id="bt-grade-breakdown">
+        <div style="text-align:center;padding:1rem;color:var(--subtle);font-size:0.78rem;">Log backtests to see grade breakdown</div>
+      </div>
+    </div>
+    <!-- Insights -->
+    <div class="card">
+      <div class="card-header">Strategy Insights</div>
+      <div class="card-body" id="bt-insights">
+        <div class="bt-insight info">Log at least 10 backtests to see meaningful strategy insights.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Log form (hidden by default) -->
+  <div class="card" id="bt-form-card" style="display:none;margin-bottom:1.5rem;">
+    <div class="card-header">Log Backtest Trade <button class="btn btn-ghost btn-sm" style="float:right;" onclick="hideBtForm()">Cancel</button></div>
+    <div class="card-body">
+      <div class="form-grid">
+        <div class="form-group"><label>Date</label><input type="date" id="bt-date"></div>
+        <div class="form-group"><label>Direction</label>
+          <select id="bt-dir">
+            <option value="">— Select —</option>
+            <option>Long</option><option>Short</option><option>Skip</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Session Quality</label>
+          <select id="bt-sess">
+            <option value="">— Select —</option>
+            <option value="A+">A+ — Perfect trending open</option>
+            <option value="A">A — Good clean move</option>
+            <option value="B">B — Decent, some chop</option>
+            <option value="C">C — Choppy, marginal</option>
+            <option value="F">F — No business trading</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Setup Grade</label>
+          <select id="bt-setup">
+            <option value="">— Select —</option>
+            <option value="A+">A+ — Textbook retest &amp; rejection</option>
+            <option value="A">A — Clean break and retest</option>
+            <option value="B">B — Decent, minor flaws</option>
+            <option value="C">C — Marginal, should have waited</option>
+            <option value="No Setup">No Setup — Nothing fired</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Entry Price</label><input type="number" id="bt-entry" placeholder="e.g. 6897.00" step="0.25" oninput="calcBtPnl()"></div>
+        <div class="form-group"><label>Exit Price</label><input type="number" id="bt-exit" placeholder="e.g. 6877.00" step="0.25" oninput="calcBtPnl()"></div>
+        <div class="form-group"><label>Stop Loss Price</label><input type="number" id="bt-stop" placeholder="e.g. 6907.00" step="0.25"></div>
+        <div class="form-group"><label>Result</label>
+          <select id="bt-result">
+            <option value="">— Select —</option>
+            <option value="Win">Win</option>
+            <option value="Loss">Loss</option>
+            <option value="Breakeven">Breakeven</option>
+            <option value="Skip">Skip</option>
+          </select>
+        </div>
+        <div class="form-group form-full"><label>P&L Preview</label><div class="calc-box" id="bt-calc-box">Enter entry &amp; exit prices above</div></div>
+
+        <!-- Backtest-specific fields -->
+        <div class="form-group"><label>Overnight High</label><input type="number" id="bt-oh" placeholder="e.g. 6905.00" step="0.25"></div>
+        <div class="form-group"><label>Overnight Low</label><input type="number" id="bt-ol" placeholder="e.g. 6870.00" step="0.25"></div>
+        <div class="form-group"><label>OR High (15 min)</label><input type="number" id="bt-orh" placeholder="e.g. 6898.00" step="0.25"></div>
+        <div class="form-group"><label>OR Low (15 min)</label><input type="number" id="bt-orl" placeholder="e.g. 6882.00" step="0.25"></div>
+
+        <div class="form-group"><label>Retest Quality</label>
+          <select id="bt-retest">
+            <option value="">— Select —</option>
+            <option value="Clean">Clean — touched once, clear rejection</option>
+            <option value="Decent">Decent — slight chop but held</option>
+            <option value="Choppy">Choppy — multiple bars through level</option>
+            <option value="None">No retest — did not come back</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Would you take it live?</label>
+          <select id="bt-would-take">
+            <option value="">— Select —</option>
+            <option value="Yes">Yes — meets all criteria</option>
+            <option value="Probably">Probably — minor hesitation</option>
+            <option value="No">No — would skip live</option>
+          </select>
+        </div>
+
+        <div class="form-group form-full"><label>What made this setup stand out (or not)?</label>
+          <textarea id="bt-notes" placeholder="e.g. OR high aligned perfectly with overnight high, strong breakout candle, clean single-candle retest with bullish close..."></textarea>
+        </div>
+        <div class="form-group form-full"><label>What would you do differently?</label>
+          <textarea id="bt-improve" placeholder="e.g. Entry was a candle early, the actual confirmation came one bar later..."></textarea>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-ghost" onclick="clearBtForm()">Clear</button>
+        <button class="btn btn-dark" onclick="saveBtTrade()">Save Backtest</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- History table -->
+  <div class="table-wrap">
+    <table class="bt-table">
+      <thead><tr>
+        <th>Date</th><th>Session</th><th>Setup</th><th>Dir</th>
+        <th>Entry</th><th>Exit</th><th>Pts</th><th>Result</th>
+        <th>Retest</th><th>Would Take Live?</th><th>Notes</th><th></th>
+      </tr></thead>
+      <tbody id="bt-body">
+        <tr><td colspan="12"><div class="empty-state"><div class="empty-icon">📊</div>No backtests yet — press Log Backtest to start</div></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
 </main>
 
 <!-- TRADE DETAIL MODAL -->
@@ -1150,6 +1306,7 @@ onAuthStateChanged(auth, user => {
 
     // Start listening to this user's trades
     startTradesListener(user.uid);
+    startBtListener(user.uid);
     loadWeeklyFromDB(user.uid);
     updateDash();
   } else {
@@ -1931,6 +2088,214 @@ function calcTP() {
   empty.style.display='none'; levels.style.display='block';
 }
 window.calcTP = calcTP;
+
+// ── BACKTEST ──────────────────────────────────────────────────
+let _btTrades = [];
+
+function btTradesRef(uid) { return collection(db, 'users', uid, 'btTrades'); }
+
+function startBtListener(uid) {
+  const q = query(btTradesRef(uid), orderBy('date','asc'));
+  onSnapshot(q, snap => {
+    _btTrades = snap.docs.map(d => ({ _fid: d.id, ...d.data() }));
+    renderBtTable();
+    updateBtStats();
+  }, err => console.error('BT listener error', err));
+}
+window.startBtListener = startBtListener;
+
+function showBtForm() {
+  document.getElementById('bt-form-card').style.display = 'block';
+  document.getElementById('bt-date').value = new Date().toISOString().split('T')[0];
+  document.getElementById('bt-form-card').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+window.showBtForm = showBtForm;
+
+function hideBtForm() { document.getElementById('bt-form-card').style.display = 'none'; }
+window.hideBtForm = hideBtForm;
+
+function calcBtPnl() {
+  const en  = parseFloat(document.getElementById('bt-entry').value);
+  const ex  = parseFloat(document.getElementById('bt-exit').value);
+  const dir = document.getElementById('bt-dir').value;
+  const box = document.getElementById('bt-calc-box');
+  if (isNaN(en)||isNaN(ex)) { box.innerHTML='Enter entry &amp; exit prices above'; box.className='calc-box'; return; }
+  const pts = dir==='Short' ? en-ex : ex-en;
+  const usd = pts*25;
+  const c   = usd>=0?'calc-pos':'calc-neg';
+  const s   = usd>=0?'+':'';
+  box.innerHTML = `Points: <span class="${c}">${s}${pts.toFixed(2)}</span> &nbsp;·&nbsp; Simulated P&L (5 MES): <span class="${c}">${s}$${usd.toFixed(2)}</span>`;
+}
+window.calcBtPnl = calcBtPnl;
+
+function clearBtForm() {
+  ['bt-date','bt-dir','bt-sess','bt-setup','bt-entry','bt-exit','bt-stop','bt-result',
+   'bt-oh','bt-ol','bt-orh','bt-orl','bt-retest','bt-would-take','bt-notes','bt-improve'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = id==='bt-date' ? new Date().toISOString().split('T')[0] : '';
+  });
+  document.getElementById('bt-calc-box').innerHTML = 'Enter entry &amp; exit prices above';
+}
+window.clearBtForm = clearBtForm;
+
+async function saveBtTrade() {
+  const uid  = auth.currentUser?.uid;
+  if (!uid) { toast('Not signed in', true); return; }
+  const date = document.getElementById('bt-date').value;
+  const result = document.getElementById('bt-result').value;
+  if (!date||!result) { toast('Fill in Date and Result', true); return; }
+  const dir = document.getElementById('bt-dir').value;
+  const en  = parseFloat(document.getElementById('bt-entry').value)||0;
+  const ex  = parseFloat(document.getElementById('bt-exit').value)||0;
+  let pts   = 0;
+  if (dir==='Short'&&en&&ex) pts = en-ex;
+  if (dir==='Long' &&en&&ex) pts = ex-en;
+  const trade = {
+    id: Date.now(), date, dir,
+    sess:       document.getElementById('bt-sess').value,
+    setup:      document.getElementById('bt-setup').value,
+    entry: en, exit: ex,
+    stop:       parseFloat(document.getElementById('bt-stop').value)||0,
+    pts, usd:   pts*25, result,
+    oh:         parseFloat(document.getElementById('bt-oh').value)||0,
+    ol:         parseFloat(document.getElementById('bt-ol').value)||0,
+    orh:        parseFloat(document.getElementById('bt-orh').value)||0,
+    orl:        parseFloat(document.getElementById('bt-orl').value)||0,
+    retest:     document.getElementById('bt-retest').value,
+    wouldTake:  document.getElementById('bt-would-take').value,
+    notes:      document.getElementById('bt-notes').value,
+    improve:    document.getElementById('bt-improve').value,
+  };
+  toast('Saving…');
+  try {
+    await addDoc(btTradesRef(uid), trade);
+    clearBtForm();
+    hideBtForm();
+    toast('Backtest saved ✓');
+  } catch(e) { toast('Save failed', true); console.error(e); }
+}
+window.saveBtTrade = saveBtTrade;
+
+async function deleteBtTrade(fid) {
+  const uid = auth.currentUser?.uid;
+  if (!uid||!confirm('Delete this backtest?')) return;
+  try {
+    await deleteDoc(doc(db, 'users', uid, 'btTrades', fid));
+    toast('Deleted');
+  } catch(e) { toast('Delete failed', true); }
+}
+window.deleteBtTrade = deleteBtTrade;
+
+function renderBtTable() {
+  const tbody = document.getElementById('bt-body');
+  if (!_btTrades.length) {
+    tbody.innerHTML = '<tr><td colspan="12"><div class="empty-state"><div class="empty-icon">📊</div>No backtests yet</div></td></tr>';
+    return;
+  }
+  const tag = r => r==='Win'?'<span class="tag win">Win</span>':r==='Loss'?'<span class="tag loss">Loss</span>':r==='Skip'?'<span class="tag skip">Skip</span>':'<span class="tag be">BE</span>';
+  const wtc  = v => v==='Yes'?`<span style="color:var(--green);font-family:'DM Mono',monospace;font-size:0.72rem;">Yes</span>`:v==='No'?`<span style="color:var(--red);font-family:'DM Mono',monospace;font-size:0.72rem;">No</span>`:v?`<span style="color:var(--amber);font-family:'DM Mono',monospace;font-size:0.72rem;">${v}</span>`:'—';
+  tbody.innerHTML = _btTrades.map(t => {
+    const ds  = t.date ? new Date(t.date+'T12:00').toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'2-digit'}) : '—';
+    const pc  = (t.pts||0)>=0?'pnl-pos':'pnl-neg';
+    const fid = t._fid||'';
+    return `<tr>
+      <td>${ds}</td>
+      <td>${t.sess||'—'}</td>
+      <td>${t.setup||'—'}</td>
+      <td>${t.dir||'—'}</td>
+      <td>${t.entry||'—'}</td>
+      <td>${t.exit||'—'}</td>
+      <td class="${pc}">${t.pts?(t.pts>0?'+':'')+t.pts.toFixed(2):'—'}</td>
+      <td>${tag(t.result)}</td>
+      <td style="font-size:0.72rem;color:var(--muted);">${t.retest||'—'}</td>
+      <td>${wtc(t.wouldTake)}</td>
+      <td class="note-td" title="${(t.notes||'').replace(/"/g,"'")}">${t.notes ? t.notes.slice(0,40)+(t.notes.length>40?'…':'') : '—'}</td>
+      <td><button class="btn btn-red btn-sm del-row" onclick="deleteBtTrade('${fid}')">✕</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function updateBtStats() {
+  const trades  = _btTrades;
+  const actual  = trades.filter(t => t.result!=='Skip');
+  const wins    = actual.filter(t => t.result==='Win');
+  const losses  = actual.filter(t => t.result==='Loss');
+  const totPts  = actual.reduce((s,t) => s+(t.pts||0), 0);
+  const wr      = actual.length ? Math.round(wins.length/actual.length*100) : null;
+
+  // Best win streak
+  let bestStreak=0, cur=0;
+  actual.forEach(t => { if(t.result==='Win'){cur++;bestStreak=Math.max(bestStreak,cur);}else cur=0; });
+
+  document.getElementById('bt-total').textContent      = actual.length||0;
+  document.getElementById('bt-wr').textContent         = wr!==null ? wr+'%' : '—';
+  document.getElementById('bt-pts').textContent        = (totPts>=0?'+':'')+totPts.toFixed(1);
+  document.getElementById('bt-pts').className          = 'bt-kpi-val '+(totPts>0?'pos':totPts<0?'neg':'');
+  document.getElementById('bt-expectancy').textContent = actual.length ? (totPts/actual.length>=0?'+':'')+(totPts/actual.length).toFixed(1) : '—';
+  document.getElementById('bt-streak').textContent     = bestStreak||'—';
+
+  // Grade breakdown
+  const grades = ['A+','A','B','C'];
+  const gbEl   = document.getElementById('bt-grade-breakdown');
+  const gradeActual = actual.filter(t=>t.setup);
+  if (!gradeActual.length) {
+    gbEl.innerHTML = '<div style="text-align:center;padding:1rem;color:var(--subtle);font-size:0.78rem;">Log backtests to see grade breakdown</div>';
+  } else {
+    gbEl.innerHTML = grades.map(g => {
+      const gt  = gradeActual.filter(t=>t.setup===g);
+      if (!gt.length) return `<div class="bt-grade-row"><div class="bt-grade-lbl">${g}</div><div class="bt-grade-bar-wrap"><div class="bt-grade-bar" style="width:0%"></div></div><div class="bt-grade-stat" style="color:var(--subtle)">No data</div></div>`;
+      const gwr = Math.round(gt.filter(t=>t.result==='Win').length/gt.length*100);
+      const cls = gwr>=70?'high':gwr>=50?'mid':'low';
+      return `<div class="bt-grade-row">
+        <div class="bt-grade-lbl">${g}</div>
+        <div class="bt-grade-bar-wrap"><div class="bt-grade-bar ${cls}" style="width:${gwr}%"></div></div>
+        <div class="bt-grade-stat">${gwr}% <span style="color:var(--subtle)">(${gt.length})</span></div>
+      </div>`;
+    }).join('');
+  }
+
+  // Insights
+  const insights = [];
+  if (actual.length >= 5) {
+    // Retest quality correlation
+    const clean   = actual.filter(t=>t.retest==='Clean');
+    const choppy  = actual.filter(t=>t.retest==='Choppy');
+    if (clean.length>=3 && choppy.length>=3) {
+      const cWR = Math.round(clean.filter(t=>t.result==='Win').length/clean.length*100);
+      const chWR= Math.round(choppy.filter(t=>t.result==='Win').length/choppy.length*100);
+      if (cWR > chWR+10) insights.push({ type:'good', text:`Clean retests win ${cWR}% vs choppy retests at ${chWR}%. Patience for the clean retest is clearly worth it.` });
+      else insights.push({ type:'info', text:`Clean retests: ${cWR}% vs choppy: ${chWR}%. Keep tracking — retest quality pattern needs more data.` });
+    }
+    // Would take live accuracy
+    const wouldYes = actual.filter(t=>t.wouldTake==='Yes');
+    const wouldNo  = actual.filter(t=>t.wouldTake==='No');
+    if (wouldYes.length>=3 && wouldNo.length>=3) {
+      const yWR = Math.round(wouldYes.filter(t=>t.result==='Win').length/wouldYes.length*100);
+      const nWR = Math.round(wouldNo.filter(t=>t.result==='Win').length/wouldNo.length*100);
+      if (yWR > nWR+10) insights.push({ type:'good', text:`Your "would take live" judgement is accurate — ${yWR}% win rate vs ${nWR}% on trades you'd skip. Your instincts are calibrated.` });
+      else if (nWR > yWR) insights.push({ type:'warn', text:`Trades you'd skip live are winning more (${nWR}%) than ones you'd take (${yWR}%). You may be filtering out good setups — review what's stopping you.` });
+    }
+    // Expected value
+    if (actual.length >= 10) {
+      const ev = totPts/actual.length;
+      if (ev > 5) insights.push({ type:'good', text:`Positive expectancy of +${ev.toFixed(1)} pts/trade. At 5 MES this is +$${(ev*25).toFixed(0)} per trade on average. Strategy has edge.` });
+      else if (ev > 0) insights.push({ type:'info', text:`Slight positive expectancy (+${ev.toFixed(1)} pts/trade). Strategy shows edge but needs more data to confirm.` });
+      else insights.push({ type:'warn', text:`Negative expectancy (${ev.toFixed(1)} pts/trade). Review your A+ and A grade setups — are you taking too many B/C entries?` });
+    }
+    // Best grade
+    const bestGrade = grades.map(g => {
+      const gt = gradeActual.filter(t=>t.setup===g);
+      return { g, wr: gt.length ? gt.filter(t=>t.result==='Win').length/gt.length : 0, n: gt.length };
+    }).filter(x=>x.n>=3).sort((a,b)=>b.wr-a.wr)[0];
+    if (bestGrade) insights.push({ type:'good', text:`Your best setup grade is ${bestGrade.g} with a ${Math.round(bestGrade.wr*100)}% win rate. Focus on waiting for these setups.` });
+  } else {
+    insights.push({ type:'info', text:'Log at least 10 backtests to see meaningful strategy insights.' });
+  }
+
+  document.getElementById('bt-insights').innerHTML = insights.length
+    ? insights.map(i=>`<div class="bt-insight ${i.type}">${i.text}</div>`).join('')
+    : '<div class="bt-insight info">Keep logging — insights appear at 10+ trades.</div>';
+}
 
 // ── TOAST ────────────────────────────────────────────────────
 function toast(msg, err=false) {
