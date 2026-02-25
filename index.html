@@ -529,6 +529,24 @@ tr:hover .del-row { opacity:1; }
 .bt-insight.good { background:var(--green-bg); color:var(--green); border-color:var(--green); }
 .bt-insight.warn { background:var(--amber-bg); color:var(--amber); border-color:var(--amber); }
 .bt-insight.info { background:var(--blue-bg); color:var(--blue); border-color:var(--blue); }
+
+/* PROFITABILITY SCORE */
+.score-wrap { display:flex; align-items:center; gap:2rem; }
+.score-dial { position:relative; width:130px; height:130px; flex-shrink:0; }
+.score-dial svg { transform:rotate(-90deg); }
+.score-dial-track { fill:none; stroke:var(--bg3); stroke-width:10; }
+.score-dial-fill  { fill:none; stroke-width:10; stroke-linecap:round; transition:stroke-dashoffset 0.8s ease, stroke 0.4s; }
+.score-center { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.score-num { font-family:'DM Mono',monospace; font-size:1.75rem; font-weight:500; line-height:1; }
+.score-max { font-family:'DM Mono',monospace; font-size:0.62rem; color:var(--subtle); }
+.score-label { font-family:'DM Mono',monospace; font-size:0.65rem; text-transform:uppercase; letter-spacing:0.1em; margin-top:0.2rem; }
+.score-breakdown { flex:1; display:flex; flex-direction:column; gap:0.5rem; }
+.score-row { display:flex; align-items:center; gap:0.75rem; }
+.score-row-label { font-size:0.75rem; color:var(--muted); min-width:130px; }
+.score-row-bar-wrap { flex:1; height:5px; background:var(--bg3); border-radius:3px; overflow:hidden; }
+.score-row-bar { height:100%; border-radius:3px; transition:width 0.5s ease; }
+.score-row-pts { font-family:'DM Mono',monospace; font-size:0.7rem; color:var(--muted); min-width:40px; text-align:right; }
+.score-verdict { margin-top:1rem; padding:0.65rem 0.9rem; border-radius:5px; font-size:0.8rem; font-weight:500; text-align:center; }
 </style>
 </head>
 <body>
@@ -1104,6 +1122,14 @@ tr:hover .del-row { opacity:1; }
     <div class="bt-kpi"><div class="bt-kpi-val" id="bt-pts">0</div><div class="bt-kpi-lbl">Total Points</div></div>
     <div class="bt-kpi"><div class="bt-kpi-val" id="bt-expectancy">—</div><div class="bt-kpi-lbl">Avg pts/trade</div></div>
     <div class="bt-kpi"><div class="bt-kpi-val" id="bt-streak">—</div><div class="bt-kpi-lbl">Best streak</div></div>
+  </div>
+
+  <!-- PROFITABILITY SCORE -->
+  <div class="card" style="margin-bottom:1.5rem;">
+    <div class="card-header">Profitability Score</div>
+    <div class="card-body" id="bt-score-body">
+      <div style="text-align:center;padding:1.5rem;color:var(--subtle);font-size:0.78rem;">Log at least 5 backtests to generate your profitability score.</div>
+    </div>
   </div>
 
   <div class="g2" style="margin-bottom:1.5rem;">
@@ -2233,6 +2259,106 @@ function updateBtStats() {
   document.getElementById('bt-pts').className          = 'bt-kpi-val '+(totPts>0?'pos':totPts<0?'neg':'');
   document.getElementById('bt-expectancy').textContent = actual.length ? (totPts/actual.length>=0?'+':'')+(totPts/actual.length).toFixed(1) : '—';
   document.getElementById('bt-streak').textContent     = bestStreak||'—';
+
+  // ── PROFITABILITY SCORE ───────────────────────────────────────
+  const scoreEl = document.getElementById('bt-score-body');
+  if (actual.length < 5) {
+    scoreEl.innerHTML = '<div style="text-align:center;padding:1.5rem;color:var(--subtle);font-size:0.78rem;">Log at least 5 backtests to generate your profitability score.</div>';
+  } else {
+    const avgWin     = wins.length   ? wins.reduce((s,t)=>s+(t.pts||0),0)/wins.length     : 0;
+    const avgLoss    = losses.length ? Math.abs(losses.reduce((s,t)=>s+(t.pts||0),0)/losses.length) : 0;
+    const rr         = avgLoss > 0 ? avgWin / avgLoss : avgWin > 0 ? 3 : 0;
+    const wrRaw      = wins.length / actual.length; // 0–1
+    const expectancy = totPts / actual.length;       // pts per trade
+
+    // ── Scoring components (each out of stated max) ──────────────
+    // 1. Win Rate (25pts) — 40% = 0, 50% = 10, 60% = 18, 70% = 25
+    const wrScore = Math.min(25, Math.max(0, (wrRaw - 0.4) / 0.35 * 25));
+
+    // 2. Risk:Reward (20pts) — 1:1=0, 1:1.5=8, 1:2=16, 1:2.5+=20
+    const rrScore = Math.min(20, Math.max(0, (rr - 1) / 1.5 * 20));
+
+    // 3. Expectancy (20pts) — negative=0, 0=5, +5pts=12, +10pts+=20
+    const expScore = Math.min(20, Math.max(0, expectancy <= 0 ? 0 : 5 + (expectancy / 10) * 15));
+
+    // 4. Consistency — profit factor (15pts) — wins_pts / loss_pts
+    const totalWinPts  = wins.reduce((s,t)=>s+(t.pts||0),0);
+    const totalLossPts = Math.abs(losses.reduce((s,t)=>s+(t.pts||0),0)) || 0.001;
+    const pf           = totalWinPts / totalLossPts;
+    const pfScore      = Math.min(15, Math.max(0, (pf - 1) / 1.5 * 15));
+
+    // 5. Sample size confidence (10pts) — 5 trades=2, 20=7, 50+=10
+    const sampleScore  = Math.min(10, Math.max(2, actual.length >= 50 ? 10 : actual.length >= 20 ? 7 : 2 + (actual.length-5)/15*5));
+
+    // 6. Max drawdown resilience (10pts) — longest loss streak
+    let maxLossStreak=0, lsCur=0;
+    actual.forEach(t=>{ if(t.result==='Loss'){lsCur++;maxLossStreak=Math.max(maxLossStreak,lsCur);}else lsCur=0; });
+    const ddScore = Math.min(10, Math.max(0, (5 - maxLossStreak) / 4 * 10));
+
+    const total  = Math.round(wrScore + rrScore + expScore + pfScore + sampleScore + ddScore);
+    const maxPts = 100;
+
+    // Colour and verdict
+    const colour  = total >= 75 ? 'var(--green)' : total >= 50 ? 'var(--amber)' : 'var(--red)';
+    const verdict = total >= 80 ? { text:'Strong Edge — Strategy is profitable', cls:'good' }
+                  : total >= 65 ? { text:'Developing Edge — Improving but needs refinement', cls:'info' }
+                  : total >= 50 ? { text:'Marginal Edge — More data and discipline needed', cls:'warn' }
+                  :               { text:'No Clear Edge — Review setup criteria', cls:'warn' };
+
+    // Dial circumference for r=54: 2π×54 ≈ 339.3
+    const circ  = 339.3;
+    const dash  = circ * (total / maxPts);
+
+    const components = [
+      { label:'Win Rate',          score: wrScore,     max:25 },
+      { label:'Risk:Reward Ratio', score: rrScore,     max:20 },
+      { label:'Expectancy',        score: expScore,    max:20 },
+      { label:'Profit Factor',     score: pfScore,     max:15 },
+      { label:'Max Loss Streak',   score: ddScore,     max:10 },
+      { label:'Sample Size',       score: sampleScore, max:10 },
+    ];
+
+    // Extra detail line under dial
+    const detailLines = [
+      `Avg win <strong>${avgWin.toFixed(1)} pts</strong> · Avg loss <strong>${avgLoss.toFixed(1)} pts</strong>`,
+      `R:R <strong>${rr.toFixed(2)}</strong> · Profit factor <strong>${pf.toFixed(2)}</strong>`,
+      `Expectancy <strong>${expectancy>=0?'+':''}${expectancy.toFixed(1)} pts/trade</strong>`,
+    ];
+
+    scoreEl.innerHTML = `
+      <div class="score-wrap">
+        <div class="score-dial">
+          <svg width="130" height="130" viewBox="0 0 130 130">
+            <circle class="score-dial-track" cx="65" cy="65" r="54"/>
+            <circle class="score-dial-fill" cx="65" cy="65" r="54"
+              stroke="${colour}"
+              stroke-dasharray="${circ}"
+              stroke-dashoffset="${circ - dash}"/>
+          </svg>
+          <div class="score-center">
+            <div class="score-num" style="color:${colour}">${total}</div>
+            <div class="score-max" style="color:var(--subtle)">/ 100</div>
+            <div class="score-label" style="color:${colour}">${total>=80?'Strong':total>=65?'Good':total>=50?'Fair':'Weak'}</div>
+          </div>
+        </div>
+        <div class="score-breakdown">
+          ${components.map(c => {
+            const pct  = Math.round(c.score/c.max*100);
+            const bclr = pct>=75?'var(--green)':pct>=45?'var(--amber)':'var(--red)';
+            return `<div class="score-row">
+              <div class="score-row-label">${c.label}</div>
+              <div class="score-row-bar-wrap"><div class="score-row-bar" style="width:${pct}%;background:${bclr};"></div></div>
+              <div class="score-row-pts">${Math.round(c.score)}/${c.max}</div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+      <div style="margin-top:1rem;display:flex;gap:1.5rem;flex-wrap:wrap;font-size:0.75rem;color:var(--muted);padding-top:0.75rem;border-top:1px solid var(--bg3);">
+        ${detailLines.map(l=>`<span>${l}</span>`).join('')}
+      </div>
+      <div class="score-verdict psych-insight ${verdict.cls}" style="margin-top:0.75rem;margin-bottom:0;">${verdict.text}</div>
+    `;
+  }
 
   // Grade breakdown
   const grades = ['A+','A','B','C'];
