@@ -281,6 +281,7 @@ main { padding: 2rem; max-width: 1300px; margin: 0 auto; }
 
 .g2 { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; margin-top:1.5rem; }
 .g4 { display:grid; grid-template-columns:repeat(4,1fr); gap:0.75rem; }
+.g5 { display:grid; grid-template-columns:repeat(5,1fr); gap:0.75rem; }
 
 .stat-mini { text-align:center; padding:0.75rem; }
 .stat-mini-num { font-family:'DM Mono',monospace; font-size:1.3rem; font-weight:500; color:var(--ink); }
@@ -625,9 +626,10 @@ tr:hover .del-row { opacity:1; }
       <div class="prog-labels"><span id="dd-lbl">$1,000 remaining</span><span>$1,000 max</span></div>
 
       <div class="divider"></div>
-      <div class="g4">
+      <div class="g5">
         <div class="stat-mini"><div class="stat-mini-num" id="s-wins">0</div><div class="stat-mini-lbl">Wins</div></div>
         <div class="stat-mini"><div class="stat-mini-num" id="s-losses">0</div><div class="stat-mini-lbl">Losses</div></div>
+        <div class="stat-mini"><div class="stat-mini-num" id="s-be">0</div><div class="stat-mini-lbl">Breakevens</div></div>
         <div class="stat-mini"><div class="stat-mini-num" id="s-skips">0</div><div class="stat-mini-lbl">Skips</div></div>
         <div class="stat-mini"><div class="stat-mini-num" id="s-needed">$1,500</div><div class="stat-mini-lbl">Still Needed</div></div>
       </div>
@@ -1594,6 +1596,7 @@ function updateDash() {
   const wins    = trades.filter(t => t.result==='Win').length;
   const losses  = trades.filter(t => t.result==='Loss').length;
   const skips   = trades.filter(t => t.result==='Skip').length;
+  const bes     = trades.filter(t => t.result==='Breakeven').length;
   const actual  = wins + losses;
   const total   = trades.reduce((s,t) => s+(t.usd||0), 0);
   let run = 0, worst = 0;
@@ -1625,6 +1628,7 @@ function updateDash() {
 
   document.getElementById('s-wins').textContent   = wins;
   document.getElementById('s-losses').textContent = losses;
+  document.getElementById('s-be').textContent     = bes;
   document.getElementById('s-skips').textContent  = skips;
   document.getElementById('s-needed').textContent = '$' + Math.max(0, 1500-total).toFixed(0);
 
