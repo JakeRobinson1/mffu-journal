@@ -2216,10 +2216,159 @@ async function deleteBtTrade(fid) {
 }
 window.deleteBtTrade = deleteBtTrade;
 
+function viewBtTrade(fid) {
+  const t = _btTrades.find(x => x._fid === fid);
+  if (!t) return;
+  const ds = t.date ? new Date(t.date+'T12:00').toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'}) : '—';
+  const tag = r => r==='Win'?'<span class="tag win">Win</span>':r==='Loss'?'<span class="tag loss">Loss</span>':r==='Skip'?'<span class="tag skip">Skip</span>':'<span class="tag be">BE</span>';
+  const ptsClr = (t.pts||0)>=0?'var(--green)':'var(--red)';
+  const row = (l,v) => v ? `<div class="modal-row"><span class="modal-label">${l}</span><span class="modal-val">${v}</span></div>` : '';
+
+  document.getElementById('modal-title').textContent = 'Backtest Detail';
+  document.getElementById('modal-body').innerHTML = `
+    <div class="modal-section">
+      <div class="modal-section-title">Trade Details</div>
+      ${row('Date', ds)}
+      ${row('Direction', t.dir)}
+      ${row('Session Quality', t.sess)}
+      ${row('Setup Grade', t.setup)}
+      ${row('Entry', t.entry)}
+      ${row('Exit', t.exit)}
+      ${row('Stop Loss', t.stop)}
+      ${row('OR High', t.orh)} ${row('OR Low', t.orl)}
+      ${row('Overnight High', t.oh)} ${row('Overnight Low', t.ol)}
+      <div class="modal-row"><span class="modal-label">Points</span><span class="modal-val" style="color:${ptsClr};font-weight:500;">${t.pts?(t.pts>0?'+':'')+t.pts.toFixed(2)+' pts':'—'}</span></div>
+      <div class="modal-row"><span class="modal-label">Result</span><span class="modal-val">${tag(t.result)}</span></div>
+    </div>
+    ${(t.retest||t.wouldTake) ? `
+    <div class="modal-section">
+      <div class="modal-section-title">Setup Quality</div>
+      ${row('Retest Quality', t.retest)}
+      ${row('Would Take Live', t.wouldTake)}
+    </div>` : ''}
+    ${(t.notes||t.improve) ? `
+    <div class="modal-section">
+      <div class="modal-section-title">Notes</div>
+      ${t.notes ? `<div class="modal-text" style="margin-bottom:0.75rem;"><strong>What stood out:</strong><br>${t.notes}</div>` : ''}
+      ${t.improve ? `<div class="modal-text"><strong>Would do differently:</strong><br>${t.improve}</div>` : ''}
+    </div>` : ''}
+  `;
+  document.getElementById('modal-actions').innerHTML = `
+    <button class="btn btn-ghost" onclick="closeModalDirect()">Close</button>
+    <button class="btn btn-dark" onclick="closeModalDirect();editBtTrade('${fid}')">Edit Trade</button>
+  `;
+  document.getElementById('modal-overlay').classList.add('open');
+}
+window.viewBtTrade = viewBtTrade;
+
+function editBtTrade(fid) {
+  const t = _btTrades.find(x => x._fid === fid);
+  if (!t) return;
+  document.getElementById('modal-title').textContent = 'Edit Backtest';
+  document.getElementById('modal-body').innerHTML = `
+    <div class="modal-form-grid">
+      <div class="form-group"><label>Date</label><input type="date" id="ebt-date" value="${t.date||''}"></div>
+      <div class="form-group"><label>Direction</label>
+        <select id="ebt-dir">
+          <option value="">—</option>
+          <option ${t.dir==='Long'?'selected':''}>Long</option>
+          <option ${t.dir==='Short'?'selected':''}>Short</option>
+          <option ${t.dir==='Skip'?'selected':''}>Skip</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Session Quality</label>
+        <select id="ebt-sess">
+          <option value="">—</option>
+          ${['A+','A','B','C','F'].map(g=>`<option ${t.sess===g?'selected':''}>${g}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group"><label>Setup Grade</label>
+        <select id="ebt-setup">
+          <option value="">—</option>
+          ${['A+','A','B','C','No Setup'].map(g=>`<option ${t.setup===g?'selected':''}>${g}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group"><label>Entry</label><input type="number" id="ebt-entry" value="${t.entry||''}" step="0.25"></div>
+      <div class="form-group"><label>Exit</label><input type="number" id="ebt-exit" value="${t.exit||''}" step="0.25"></div>
+      <div class="form-group"><label>Stop Loss</label><input type="number" id="ebt-stop" value="${t.stop||''}" step="0.25"></div>
+      <div class="form-group"><label>Result</label>
+        <select id="ebt-result">
+          <option value="">—</option>
+          ${['Win','Loss','Breakeven','Skip'].map(r=>`<option ${t.result===r?'selected':''}>${r}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group"><label>OR High</label><input type="number" id="ebt-orh" value="${t.orh||''}" step="0.25"></div>
+      <div class="form-group"><label>OR Low</label><input type="number" id="ebt-orl" value="${t.orl||''}" step="0.25"></div>
+      <div class="form-group"><label>Overnight High</label><input type="number" id="ebt-oh" value="${t.oh||''}" step="0.25"></div>
+      <div class="form-group"><label>Overnight Low</label><input type="number" id="ebt-ol" value="${t.ol||''}" step="0.25"></div>
+      <div class="form-group"><label>Retest Quality</label>
+        <select id="ebt-retest">
+          <option value="">—</option>
+          ${['Clean','Decent','Choppy','None'].map(r=>`<option ${t.retest===r?'selected':''}>${r}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group"><label>Would Take Live</label>
+        <select id="ebt-would">
+          <option value="">—</option>
+          ${['Yes','Probably','No'].map(r=>`<option ${t.wouldTake===r?'selected':''}>${r}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group modal-form-full"><label>What stood out</label><textarea id="ebt-notes">${t.notes||''}</textarea></div>
+      <div class="form-group modal-form-full"><label>Would do differently</label><textarea id="ebt-improve">${t.improve||''}</textarea></div>
+    </div>
+  `;
+  document.getElementById('modal-actions').innerHTML = `
+    <button class="btn btn-ghost" onclick="closeModalDirect()">Cancel</button>
+    <button class="btn btn-red" onclick="deleteBtTrade('${fid}');closeModalDirect()">Delete</button>
+    <button class="btn btn-dark" onclick="saveEditedBtTrade('${fid}')">Save Changes</button>
+  `;
+  document.getElementById('modal-overlay').classList.add('open');
+}
+window.editBtTrade = editBtTrade;
+
+async function saveEditedBtTrade(fid) {
+  const uid = auth.currentUser?.uid;
+  if (!uid) { toast('Not signed in', true); return; }
+  const t    = _btTrades.find(x => x._fid === fid);
+  if (!t) return;
+  const dir  = document.getElementById('ebt-dir').value;
+  const en   = parseFloat(document.getElementById('ebt-entry').value)||0;
+  const ex   = parseFloat(document.getElementById('ebt-exit').value)||0;
+  let pts    = 0;
+  if (dir==='Short'&&en&&ex) pts = en-ex;
+  if (dir==='Long' &&en&&ex) pts = ex-en;
+  const updated = {
+    ...t,
+    date:      document.getElementById('ebt-date').value,
+    dir,
+    sess:      document.getElementById('ebt-sess').value,
+    setup:     document.getElementById('ebt-setup').value,
+    entry: en, exit: ex,
+    stop:      parseFloat(document.getElementById('ebt-stop').value)||0,
+    pts,       usd: pts*25,
+    result:    document.getElementById('ebt-result').value,
+    orh:       parseFloat(document.getElementById('ebt-orh').value)||0,
+    orl:       parseFloat(document.getElementById('ebt-orl').value)||0,
+    oh:        parseFloat(document.getElementById('ebt-oh').value)||0,
+    ol:        parseFloat(document.getElementById('ebt-ol').value)||0,
+    retest:    document.getElementById('ebt-retest').value,
+    wouldTake: document.getElementById('ebt-would').value,
+    notes:     document.getElementById('ebt-notes').value,
+    improve:   document.getElementById('ebt-improve').value,
+  };
+  delete updated._fid;
+  try {
+    await setDoc(doc(db, 'users', uid, 'btTrades', fid), updated);
+    closeModalDirect();
+    toast('Backtest updated ✓');
+  } catch(e) { toast('Update failed', true); console.error(e); }
+}
+window.saveEditedBtTrade = saveEditedBtTrade;
+
 function renderBtTable() {
   const tbody = document.getElementById('bt-body');
   if (!_btTrades.length) {
-    tbody.innerHTML = '<tr><td colspan="12"><div class="empty-state"><div class="empty-icon">📊</div>No backtests yet</div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="13"><div class="empty-state"><div class="empty-icon">📊</div>No backtests yet</div></td></tr>';
     return;
   }
   const tag = r => r==='Win'?'<span class="tag win">Win</span>':r==='Loss'?'<span class="tag loss">Loss</span>':r==='Skip'?'<span class="tag skip">Skip</span>':'<span class="tag be">BE</span>';
@@ -2240,7 +2389,11 @@ function renderBtTable() {
       <td style="font-size:0.72rem;color:var(--muted);">${t.retest||'—'}</td>
       <td>${wtc(t.wouldTake)}</td>
       <td class="note-td" title="${(t.notes||'').replace(/"/g,"'")}">${t.notes ? t.notes.slice(0,40)+(t.notes.length>40?'…':'') : '—'}</td>
-      <td><button class="btn btn-red btn-sm del-row" onclick="deleteBtTrade('${fid}')">✕</button></td>
+      <td style="display:flex;gap:0.35rem;">
+        <button class="btn btn-ghost btn-sm" onclick="viewBtTrade('${fid}')">View</button>
+        <button class="btn btn-ghost btn-sm" onclick="editBtTrade('${fid}')">Edit</button>
+        <button class="btn btn-red btn-sm del-row" onclick="deleteBtTrade('${fid}')">✕</button>
+      </td>
     </tr>`;
   }).join('');
 }
