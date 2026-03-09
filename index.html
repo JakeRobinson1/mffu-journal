@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MFFU — Trading Journal</title>
+<title>Trading Journal</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:wght@300;400;500;600&display=swap');
 
@@ -555,7 +555,7 @@ tr:hover .del-row { opacity:1; }
 <!-- LOGIN SCREEN -->
 <div id="login-screen" class="show">
   <div class="login-card">
-    <div class="login-logo">MFFU <em>25k Flex</em></div>
+    <div class="login-logo">MES <em>Futures Journal</em></div>
     <div class="login-sub">Trading Journal — Private Access</div>
     <div style="font-size:2rem;margin-bottom:1rem;">📈</div>
     <p style="font-size:0.82rem;color:var(--muted);line-height:1.6;margin-bottom:1.5rem;">Sign in with your Google account to access your journal. Your data is private and synced across all your devices.</p>
@@ -569,7 +569,7 @@ tr:hover .del-row { opacity:1; }
 </div>
 
 <header>
-  <div class="logo">MFFU <em>25k Flex</em> — Journal</div>
+  <div class="logo">MES <em>Futures</em> — Journal</div>
   <div class="header-right">
     <div id="session-indicator">
       <div id="session-dot"></div>
@@ -604,34 +604,19 @@ tr:hover .del-row { opacity:1; }
   <div class="kpi-row">
     <div class="kpi"><div class="kpi-label">Total P&amp;L</div><div class="kpi-val" id="kpi-pnl">$0.00</div></div>
     <div class="kpi"><div class="kpi-label">Win Rate</div><div class="kpi-val" id="kpi-wr">—</div></div>
-    <div class="kpi"><div class="kpi-label">Drawdown Used</div><div class="kpi-val" id="kpi-dd">$0.00</div></div>
-    <div class="kpi"><div class="kpi-label">Days Traded</div><div class="kpi-val" id="kpi-days">0</div></div>
+    <div class="kpi"><div class="kpi-label">Profit Factor</div><div class="kpi-val" id="kpi-dd">—</div></div>
+    <div class="kpi"><div class="kpi-label">Trades Taken</div><div class="kpi-val" id="kpi-days">0</div></div>
   </div>
 
   <div class="card" style="margin-bottom:1.5rem;">
-    <div class="card-header">Evaluation Progress <span id="eval-status" class="pill progress">In Progress</span></div>
+    <div class="card-header">Performance Summary</div>
     <div class="card-body">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.3rem;">
-        <span style="font-size:0.78rem;color:var(--muted);">Profit Target</span>
-        <span id="pnl-pct" style="font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--muted);">0%</span>
-      </div>
-      <div class="prog-wrap"><div class="prog-fill" id="profit-bar" style="width:0%"></div></div>
-      <div class="prog-labels"><span id="pnl-lbl">$0 earned</span><span>$1,500 target</span></div>
-
-      <div style="display:flex;justify-content:space-between;align-items:center;margin:1rem 0 0.3rem;">
-        <span style="font-size:0.78rem;color:var(--muted);">Drawdown Buffer Remaining</span>
-        <span id="cons-badge" class="pill pass" style="font-size:0.62rem;">Consistency OK</span>
-      </div>
-      <div class="prog-wrap"><div class="prog-fill ok" id="dd-bar" style="width:0%"></div></div>
-      <div class="prog-labels"><span id="dd-lbl">$1,000 remaining</span><span>$1,000 max</span></div>
-
-      <div class="divider"></div>
       <div class="g5">
         <div class="stat-mini"><div class="stat-mini-num" id="s-wins">0</div><div class="stat-mini-lbl">Wins</div></div>
         <div class="stat-mini"><div class="stat-mini-num" id="s-losses">0</div><div class="stat-mini-lbl">Losses</div></div>
         <div class="stat-mini"><div class="stat-mini-num" id="s-be">0</div><div class="stat-mini-lbl">Breakevens</div></div>
         <div class="stat-mini"><div class="stat-mini-num" id="s-skips">0</div><div class="stat-mini-lbl">Skips</div></div>
-        <div class="stat-mini"><div class="stat-mini-num" id="s-needed">$1,500</div><div class="stat-mini-lbl">Still Needed</div></div>
+        <div class="stat-mini"><div class="stat-mini-num" id="s-expectancy">—</div><div class="stat-mini-lbl">Avg P&L</div></div>
       </div>
     </div>
   </div>
@@ -919,15 +904,7 @@ tr:hover .del-row { opacity:1; }
       <div class="ref-row"><div class="ref-key">Stop 10 pts</div><div class="ref-val">$250 risk per trade</div></div>
       <div class="ref-row"><div class="ref-key">TP1 20 pts</div><div class="ref-val">$500 reward — 1:2 R:R</div></div>
       <div class="ref-row"><div class="ref-key">TP2 30 pts</div><div class="ref-val">$750 reward — 1:3 R:R</div></div>
-      <div class="ref-row"><div class="ref-key">Max loss</div><div class="ref-val">4 losses = $1,000 — eval blown</div></div>
-    </div>
-    <div class="card">
-      <div class="card-header">MFFU 25K Flex Rules</div>
-      <div class="ref-row"><div class="ref-key">Target</div><div class="ref-val">$1,500 profit (6%)</div></div>
-      <div class="ref-row"><div class="ref-key">Drawdown</div><div class="ref-val">$1,000 EOD max</div></div>
-      <div class="ref-row"><div class="ref-key">Daily limit</div><div class="ref-val">None ✓</div></div>
-      <div class="ref-row"><div class="ref-key">Consistency</div><div class="ref-val">No day &gt;50% of total profit</div></div>
-      <div class="ref-row"><div class="ref-key">Min days</div><div class="ref-val">2 trading days minimum</div></div>
+      <div class="ref-row"><div class="ref-key">Max daily loss</div><div class="ref-val">1 loss max per day — close platform</div></div>
     </div>
     <div class="card">
       <div class="card-header">Daily Rules — Never Break</div>
@@ -935,7 +912,6 @@ tr:hover .del-row { opacity:1; }
       <div class="ref-row"><div class="ref-key">Hard stop</div><div class="ref-val">Set stop before entry. Never widen it</div></div>
       <div class="ref-row"><div class="ref-key">News days</div><div class="ref-val">No trading on NFP, CPI, FOMC — log as Skip</div></div>
       <div class="ref-row"><div class="ref-key">Session</div><div class="ref-val">14:45–15:30 UK only. 15 min wait at open</div></div>
-      <div class="ref-row"><div class="ref-key">Consistency</div><div class="ref-val">No day can be &gt;50% of eval total profit</div></div>
     </div>
   </div>
 </div>
@@ -1069,7 +1045,7 @@ tr:hover .del-row { opacity:1; }
           <!-- Breakeven reminder -->
           <div style="margin-top:1rem;padding:0.75rem 1rem;background:var(--bg3);border-radius:5px;font-size:0.78rem;color:var(--muted);line-height:1.6;">
             <strong style="color:var(--text);font-size:0.75rem;font-family:'DM Mono',monospace;">Strategy reminder</strong><br>
-            Move stop to breakeven once price reaches <strong style="color:var(--ink);">1:1</strong>. Close all contracts at <strong style="color:var(--ink);">1:2 (TP1)</strong> during evaluation. Only use TP2/TP3 once you are sim-funded and consistent.
+            Move stop to breakeven once price reaches <strong style="color:var(--ink);">1:1</strong>. Close all contracts at <strong style="color:var(--ink);">1:2 (TP1)</strong>. Use TP2/TP3 only once consistently profitable.
           </div>
 
           <!-- Breakeven price -->
@@ -1608,42 +1584,29 @@ function updateDash() {
   pe.textContent = (total>=0?'+':'') + '$' + total.toFixed(2);
   pe.className   = 'kpi-val ' + (total>0?'pos':total<0?'neg':'');
   document.getElementById('kpi-wr').textContent = actual > 0 ? Math.round(wins/actual*100)+'%' : '—';
+
+  // Profit Factor = gross wins / gross losses
+  const grossWins   = trades.filter(t=>t.result==='Win').reduce((s,t)=>s+(t.usd||0),0);
+  const grossLosses = Math.abs(trades.filter(t=>t.result==='Loss').reduce((s,t)=>s+(t.usd||0),0));
   const de = document.getElementById('kpi-dd');
-  de.textContent = '$' + ddUsed.toFixed(2);
-  de.className   = 'kpi-val ' + (ddUsed>700?'neg':ddUsed>400?'warn':'');
-  document.getElementById('kpi-days').textContent = trades.length;
-
-  const pp = Math.min(100, Math.max(0, total/1500*100));
-  const pb = document.getElementById('profit-bar');
-  pb.style.width = pp + '%';
-  pb.className   = 'prog-fill ' + (pp>=100?'ok':'');
-  document.getElementById('pnl-pct').textContent = Math.round(pp) + '%';
-  document.getElementById('pnl-lbl').textContent = '$' + Math.max(0,total).toFixed(2) + ' earned';
-
-  const dp = Math.min(100, ddUsed/1000*100);
-  const db = document.getElementById('dd-bar');
-  db.style.width = dp + '%';
-  db.className   = 'prog-fill ' + (dp>70?'danger':dp>40?'warn':'ok');
-  document.getElementById('dd-lbl').textContent = '$' + ddLeft.toFixed(2) + ' remaining';
+  if (grossLosses === 0) {
+    de.textContent = grossWins > 0 ? '∞' : '—';
+    de.className = 'kpi-val pos';
+  } else {
+    const pf = grossWins / grossLosses;
+    de.textContent = pf.toFixed(2);
+    de.className = 'kpi-val ' + (pf >= 1.5 ? 'pos' : pf < 1 ? 'neg' : '');
+  }
+  document.getElementById('kpi-days').textContent = actual;
 
   document.getElementById('s-wins').textContent   = wins;
   document.getElementById('s-losses').textContent = losses;
   document.getElementById('s-be').textContent     = bes;
   document.getElementById('s-skips').textContent  = skips;
-  document.getElementById('s-needed').textContent = '$' + Math.max(0, 1500-total).toFixed(0);
-
-  const badge = document.getElementById('eval-status');
-  if (total >= 1500)   { badge.className='pill pass';     badge.textContent='Target Hit — Submit!'; }
-  else if (ddLeft <= 0){ badge.className='pill blown';    badge.textContent='Account Blown'; }
-  else                 { badge.className='pill progress'; badge.textContent='In Progress'; }
-
-  const dayMap = {};
-  trades.forEach(t => { dayMap[t.date] = (dayMap[t.date]||0) + (t.usd||0); });
-  const maxDay = Math.max(0, ...Object.values(dayMap));
-  const ok     = total <= 0 || maxDay/total <= 0.5;
-  const cb     = document.getElementById('cons-badge');
-  cb.textContent = ok ? 'Consistency OK' : '⚠ Consistency Warning';
-  cb.className   = ok ? 'pill pass' : 'pill warn';
+  const avgPnl = actual > 0 ? total / actual : 0;
+  const ae = document.getElementById('s-expectancy');
+  ae.textContent = actual > 0 ? (avgPnl>=0?'+':'') + '$' + avgPnl.toFixed(0) : '—';
+  ae.style.color = avgPnl > 0 ? 'var(--green)' : avgPnl < 0 ? 'var(--red)' : '';
 
   updateStreak(trades);
   updateGradeBreakdown(trades);
@@ -2099,7 +2062,7 @@ function calcTP() {
   document.getElementById('tc-be-price').textContent = (dir==='Long' ? entry+slPts : entry-slPts).toFixed(2);
   const rrs = [
     { rr:'1:1', mult:1, note:'Move stop to BE here' },
-    { rr:'1:2', mult:2, note:'← Close ALL here during eval ✓' },
+    { rr:'1:2', mult:2, note:'← Primary target ✓' },
     { rr:'1:3', mult:3, note:'Once sim-funded' },
     { rr:'1:4', mult:4, note:'' },
     { rr:'1:5', mult:5, note:'' },
