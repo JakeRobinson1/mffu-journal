@@ -609,7 +609,7 @@ tr:hover .del-row { opacity:1; }
   </div>
 
   <div class="card" style="margin-bottom:1.5rem;">
-    <div class="card-header">Performance Summary</div>
+    <div class="card-header">Performance Summary <span style="font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--muted);font-weight:400;">P&L shown after fees ($9.10/trade)</span></div>
     <div class="card-body">
       <div class="g5">
         <div class="stat-mini"><div class="stat-mini-num" id="s-wins">0</div><div class="stat-mini-lbl">Wins</div></div>
@@ -617,6 +617,10 @@ tr:hover .del-row { opacity:1; }
         <div class="stat-mini"><div class="stat-mini-num" id="s-be">0</div><div class="stat-mini-lbl">Breakevens</div></div>
         <div class="stat-mini"><div class="stat-mini-num" id="s-skips">0</div><div class="stat-mini-lbl">Skips</div></div>
         <div class="stat-mini"><div class="stat-mini-num" id="s-expectancy">—</div><div class="stat-mini-lbl">Avg P&L</div></div>
+      </div>
+      <div style="margin-top:0.75rem;padding:0.5rem 0.75rem;background:var(--bg3);border-radius:4px;font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--muted);display:flex;justify-content:space-between;">
+        <span>Total fees paid</span>
+        <span id="s-fees" style="color:var(--red);">$0.00</span>
       </div>
     </div>
   </div>
@@ -1573,8 +1577,13 @@ function updateDash() {
   const losses  = trades.filter(t => t.result==='Loss').length;
   const skips   = trades.filter(t => t.result==='Skip').length;
   const bes     = trades.filter(t => t.result==='Breakeven').length;
-  const actual  = wins + losses;
-  const total   = trades.reduce((s,t) => s+(t.usd||0), 0);
+  const actual  = wins + losses + bes;
+
+  // Fees: $9.10 per trade (sim slippage/spread)
+  const FEE_PER_TRADE = 9.10;
+  const totalFees = actual * FEE_PER_TRADE;
+  const grossTotal = trades.reduce((s,t) => s+(t.usd||0), 0);
+  const total = grossTotal - totalFees;
   let run = 0, worst = 0;
   trades.forEach(t => { run += (t.usd||0); if (run < worst) worst = run; });
   const ddUsed  = Math.abs(Math.min(0, worst));
@@ -1583,7 +1592,7 @@ function updateDash() {
   const pe = document.getElementById('kpi-pnl');
   pe.textContent = (total>=0?'+':'') + '$' + total.toFixed(2);
   pe.className   = 'kpi-val ' + (total>0?'pos':total<0?'neg':'');
-  document.getElementById('kpi-wr').textContent = actual > 0 ? Math.round(wins/actual*100)+'%' : '—';
+  document.getElementById('kpi-wr').textContent = (wins+losses) > 0 ? Math.round(wins/(wins+losses)*100)+'%' : '—';
 
   // Profit Factor = gross wins / gross losses
   const grossWins   = trades.filter(t=>t.result==='Win').reduce((s,t)=>s+(t.usd||0),0);
@@ -1607,6 +1616,9 @@ function updateDash() {
   const ae = document.getElementById('s-expectancy');
   ae.textContent = actual > 0 ? (avgPnl>=0?'+':'') + '$' + avgPnl.toFixed(0) : '—';
   ae.style.color = avgPnl > 0 ? 'var(--green)' : avgPnl < 0 ? 'var(--red)' : '';
+  // Fees display
+  const fe = document.getElementById('s-fees');
+  if (fe) { fe.textContent = '-$' + totalFees.toFixed(2); }
 
   updateStreak(trades);
   updateGradeBreakdown(trades);
