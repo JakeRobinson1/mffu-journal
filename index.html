@@ -603,7 +603,11 @@ tr:hover .del-row { opacity:1; }
 <div class="page active" id="page-dashboard">
   <div class="kpi-row">
     <div class="kpi"><div class="kpi-label">Total P&amp;L</div><div class="kpi-val" id="kpi-pnl">$0.00</div></div>
-    <div class="kpi"><div class="kpi-label">Win Rate</div><div class="kpi-val" id="kpi-wr">—</div></div>
+    <div class="kpi">
+      <div class="kpi-label">Win Rate</div>
+      <div class="kpi-val" id="kpi-wr">—</div>
+      <div style="font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--muted);margin-top:0.2rem;" id="kpi-wr-sub">— entry success</div>
+    </div>
     <div class="kpi"><div class="kpi-label">Profit Factor</div><div class="kpi-val" id="kpi-dd">—</div></div>
     <div class="kpi"><div class="kpi-label">Trades Taken</div><div class="kpi-val" id="kpi-days">0</div></div>
   </div>
@@ -1592,7 +1596,13 @@ function updateDash() {
   const pe = document.getElementById('kpi-pnl');
   pe.textContent = (total>=0?'+':'') + '$' + total.toFixed(2);
   pe.className   = 'kpi-val ' + (total>0?'pos':total<0?'neg':'');
-  document.getElementById('kpi-wr').textContent = (wins+losses) > 0 ? Math.round(wins/(wins+losses)*100)+'%' : '—';
+  // Decided win rate: wins / (wins + losses) — excludes BEs
+  const decidedWR = (wins+losses) > 0 ? Math.round(wins/(wins+losses)*100)+'%' : '—';
+  // Entry success rate: (wins + BEs) / total entered — counts BEs as positive
+  const entrySuccess = actual > 0 ? Math.round((wins+bes)/actual*100)+'%' : '—';
+  document.getElementById('kpi-wr').textContent = decidedWR;
+  const wrSub = document.getElementById('kpi-wr-sub');
+  if (wrSub) wrSub.textContent = entrySuccess + ' entry success';
 
   // Profit Factor = gross wins / gross losses
   const grossWins   = trades.filter(t=>t.result==='Win').reduce((s,t)=>s+(t.usd||0),0);
