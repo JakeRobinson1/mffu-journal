@@ -1104,7 +1104,11 @@ tr:hover .del-row { opacity:1; }
   <!-- Stats bar -->
   <div class="bt-kpi-row">
     <div class="bt-kpi"><div class="bt-kpi-val" id="bt-total">0</div><div class="bt-kpi-lbl">Total Trades</div></div>
-    <div class="bt-kpi"><div class="bt-kpi-val" id="bt-wr">—</div><div class="bt-kpi-lbl">Win Rate</div></div>
+    <div class="bt-kpi">
+      <div class="bt-kpi-val" id="bt-wr">—</div>
+      <div class="bt-kpi-lbl">Win Rate</div>
+      <div style="font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--muted);margin-top:0.15rem;" id="bt-wr-sub">— entry success</div>
+    </div>
     <div class="bt-kpi"><div class="bt-kpi-val" id="bt-pts">0</div><div class="bt-kpi-lbl">Total Points</div></div>
     <div class="bt-kpi"><div class="bt-kpi-val" id="bt-expectancy">—</div><div class="bt-kpi-lbl">Avg pts/trade</div></div>
     <div class="bt-kpi"><div class="bt-kpi-val" id="bt-streak">—</div><div class="bt-kpi-lbl">Best streak</div></div>
@@ -2389,14 +2393,18 @@ function updateBtStats() {
   const wins    = actual.filter(t => t.result==='Win');
   const losses  = actual.filter(t => t.result==='Loss');
   const totPts  = actual.reduce((s,t) => s+(t.pts||0), 0);
-  const wr      = actual.length ? Math.round(wins.length/actual.length*100) : null;
+  const bes     = actual.filter(t => t.result==='Breakeven');
+  const decidedWR = (wins.length+losses.length) > 0 ? Math.round(wins.length/(wins.length+losses.length)*100) : null;
+  const entrySuccessWR = actual.length ? Math.round((wins.length+bes.length)/actual.length*100) : null;
 
   // Best win streak
   let bestStreak=0, cur=0;
   actual.forEach(t => { if(t.result==='Win'){cur++;bestStreak=Math.max(bestStreak,cur);}else cur=0; });
 
   document.getElementById('bt-total').textContent      = actual.length||0;
-  document.getElementById('bt-wr').textContent         = wr!==null ? wr+'%' : '—';
+  document.getElementById('bt-wr').textContent         = decidedWR!==null ? decidedWR+'%' : '—';
+  const btWrSub = document.getElementById('bt-wr-sub');
+  if (btWrSub) btWrSub.textContent = (entrySuccessWR!==null ? entrySuccessWR+'%' : '—') + ' entry success';
   document.getElementById('bt-pts').textContent        = (totPts>=0?'+':'')+totPts.toFixed(1);
   document.getElementById('bt-pts').className          = 'bt-kpi-val '+(totPts>0?'pos':totPts<0?'neg':'');
   document.getElementById('bt-expectancy').textContent = actual.length ? (totPts/actual.length>=0?'+':'')+(totPts/actual.length).toFixed(1) : '—';
