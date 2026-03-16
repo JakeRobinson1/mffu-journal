@@ -596,6 +596,7 @@ tr:hover .del-row { opacity:1; }
   <button class="tab" onclick="showPage('tpcalc',this)">TP Calculator</button>
   <button class="tab" onclick="showPage('backtest',this)">Backtest</button>
   <button class="tab" onclick="showPage('vision',this)">Vision</button>
+  <button class="tab" onclick="showPage('learn',this)">Learn</button>
 </nav>
 
 <main>
@@ -1356,6 +1357,527 @@ tr:hover .del-row { opacity:1; }
 </div>
 
 
+<!-- LEARN -->
+<div class="page" id="page-learn">
+  <div style="max-width:720px;margin:0 auto;padding:2rem 0;">
+
+    <div style="text-align:center;margin-bottom:2.5rem;">
+      <div style="font-family:'DM Mono',monospace;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.15em;color:var(--muted);margin-bottom:0.75rem;">Complete Beginner Guide</div>
+      <div style="font-size:1.6rem;font-weight:600;line-height:1.3;">Learn To Trade ORB</div>
+    </div>
+
+    <!-- LEARN NAV -->
+    <div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:2rem;">
+      <button class="btn btn-ghost btn-sm" onclick="scrollToSection('section-strategy')">Strategy Guide</button>
+      <button class="btn btn-ghost btn-sm" onclick="scrollToSection('section-glossary')">Glossary</button>
+      <button class="btn btn-ghost btn-sm" onclick="scrollToSection('section-examples')">Setup Examples</button>
+      <button class="btn btn-ghost btn-sm" onclick="scrollToSection('section-mistakes')">Common Mistakes</button>
+      <button class="btn btn-ghost btn-sm" onclick="scrollToSection('section-psychology')">Psychology</button>
+    </div>
+
+    <!-- STRATEGY GUIDE -->
+    <div id="section-strategy" style="margin-bottom:2.5rem;">
+      <div style="font-family:'DM Mono',monospace;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted);margin-bottom:1rem;">01 — Strategy Guide</div>
+
+      <div class="card" style="margin-bottom:1rem;">
+        <div class="card-header">What Is The ORB Strategy?</div>
+        <div class="card-body">
+          <p style="font-size:0.88rem;line-height:1.8;color:var(--text);">ORB stands for Opening Range Breakout. The idea is simple — when the US stock market opens at 14:30 UK time, the first 15 minutes of trading forms a range between a high and a low price. This is your Opening Range (OR).</p>
+          <p style="font-size:0.88rem;line-height:1.8;color:var(--text);margin-top:0.75rem;">When price breaks convincingly above or below that range and then comes back to retest the level, you enter a trade in the direction of the breakout. You risk 10 points to make 20 points — a 1:2 risk to reward ratio.</p>
+          <p style="font-size:0.88rem;line-height:1.8;color:var(--text);margin-top:0.75rem;">The instrument is <strong>MES</strong> — the Micro E-mini S&P 500 futures contract. Each point is worth $5 per contract.</p>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:1rem;">
+        <div class="card-header">Step 1 — Pre-Session Preparation (Before 14:30)</div>
+        <div class="card-body">
+          <div style="display:flex;flex-direction:column;gap:0.75rem;">
+            <div style="display:flex;gap:0.75rem;align-items:flex-start;">
+              <div style="min-width:24px;height:24px;border-radius:50%;background:var(--ink);color:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:600;margin-top:0.1rem;">1</div>
+              <div>
+                <div style="font-size:0.85rem;font-weight:500;margin-bottom:0.2rem;">Check the economic calendar</div>
+                <div style="font-size:0.82rem;color:var(--muted);line-height:1.6;">Go to forexfactory.com and check today's date. If there is a red (high impact) USD news event — especially NFP, CPI, or FOMC — do not trade today. Log it as a skip.</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:0.75rem;align-items:flex-start;">
+              <div style="min-width:24px;height:24px;border-radius:50%;background:var(--ink);color:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:600;margin-top:0.1rem;">2</div>
+              <div>
+                <div style="font-size:0.85rem;font-weight:500;margin-bottom:0.2rem;">Mark overnight levels on your chart</div>
+                <div style="font-size:0.82rem;color:var(--muted);line-height:1.6;">On your 15-minute chart, mark the overnight high (highest point from yesterday's 16:00 close to today's 14:30 open) and the overnight low (lowest point in that same period). Also note the previous day's closing price.</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:0.75rem;align-items:flex-start;">
+              <div style="min-width:24px;height:24px;border-radius:50%;background:var(--ink);color:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:600;margin-top:0.1rem;">3</div>
+              <div>
+                <div style="font-size:0.85rem;font-weight:500;margin-bottom:0.2rem;">Assess the overnight trend</div>
+                <div style="font-size:0.82rem;color:var(--muted);line-height:1.6;">Look left on your chart. Has price been trending up or down all morning? A clear directional trend gives you a bias for which direction to trade. No clear trend means the session is harder to trade.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:1rem;">
+        <div class="card-header">Step 2 — Mark The Opening Range (At 14:30)</div>
+        <div class="card-body">
+          <div style="display:flex;flex-direction:column;gap:0.75rem;">
+            <div style="display:flex;gap:0.75rem;align-items:flex-start;">
+              <div style="min-width:24px;height:24px;border-radius:50%;background:var(--ink);color:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:600;margin-top:0.1rem;">4</div>
+              <div>
+                <div style="font-size:0.85rem;font-weight:500;margin-bottom:0.2rem;">Wait for the 14:30 candle to close</div>
+                <div style="font-size:0.82rem;color:var(--muted);line-height:1.6;">On a 15-minute chart, the candle that opens at 14:30 closes at 14:45. This single candle defines your Opening Range. Mark a horizontal line at its HIGH and another at its LOW. These are your OR high and OR low.</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:0.75rem;align-items:flex-start;">
+              <div style="min-width:24px;height:24px;border-radius:50%;background:var(--ink);color:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:600;margin-top:0.1rem;">5</div>
+              <div>
+                <div style="font-size:0.85rem;font-weight:500;margin-bottom:0.2rem;">Note double-confirmed levels</div>
+                <div style="font-size:0.82rem;color:var(--muted);line-height:1.6;">If the OR high is at the same price as the overnight high — that is a double-confirmed level. These setups have higher conviction and are your best A+ opportunities.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:1rem;">
+        <div class="card-header">Step 3 — Wait For A Valid Entry (14:45 to 15:30)</div>
+        <div class="card-body">
+          <div style="display:flex;flex-direction:column;gap:0.75rem;">
+            <div style="display:flex;gap:0.75rem;align-items:flex-start;">
+              <div style="min-width:24px;height:24px;border-radius:50%;background:var(--ink);color:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:600;margin-top:0.1rem;">6</div>
+              <div>
+                <div style="font-size:0.85rem;font-weight:500;margin-bottom:0.2rem;">Wait for a clean breakout close</div>
+                <div style="font-size:0.82rem;color:var(--muted);line-height:1.6;">Price must close clearly above the OR high (for a long trade) or below the OR low (for a short trade) on your 5-minute chart. A wick through the level does not count — the candle body must close beyond the level.</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:0.75rem;align-items:flex-start;">
+              <div style="min-width:24px;height:24px;border-radius:50%;background:var(--ink);color:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:600;margin-top:0.1rem;">7</div>
+              <div>
+                <div style="font-size:0.85rem;font-weight:500;margin-bottom:0.2rem;">Wait for the retest</div>
+                <div style="font-size:0.82rem;color:var(--muted);line-height:1.6;">After the breakout, price will often pull back to retest the OR level it just broke. This retest is where you enter. No retest means no trade — do not chase the breakout.</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:0.75rem;align-items:flex-start;">
+              <div style="min-width:24px;height:24px;border-radius:50%;background:var(--ink);color:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:600;margin-top:0.1rem;">8</div>
+              <div>
+                <div style="font-size:0.85rem;font-weight:500;margin-bottom:0.2rem;">Confirm the retest candle</div>
+                <div style="font-size:0.82rem;color:var(--muted);line-height:1.6;">The retest candle must close in the direction of your trade. For a long — the candle must close above the OR high. For a short — the candle must close below the OR low. A large candle body closing well away from the level means sellers/buyers won that candle — skip it.</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:0.75rem;align-items:flex-start;">
+              <div style="min-width:24px;height:24px;border-radius:50%;background:var(--ink);color:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:600;margin-top:0.1rem;">9</div>
+              <div>
+                <div style="font-size:0.85rem;font-weight:500;margin-bottom:0.2rem;">Enter the trade</div>
+                <div style="font-size:0.82rem;color:var(--muted);line-height:1.6;">Enter at the OR level on the retest. Set your stop loss 10 points below your entry (for a long) or 10 points above (for a short). Set your take profit 20 points in the direction of your trade.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:1rem;">
+        <div class="card-header">Step 4 — Manage The Trade</div>
+        <div class="card-body">
+          <div style="display:flex;flex-direction:column;gap:0.75rem;">
+            <div style="display:flex;gap:0.75rem;align-items:flex-start;">
+              <div style="min-width:24px;height:24px;border-radius:50%;background:var(--ink);color:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:600;margin-top:0.1rem;">10</div>
+              <div>
+                <div style="font-size:0.85rem;font-weight:500;margin-bottom:0.2rem;">Move stop to breakeven at +10 points</div>
+                <div style="font-size:0.82rem;color:var(--muted);line-height:1.6;">Once price moves 10 points in your favour (your 1:1 level), move your stop loss to your entry price plus 1-2 points to cover fees. This makes the trade risk-free — the worst outcome is now a tiny profit.</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:0.75rem;align-items:flex-start;">
+              <div style="min-width:24px;height:24px;border-radius:50%;background:var(--ink);color:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:600;margin-top:0.1rem;">11</div>
+              <div>
+                <div style="font-size:0.85rem;font-weight:500;margin-bottom:0.2rem;">Let the ATM run to take profit</div>
+                <div style="font-size:0.82rem;color:var(--muted);line-height:1.6;">Do not close the trade early. Do not move your take profit. Let the trade run to your 20 point target. The hardest part of trading is doing nothing — trust the process.</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:0.75rem;align-items:flex-start;">
+              <div style="min-width:24px;height:24px;border-radius:50%;background:var(--ink);color:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:600;margin-top:0.1rem;">12</div>
+              <div>
+                <div style="font-size:0.85rem;font-weight:500;margin-bottom:0.2rem;">One trade per day maximum</div>
+                <div style="font-size:0.82rem;color:var(--muted);line-height:1.6;">If your first trade loses, close the platform and walk away. Do not try to recover losses the same day. Come back tomorrow with a fresh mindset.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GLOSSARY -->
+    <div id="section-glossary" style="margin-bottom:2.5rem;">
+      <div style="font-family:'DM Mono',monospace;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted);margin-bottom:1rem;">02 — Glossary</div>
+      <div class="card">
+        <div class="card-header">Key Terms Explained</div>
+        <div class="card-body">
+          <div style="display:flex;flex-direction:column;gap:0;">
+            ${[
+              
+              <div style="display:flex;gap:1rem;padding:0.65rem 0;border-bottom:1px solid var(--border);align-items:flex-start;">
+                <div style="min-width:160px;font-family:'DM Mono',monospace;font-size:0.75rem;font-weight:500;color:var(--ink);padding-top:0.1rem;">OR / Opening Range</div>
+                <div style="font-size:0.82rem;line-height:1.6;color:var(--muted);">The high and low price of the 14:30 candle on a 15-minute chart. Defines the boundaries you are trading the breakout of.</div>
+              </div>
+              <div style="display:flex;gap:1rem;padding:0.65rem 0;border-bottom:1px solid var(--border);align-items:flex-start;">
+                <div style="min-width:160px;font-family:'DM Mono',monospace;font-size:0.75rem;font-weight:500;color:var(--ink);padding-top:0.1rem;">OR High</div>
+                <div style="font-size:0.82rem;line-height:1.6;color:var(--muted);">The highest price reached during the 14:30 candle. A long trade triggers when price breaks above this level.</div>
+              </div>
+              <div style="display:flex;gap:1rem;padding:0.65rem 0;border-bottom:1px solid var(--border);align-items:flex-start;">
+                <div style="min-width:160px;font-family:'DM Mono',monospace;font-size:0.75rem;font-weight:500;color:var(--ink);padding-top:0.1rem;">OR Low</div>
+                <div style="font-size:0.82rem;line-height:1.6;color:var(--muted);">The lowest price reached during the 14:30 candle. A short trade triggers when price breaks below this level.</div>
+              </div>
+              <div style="display:flex;gap:1rem;padding:0.65rem 0;border-bottom:1px solid var(--border);align-items:flex-start;">
+                <div style="min-width:160px;font-family:'DM Mono',monospace;font-size:0.75rem;font-weight:500;color:var(--ink);padding-top:0.1rem;">Overnight High</div>
+                <div style="font-size:0.82rem;line-height:1.6;color:var(--muted);">The highest price reached between yesterday's 16:00 close and today's 14:30 open.</div>
+              </div>
+              <div style="display:flex;gap:1rem;padding:0.65rem 0;border-bottom:1px solid var(--border);align-items:flex-start;">
+                <div style="min-width:160px;font-family:'DM Mono',monospace;font-size:0.75rem;font-weight:500;color:var(--ink);padding-top:0.1rem;">Overnight Low</div>
+                <div style="font-size:0.82rem;line-height:1.6;color:var(--muted);">The lowest price reached between yesterday's 16:00 close and today's 14:30 open.</div>
+              </div>
+              <div style="display:flex;gap:1rem;padding:0.65rem 0;border-bottom:1px solid var(--border);align-items:flex-start;">
+                <div style="min-width:160px;font-family:'DM Mono',monospace;font-size:0.75rem;font-weight:500;color:var(--ink);padding-top:0.1rem;">Previous Day Close (PDC)</div>
+                <div style="font-size:0.82rem;line-height:1.6;color:var(--muted);">The price at which the market closed yesterday at 16:00. Acts as a magnet — price tends to gravitate toward it.</div>
+              </div>
+              <div style="display:flex;gap:1rem;padding:0.65rem 0;border-bottom:1px solid var(--border);align-items:flex-start;">
+                <div style="min-width:160px;font-family:'DM Mono',monospace;font-size:0.75rem;font-weight:500;color:var(--ink);padding-top:0.1rem;">Breakout</div>
+                <div style="font-size:0.82rem;line-height:1.6;color:var(--muted);">When price moves clearly beyond the OR high or OR low with a candle body closing outside the range.</div>
+              </div>
+              <div style="display:flex;gap:1rem;padding:0.65rem 0;border-bottom:1px solid var(--border);align-items:flex-start;">
+                <div style="min-width:160px;font-family:'DM Mono',monospace;font-size:0.75rem;font-weight:500;color:var(--ink);padding-top:0.1rem;">Retest</div>
+                <div style="font-size:0.82rem;line-height:1.6;color:var(--muted);">After a breakout, price pulls back to the level it just broke. This pullback is called the retest and is where you enter.</div>
+              </div>
+              <div style="display:flex;gap:1rem;padding:0.65rem 0;border-bottom:1px solid var(--border);align-items:flex-start;">
+                <div style="min-width:160px;font-family:'DM Mono',monospace;font-size:0.75rem;font-weight:500;color:var(--ink);padding-top:0.1rem;">Confirmation Candle</div>
+                <div style="font-size:0.82rem;line-height:1.6;color:var(--muted);">The candle that forms during the retest. It must close in the direction of your trade to confirm the entry is valid.</div>
+              </div>
+              <div style="display:flex;gap:1rem;padding:0.65rem 0;border-bottom:1px solid var(--border);align-items:flex-start;">
+                <div style="min-width:160px;font-family:'DM Mono',monospace;font-size:0.75rem;font-weight:500;color:var(--ink);padding-top:0.1rem;">Long</div>
+                <div style="font-size:0.82rem;line-height:1.6;color:var(--muted);">A trade where you buy, expecting price to go up.</div>
+              </div>
+              <div style="display:flex;gap:1rem;padding:0.65rem 0;border-bottom:1px solid var(--border);align-items:flex-start;">
+                <div style="min-width:160px;font-family:'DM Mono',monospace;font-size:0.75rem;font-weight:500;color:var(--ink);padding-top:0.1rem;">Short</div>
+                <div style="font-size:0.82rem;line-height:1.6;color:var(--muted);">A trade where you sell, expecting price to go down.</div>
+              </div>
+              <div style="display:flex;gap:1rem;padding:0.65rem 0;border-bottom:1px solid var(--border);align-items:flex-start;">
+                <div style="min-width:160px;font-family:'DM Mono',monospace;font-size:0.75rem;font-weight:500;color:var(--ink);padding-top:0.1rem;">Stop Loss (SL)</div>
+                <div style="font-size:0.82rem;line-height:1.6;color:var(--muted);">A price level where your trade automatically closes to limit your loss. Set 10 points from your entry.</div>
+              </div>
+              <div style="display:flex;gap:1rem;padding:0.65rem 0;border-bottom:1px solid var(--border);align-items:flex-start;">
+                <div style="min-width:160px;font-family:'DM Mono',monospace;font-size:0.75rem;font-weight:500;color:var(--ink);padding-top:0.1rem;">Take Profit (TP)</div>
+                <div style="font-size:0.82rem;line-height:1.6;color:var(--muted);">A price level where your trade automatically closes to lock in profit. Set 20 points from your entry.</div>
+              </div>
+              <div style="display:flex;gap:1rem;padding:0.65rem 0;border-bottom:1px solid var(--border);align-items:flex-start;">
+                <div style="min-width:160px;font-family:'DM Mono',monospace;font-size:0.75rem;font-weight:500;color:var(--ink);padding-top:0.1rem;">Breakeven (BE)</div>
+                <div style="font-size:0.82rem;line-height:1.6;color:var(--muted);">Moving your stop loss to your entry price once the trade is +10 points. Eliminates risk on the trade.</div>
+              </div>
+              <div style="display:flex;gap:1rem;padding:0.65rem 0;border-bottom:1px solid var(--border);align-items:flex-start;">
+                <div style="min-width:160px;font-family:'DM Mono',monospace;font-size:0.75rem;font-weight:500;color:var(--ink);padding-top:0.1rem;">R:R (Risk to Reward)</div>
+                <div style="font-size:0.82rem;line-height:1.6;color:var(--muted);">The ratio of your potential loss to potential gain. This strategy uses 1:2 — risk 1 to make 2.</div>
+              </div>
+              <div style="display:flex;gap:1rem;padding:0.65rem 0;border-bottom:1px solid var(--border);align-items:flex-start;">
+                <div style="min-width:160px;font-family:'DM Mono',monospace;font-size:0.75rem;font-weight:500;color:var(--ink);padding-top:0.1rem;">MES</div>
+                <div style="font-size:0.82rem;line-height:1.6;color:var(--muted);">Micro E-mini S&P 500. A futures contract worth $5 per point. Easier to start with than the full-size ES contract.</div>
+              </div>
+              <div style="display:flex;gap:1rem;padding:0.65rem 0;border-bottom:1px solid var(--border);align-items:flex-start;">
+                <div style="min-width:160px;font-family:'DM Mono',monospace;font-size:0.75rem;font-weight:500;color:var(--ink);padding-top:0.1rem;">ES</div>
+                <div style="font-size:0.82rem;line-height:1.6;color:var(--muted);">E-mini S&P 500. The full-size version of MES, worth $50 per point. Used once consistently profitable.</div>
+              </div>
+              <div style="display:flex;gap:1rem;padding:0.65rem 0;border-bottom:1px solid var(--border);align-items:flex-start;">
+                <div style="min-width:160px;font-family:'DM Mono',monospace;font-size:0.75rem;font-weight:500;color:var(--ink);padding-top:0.1rem;">ATM Strategy</div>
+                <div style="font-size:0.82rem;line-height:1.6;color:var(--muted);">Automated Trade Management — a NinjaTrader feature that automatically sets your stop loss and take profit when you enter a trade.</div>
+              </div>
+              <div style="display:flex;gap:1rem;padding:0.65rem 0;border-bottom:1px solid var(--border);align-items:flex-start;">
+                <div style="min-width:160px;font-family:'DM Mono',monospace;font-size:0.75rem;font-weight:500;color:var(--ink);padding-top:0.1rem;">Setup Grade</div>
+                <div style="font-size:0.82rem;line-height:1.6;color:var(--muted);">A rating (A+, A, B, C, F) that describes the quality of a potential trade setup. Only take A and A+ grades.</div>
+              </div>
+              <div style="display:flex;gap:1rem;padding:0.65rem 0;border-bottom:1px solid var(--border);align-items:flex-start;">
+                <div style="min-width:160px;font-family:'DM Mono',monospace;font-size:0.75rem;font-weight:500;color:var(--ink);padding-top:0.1rem;">Skip</div>
+                <div style="font-size:0.82rem;line-height:1.6;color:var(--muted);">A session where you choose not to trade because the conditions are not right. Skips protect your capital.</div>
+              </div>
+              <div style="display:flex;gap:1rem;padding:0.65rem 0;border-bottom:1px solid var(--border);align-items:flex-start;">
+                <div style="min-width:160px;font-family:'DM Mono',monospace;font-size:0.75rem;font-weight:500;color:var(--ink);padding-top:0.1rem;">NFP / CPI / FOMC</div>
+                <div style="font-size:0.82rem;line-height:1.6;color:var(--muted);">High impact US economic news events that cause unpredictable price movements. Never trade on these days.</div>
+              </div>
+              <div style="display:flex;gap:1rem;padding:0.65rem 0;border-bottom:1px solid var(--border);align-items:flex-start;">
+                <div style="min-width:160px;font-family:'DM Mono',monospace;font-size:0.75rem;font-weight:500;color:var(--ink);padding-top:0.1rem;">Drawdown</div>
+                <div style="font-size:0.82rem;line-height:1.6;color:var(--muted);">The maximum amount your account can lose before it is closed by the prop firm. Protect it at all times.</div>
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETUP EXAMPLES -->
+    <div id="section-examples" style="margin-bottom:2.5rem;">
+      <div style="font-family:'DM Mono',monospace;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted);margin-bottom:1rem;">03 — Setup Examples</div>
+
+      <div class="card" style="margin-bottom:1rem;border-left:3px solid var(--green);">
+        <div class="card-header" style="color:var(--green);">A+ Grade Setup — Highest Conviction</div>
+        <div class="card-body">
+          <p style="font-size:0.85rem;line-height:1.8;margin-bottom:0.75rem;">This is the setup you wait for. All conditions are perfectly aligned.</p>
+          <div style="display:flex;flex-direction:column;gap:0.4rem;">
+            <div style="display:flex;gap:0.5rem;align-items:center;font-size:0.82rem;"><span style="color:var(--green);">✓</span> Strong overnight trend in one clear direction</div>
+            <div style="display:flex;gap:0.5rem;align-items:center;font-size:0.82rem;"><span style="color:var(--green);">✓</span> OR high/low coincides with overnight high/low (double-confirmed level)</div>
+            <div style="display:flex;gap:0.5rem;align-items:center;font-size:0.82rem;"><span style="color:var(--green);">✓</span> Clean, decisive breakout candle closing clearly beyond the level</div>
+            <div style="display:flex;gap:0.5rem;align-items:center;font-size:0.82rem;"><span style="color:var(--green);">✓</span> Clean retest that holds the level</div>
+            <div style="display:flex;gap:0.5rem;align-items:center;font-size:0.82rem;"><span style="color:var(--green);">✓</span> Confirmation candle closes convincingly in trade direction</div>
+            <div style="display:flex;gap:0.5rem;align-items:center;font-size:0.82rem;"><span style="color:var(--green);">✓</span> Previous day close is in the direction of travel (acts as magnet)</div>
+          </div>
+          <div style="margin-top:0.75rem;padding:0.6rem 0.75rem;background:var(--green-bg);border-radius:4px;font-size:0.8rem;color:var(--green);">Take this trade every time it appears. These run cleanly to target.</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:1rem;border-left:3px solid var(--blue);">
+        <div class="card-header" style="color:var(--blue);">A Grade Setup — Strong</div>
+        <div class="card-body">
+          <p style="font-size:0.85rem;line-height:1.8;margin-bottom:0.75rem;">A solid setup with most conditions aligned. Worth taking.</p>
+          <div style="display:flex;flex-direction:column;gap:0.4rem;">
+            <div style="display:flex;gap:0.5rem;align-items:center;font-size:0.82rem;"><span style="color:var(--green);">✓</span> Clear overnight trend in one direction</div>
+            <div style="display:flex;gap:0.5rem;align-items:center;font-size:0.82rem;"><span style="color:var(--green);">✓</span> Clean breakout close beyond OR level</div>
+            <div style="display:flex;gap:0.5rem;align-items:center;font-size:0.82rem;"><span style="color:var(--green);">✓</span> Retest holds the level cleanly</div>
+            <div style="display:flex;gap:0.5rem;align-items:center;font-size:0.82rem;"><span style="color:var(--green);">✓</span> Confirmation candle closes in trade direction</div>
+            <div style="display:flex;gap:0.5rem;align-items:center;font-size:0.82rem;"><span style="color:var(--amber);">~</span> OR level may not coincide with overnight level</div>
+          </div>
+          <div style="margin-top:0.75rem;padding:0.6rem 0.75rem;background:var(--blue-bg);border-radius:4px;font-size:0.8rem;color:var(--blue);">Take this trade. Not as high conviction as A+ but still a valid setup with edge.</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:1rem;border-left:3px solid var(--amber);">
+        <div class="card-header" style="color:var(--amber);">B Grade Setup — Marginal</div>
+        <div class="card-body">
+          <p style="font-size:0.85rem;line-height:1.8;margin-bottom:0.75rem;">Some conditions present but one or more key elements are missing or weak.</p>
+          <div style="display:flex;flex-direction:column;gap:0.4rem;">
+            <div style="display:flex;gap:0.5rem;align-items:center;font-size:0.82rem;"><span style="color:var(--amber);">~</span> Overnight trend present but not strong or clear</div>
+            <div style="display:flex;gap:0.5rem;align-items:center;font-size:0.82rem;"><span style="color:var(--amber);">~</span> Breakout candle present but not fully convincing</div>
+            <div style="display:flex;gap:0.5rem;align-items:center;font-size:0.82rem;"><span style="color:var(--amber);">~</span> Retest present but candle is large or slightly away from level</div>
+            <div style="display:flex;gap:0.5rem;align-items:center;font-size:0.82rem;"><span style="color:var(--red);">✗</span> May be counter trend against the overnight move</div>
+          </div>
+          <div style="margin-top:0.75rem;padding:0.6rem 0.75rem;background:var(--amber-bg);border-radius:4px;font-size:0.8rem;color:var(--amber);">Skip this trade. Backtest data shows B grade setups have a poor win rate. The risk is not worth it.</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:1rem;border-left:3px solid var(--muted);">
+        <div class="card-header">C Grade Setup — Poor</div>
+        <div class="card-body">
+          <p style="font-size:0.85rem;line-height:1.8;margin-bottom:0.75rem;">Multiple conditions missing. Not a tradeable setup.</p>
+          <div style="display:flex;flex-direction:column;gap:0.4rem;">
+            <div style="display:flex;gap:0.5rem;align-items:center;font-size:0.82rem;"><span style="color:var(--red);">✗</span> Choppy overnight price action with no clear direction</div>
+            <div style="display:flex;gap:0.5rem;align-items:center;font-size:0.82rem;"><span style="color:var(--red);">✗</span> Price consolidating within the OR — no breakout</div>
+            <div style="display:flex;gap:0.5rem;align-items:center;font-size:0.82rem;"><span style="color:var(--red);">✗</span> No clean retest — price just drifts through the level</div>
+            <div style="display:flex;gap:0.5rem;align-items:center;font-size:0.82rem;"><span style="color:var(--red);">✗</span> Counter trend trade with no confluence</div>
+          </div>
+          <div style="margin-top:0.75rem;padding:0.6rem 0.75rem;background:var(--bg3);border-radius:4px;font-size:0.8rem;color:var(--muted);">Skip immediately. No setup means no trade.</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:1rem;border-left:3px solid var(--red);">
+        <div class="card-header" style="color:var(--red);">F Grade — Automatic Skip</div>
+        <div class="card-body">
+          <p style="font-size:0.85rem;line-height:1.8;margin-bottom:0.75rem;">These sessions must never be traded. The risk is completely unmanageable.</p>
+          <div style="display:flex;flex-direction:column;gap:0.4rem;">
+            <div style="display:flex;gap:0.5rem;align-items:center;font-size:0.82rem;"><span style="color:var(--red);">✗</span> Explosive news-driven candle at the open (20+ points in one candle)</div>
+            <div style="display:flex;gap:0.5rem;align-items:center;font-size:0.82rem;"><span style="color:var(--red);">✗</span> NFP, CPI, or FOMC day</div>
+            <div style="display:flex;gap:0.5rem;align-items:center;font-size:0.82rem;"><span style="color:var(--red);">✗</span> High impact news event firing within your session window</div>
+            <div style="display:flex;gap:0.5rem;align-items:center;font-size:0.82rem;"><span style="color:var(--red);">✗</span> Massive wicks appearing randomly throughout the session</div>
+          </div>
+          <div style="margin-top:0.75rem;padding:0.6rem 0.75rem;background:var(--red-bg);border-radius:4px;font-size:0.8rem;color:var(--red);">Close the platform immediately. These sessions destroy accounts.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMMON MISTAKES -->
+    <div id="section-mistakes" style="margin-bottom:2.5rem;">
+      <div style="font-family:'DM Mono',monospace;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted);margin-bottom:1rem;">04 — Common Mistakes</div>
+
+      <div class="card">
+        <div class="card-header">Mistakes Every New Trader Makes</div>
+        <div class="card-body">
+          <div style="display:flex;flex-direction:column;gap:1rem;">
+
+            <div style="padding:0.75rem;background:var(--red-bg);border-radius:6px;border-left:3px solid var(--red);">
+              <div style="font-size:0.85rem;font-weight:600;color:var(--red);margin-bottom:0.3rem;">Entering on a wick, not a candle close</div>
+              <div style="font-size:0.82rem;color:var(--text);line-height:1.6;">A wick through the OR level means price briefly touched it but rejected. Only a candle body CLOSING beyond the level is a valid breakout. Entering on wicks leads to being stopped out constantly.</div>
+            </div>
+
+            <div style="padding:0.75rem;background:var(--red-bg);border-radius:6px;border-left:3px solid var(--red);">
+              <div style="font-size:0.85rem;font-weight:600;color:var(--red);margin-bottom:0.3rem;">Chasing the breakout without a retest</div>
+              <div style="font-size:0.82rem;color:var(--text);line-height:1.6;">When price breaks out strongly and runs away it feels like you're missing out. Resist the urge to chase it. The retest is your entry point — without it you are entering at the worst possible price with no edge.</div>
+            </div>
+
+            <div style="padding:0.75rem;background:var(--red-bg);border-radius:6px;border-left:3px solid var(--red);">
+              <div style="font-size:0.85rem;font-weight:600;color:var(--red);margin-bottom:0.3rem;">Moving the stop loss wider to avoid being stopped out</div>
+              <div style="font-size:0.82rem;color:var(--text);line-height:1.6;">When price approaches your stop loss it feels painful. Moving it wider feels like giving the trade more room. In reality you are increasing your loss and breaking your risk management rules. Never widen a stop loss.</div>
+            </div>
+
+            <div style="padding:0.75rem;background:var(--red-bg);border-radius:6px;border-left:3px solid var(--red);">
+              <div style="font-size:0.85rem;font-weight:600;color:var(--red);margin-bottom:0.3rem;">Closing early for a small profit</div>
+              <div style="font-size:0.82rem;color:var(--text);line-height:1.6;">When a trade is +5 points it feels tempting to close it and "lock in profit." But your strategy requires 20 points to maintain the 1:2 R:R that makes it profitable. Closing at +5 destroys your edge over time.</div>
+            </div>
+
+            <div style="padding:0.75rem;background:var(--red-bg);border-radius:6px;border-left:3px solid var(--red);">
+              <div style="font-size:0.85rem;font-weight:600;color:var(--red);margin-bottom:0.3rem;">Trading news days</div>
+              <div style="font-size:0.82rem;color:var(--text);line-height:1.6;">NFP, CPI, and FOMC days create violent unpredictable price spikes. No strategy works reliably on these days. Check Forex Factory every single day before your session. If you see red USD events — do not trade.</div>
+            </div>
+
+            <div style="padding:0.75rem;background:var(--red-bg);border-radius:6px;border-left:3px solid var(--red);">
+              <div style="font-size:0.85rem;font-weight:600;color:var(--red);margin-bottom:0.3rem;">Revenge trading after a loss</div>
+              <div style="font-size:0.82rem;color:var(--text);line-height:1.6;">After a losing trade the urge to immediately make it back is powerful and dangerous. This leads to forcing setups that aren't there and taking bigger risks. The rule is one trade per day — a loss means the session is over.</div>
+            </div>
+
+            <div style="padding:0.75rem;background:var(--red-bg);border-radius:6px;border-left:3px solid var(--red);">
+              <div style="font-size:0.85rem;font-weight:600;color:var(--red);margin-bottom:0.3rem;">Trading every day regardless of conditions</div>
+              <div style="font-size:0.82rem;color:var(--text);line-height:1.6;">Most days will not have a valid setup. Skipping is not failure — it is discipline. The traders who make consistent money are not the ones who trade the most. They are the ones who trade only when conditions are right.</div>
+            </div>
+
+            <div style="padding:0.75rem;background:var(--red-bg);border-radius:6px;border-left:3px solid var(--red);">
+              <div style="font-size:0.85rem;font-weight:600;color:var(--red);margin-bottom:0.3rem;">Moving the breakeven stop too early</div>
+              <div style="font-size:0.82rem;color:var(--text);line-height:1.6;">Moving your stop to breakeven before price reaches +10 points means normal trade fluctuation will stop you out for zero profit on trades that would have hit the full target. Only move to breakeven at exactly the 1:1 level.</div>
+            </div>
+
+            <div style="padding:0.75rem;background:var(--red-bg);border-radius:6px;border-left:3px solid var(--red);">
+              <div style="font-size:0.85rem;font-weight:600;color:var(--red);margin-bottom:0.3rem;">Watching too much trading content online</div>
+              <div style="font-size:0.82rem;color:var(--text);line-height:1.6;">YouTube and social media are full of traders showing different strategies, indicators, and techniques. Consuming too much of this creates analysis paralysis and makes you doubt your own strategy constantly. Pick one approach, learn it deeply, and ignore everything else.</div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PSYCHOLOGY -->
+    <div id="section-psychology" style="margin-bottom:2.5rem;">
+      <div style="font-family:'DM Mono',monospace;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted);margin-bottom:1rem;">05 — Psychology</div>
+
+      <div class="card" style="margin-bottom:1rem;border-left:3px solid var(--amber);">
+        <div class="card-header">The Truth About Trading Psychology</div>
+        <div class="card-body">
+          <p style="font-size:0.88rem;line-height:1.8;color:var(--text);">Most people who start trading assume the hard part is finding a good strategy. It isn't. The hard part is executing that strategy consistently when real money is on the line and your emotions are fighting against every rule you set.</p>
+          <p style="font-size:0.88rem;line-height:1.8;color:var(--text);margin-top:0.75rem;">A strategy that wins 60% of the time will still lose 40% of the time. Your brain will interpret those losses as evidence the strategy doesn't work and push you to change it, override it, or abandon it entirely. This is how profitable strategies get destroyed — not by the market, but by the trader.</p>
+          <p style="font-size:0.88rem;line-height:1.8;color:var(--text);margin-top:0.75rem;">The traders who make consistent money are not smarter than you. They have simply learned to manage their emotions so that their behaviour stays consistent regardless of what the market does.</p>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:1rem;">
+        <div class="card-header">The Emotions You Will Feel — And How To Handle Them</div>
+        <div class="card-body">
+          <div style="display:flex;flex-direction:column;gap:1rem;">
+
+            <div style="padding:0.75rem;background:var(--bg3);border-radius:6px;">
+              <div style="font-size:0.85rem;font-weight:600;color:var(--ink);margin-bottom:0.4rem;">😤 FOMO — Fear Of Missing Out</div>
+              <div style="font-size:0.82rem;color:var(--muted);line-height:1.6;margin-bottom:0.4rem;"><strong style="color:var(--text);">What it feels like:</strong> Price breaks out strongly and runs 15 points without you. You feel like you missed a perfect trade and consider chasing it.</div>
+              <div style="font-size:0.82rem;color:var(--muted);line-height:1.6;margin-bottom:0.4rem;"><strong style="color:var(--text);">The reality:</strong> Without a retest you have no edge. You would be buying at the top of a move with your stop in the worst possible place.</div>
+              <div style="font-size:0.82rem;line-height:1.6;padding:0.4rem 0.6rem;background:var(--green-bg);border-radius:4px;color:var(--green);">Remind yourself: no retest, no trade. The next setup is coming.</div>
+            </div>
+
+            <div style="padding:0.75rem;background:var(--bg3);border-radius:6px;">
+              <div style="font-size:0.85rem;font-weight:600;color:var(--ink);margin-bottom:0.4rem;">😰 Fear — When A Trade Goes Against You</div>
+              <div style="font-size:0.82rem;color:var(--muted);line-height:1.6;margin-bottom:0.4rem;"><strong style="color:var(--text);">What it feels like:</strong> You enter a trade and it immediately moves against you. Your unrealised loss grows and you want to close the trade to stop the pain.</div>
+              <div style="font-size:0.82rem;color:var(--muted);line-height:1.6;margin-bottom:0.4rem;"><strong style="color:var(--text);">The reality:</strong> All trades experience heat — price moving against you before it moves in your direction. Your stop loss is there for a reason. A valid setup does not become invalid because price dips 3 points against you.</div>
+              <div style="font-size:0.82rem;line-height:1.6;padding:0.4rem 0.6rem;background:var(--green-bg);border-radius:4px;color:var(--green);">Remind yourself: if the stop hasn't been hit the trade is still valid. Do nothing.</div>
+            </div>
+
+            <div style="padding:0.75rem;background:var(--bg3);border-radius:6px;">
+              <div style="font-size:0.85rem;font-weight:600;color:var(--ink);margin-bottom:0.4rem;">😡 Anger — After A Losing Trade</div>
+              <div style="font-size:0.82rem;color:var(--muted);line-height:1.6;margin-bottom:0.4rem;"><strong style="color:var(--text);">What it feels like:</strong> You followed every rule and the trade still lost. You feel frustrated, cheated, and tempted to immediately enter another trade to win it back.</div>
+              <div style="font-size:0.82rem;color:var(--muted);line-height:1.6;margin-bottom:0.4rem;"><strong style="color:var(--text);">The reality:</strong> Losses are a normal part of trading. A strategy with a 60% win rate loses 40% of the time — that means roughly 4 out of every 10 trades will lose. The loss is not a signal that the strategy is broken. It is the cost of doing business.</div>
+              <div style="font-size:0.82rem;line-height:1.6;padding:0.4rem 0.6rem;background:var(--green-bg);border-radius:4px;color:var(--green);">Remind yourself: one loss means the session is over. Close the platform and come back tomorrow.</div>
+            </div>
+
+            <div style="padding:0.75rem;background:var(--bg3);border-radius:6px;">
+              <div style="font-size:0.85rem;font-weight:600;color:var(--ink);margin-bottom:0.4rem;">🤩 Overconfidence — After A Winning Streak</div>
+              <div style="font-size:0.82rem;color:var(--muted);line-height:1.6;margin-bottom:0.4rem;"><strong style="color:var(--text);">What it feels like:</strong> You have won 5 trades in a row. You feel invincible. You start taking B and C grade setups because you are on a roll. You increase your position size beyond your rules.</div>
+              <div style="font-size:0.82rem;color:var(--muted);line-height:1.6;margin-bottom:0.4rem;"><strong style="color:var(--text);">The reality:</strong> Winning streaks end. The market does not care about your recent performance. Deviating from your rules during a hot streak is one of the most common ways traders blow accounts — they give back months of gains in a few reckless days.</div>
+              <div style="font-size:0.82rem;line-height:1.6;padding:0.4rem 0.6rem;background:var(--green-bg);border-radius:4px;color:var(--green);">Remind yourself: follow the rules on trade 50 exactly the same as trade 1. The process never changes.</div>
+            </div>
+
+            <div style="padding:0.75rem;background:var(--bg3);border-radius:6px;">
+              <div style="font-size:0.85rem;font-weight:600;color:var(--ink);margin-bottom:0.4rem;">😔 Boredom — On Skip Days</div>
+              <div style="font-size:0.82rem;color:var(--muted);line-height:1.6;margin-bottom:0.4rem;"><strong style="color:var(--text);">What it feels like:</strong> You sit at your desk for an hour and the setup never appears. You feel like you wasted your time. You consider entering a marginal setup just to feel like you did something.</div>
+              <div style="font-size:0.82rem;color:var(--muted);line-height:1.6;margin-bottom:0.4rem;"><strong style="color:var(--text);">The reality:</strong> Approximately 70% of trading sessions will not have a valid setup. Sitting through those sessions without trading is not wasted time — it is active capital preservation. Every skip protects your account for when the A+ setup appears.</div>
+              <div style="font-size:0.82rem;line-height:1.6;padding:0.4rem 0.6rem;background:var(--green-bg);border-radius:4px;color:var(--green);">Remind yourself: a skip is not a missed opportunity. It is a protected opportunity.</div>
+            </div>
+
+            <div style="padding:0.75rem;background:var(--bg3);border-radius:6px;">
+              <div style="font-size:0.85rem;font-weight:600;color:var(--ink);margin-bottom:0.4rem;">😟 Self Doubt — When The Strategy Goes Through A Slow Patch</div>
+              <div style="font-size:0.82rem;color:var(--muted);line-height:1.6;margin-bottom:0.4rem;"><strong style="color:var(--text);">What it feels like:</strong> Two or three weeks pass with very few valid setups or a couple of losses. You start to think the strategy doesn't work, that you are not cut out for trading, or that you should try something else.</div>
+              <div style="font-size:0.82rem;color:var(--muted);line-height:1.6;margin-bottom:0.4rem;"><strong style="color:var(--text);">The reality:</strong> All strategies go through slow periods. January 2026 was one of the most difficult months in recent memory for this strategy — news events, volatile price action, very few clean setups. Traders who survived that month and kept following their rules came out the other side into cleaner conditions.</div>
+              <div style="font-size:0.82rem;line-height:1.6;padding:0.4rem 0.6rem;background:var(--green-bg);border-radius:4px;color:var(--green);">Remind yourself: look at your backtest data. The edge is proven. Trust the data, not the feeling.</div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:1rem;">
+        <div class="card-header">Building A Healthy Trading Mindset</div>
+        <div class="card-body">
+          <div style="display:flex;flex-direction:column;gap:0.75rem;">
+
+            <div style="display:flex;gap:0.75rem;align-items:flex-start;padding:0.5rem 0;border-bottom:1px solid var(--border);">
+              <span style="color:var(--green);font-size:1rem;margin-top:0.1rem;">→</span>
+              <div>
+                <div style="font-size:0.85rem;font-weight:500;margin-bottom:0.2rem;">Focus on process, not outcome</div>
+                <div style="font-size:0.82rem;color:var(--muted);line-height:1.6;">A good trade is one where you followed all your rules correctly — regardless of whether it won or lost. A bad trade is one where you broke your rules — regardless of whether it won or lost. Judge yourself on process, not profit.</div>
+              </div>
+            </div>
+
+            <div style="display:flex;gap:0.75rem;align-items:flex-start;padding:0.5rem 0;border-bottom:1px solid var(--border);">
+              <span style="color:var(--green);font-size:1rem;margin-top:0.1rem;">→</span>
+              <div>
+                <div style="font-size:0.85rem;font-weight:500;margin-bottom:0.2rem;">Think in probabilities, not certainties</div>
+                <div style="font-size:0.82rem;color:var(--muted);line-height:1.6;">No trade is guaranteed to win. Even the best A+ setup can lose. What matters is that over 100 trades your winners outweigh your losers. Each individual trade is just one data point in a much larger sample.</div>
+              </div>
+            </div>
+
+            <div style="display:flex;gap:0.75rem;align-items:flex-start;padding:0.5rem 0;border-bottom:1px solid var(--border);">
+              <span style="color:var(--green);font-size:1rem;margin-top:0.1rem;">→</span>
+              <div>
+                <div style="font-size:0.85rem;font-weight:500;margin-bottom:0.2rem;">Never risk money you cannot afford to lose</div>
+                <div style="font-size:0.82rem;color:var(--muted);line-height:1.6;">If the money in your trading account represents rent, bills, or essential living costs your emotions will be too heightened to trade correctly. Only trade with money whose loss would not affect your life. This is why starting with a prop firm evaluation makes sense — your personal financial risk is capped at the evaluation fee.</div>
+              </div>
+            </div>
+
+            <div style="display:flex;gap:0.75rem;align-items:flex-start;padding:0.5rem 0;border-bottom:1px solid var(--border);">
+              <span style="color:var(--green);font-size:1rem;margin-top:0.1rem;">→</span>
+              <div>
+                <div style="font-size:0.85rem;font-weight:500;margin-bottom:0.2rem;">Keep a journal — this one</div>
+                <div style="font-size:0.82rem;color:var(--muted);line-height:1.6;">Logging every trade forces you to be honest with yourself about your decisions. When you know you have to write down why you entered, you make better decisions. Patterns in your journal — certain emotions before losing trades, certain conditions when you break rules — become visible over time and allow you to improve.</div>
+              </div>
+            </div>
+
+            <div style="display:flex;gap:0.75rem;align-items:flex-start;padding:0.5rem 0;border-bottom:1px solid var(--border);">
+              <span style="color:var(--green);font-size:1rem;margin-top:0.1rem;">→</span>
+              <div>
+                <div style="font-size:0.85rem;font-weight:500;margin-bottom:0.2rem;">Detach from the money</div>
+                <div style="font-size:0.82rem;color:var(--muted);line-height:1.6;">Think in terms of R (risk units) rather than dollars. A win is always +2R. A loss is always -1R. Whether 1R equals $50 or $500 is irrelevant to the quality of your decision. Traders who think in dollars make emotional decisions. Traders who think in R make logical ones.</div>
+              </div>
+            </div>
+
+            <div style="display:flex;gap:0.75rem;align-items:flex-start;padding:0.5rem 0;">
+              <span style="color:var(--green);font-size:1rem;margin-top:0.1rem;">→</span>
+              <div>
+                <div style="font-size:0.85rem;font-weight:500;margin-bottom:0.2rem;">Accept that patience is the strategy</div>
+                <div style="font-size:0.82rem;color:var(--muted);line-height:1.6;">The biggest competitive advantage you have over most traders is the willingness to do nothing. Most retail traders overtrade, take marginal setups, and let emotions drive their decisions. Simply waiting for A and A+ grade setups and executing them correctly puts you ahead of the majority. Patience is not a personality trait — it is a skill you build through backtesting and screen time.</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:1rem;background:var(--green-bg);border:1px solid var(--green);">
+        <div class="card-header" style="color:var(--green);">The One Thing To Remember</div>
+        <div class="card-body">
+          <p style="font-size:0.95rem;line-height:1.8;color:var(--text);text-align:center;font-weight:500;">"The strategy is not the edge. <br>Consistent execution of the strategy is the edge."</p>
+          <p style="font-size:0.85rem;line-height:1.8;color:var(--muted);margin-top:0.75rem;text-align:center;">Anyone can find a profitable strategy. Very few people can execute it consistently under real money pressure for months and years. That consistency is what trading psychology is about — and it is built one disciplined decision at a time.</p>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
 </main>
 
 <!-- TRADE DETAIL MODAL -->
@@ -1544,6 +2066,12 @@ function showPage(id, el) {
   if (id==='history')   { renderTable(); renderMonthlySummary(); }
   if (id==='weekly')    updateWeekStats();
   if (id==='vision')    initVision();
+
+function scrollToSection(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+window.scrollToSection = scrollToSection;
 }
 window.showPage = showPage;
 
