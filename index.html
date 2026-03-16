@@ -595,6 +595,7 @@ tr:hover .del-row { opacity:1; }
   <button class="tab" onclick="showPage('weekly',this)">Weekly Review</button>
   <button class="tab" onclick="showPage('tpcalc',this)">TP Calculator</button>
   <button class="tab" onclick="showPage('backtest',this)">Backtest</button>
+  <button class="tab" onclick="showPage('vision',this)">Vision</button>
 </nav>
 
 <main>
@@ -1238,6 +1239,152 @@ tr:hover .del-row { opacity:1; }
   </div>
 </div>
 
+<!-- VISION -->
+<div class="page" id="page-vision">
+  <div style="max-width:680px;margin:0 auto;padding:2rem 0;">
+
+    <div style="text-align:center;margin-bottom:2.5rem;">
+      <div style="font-family:'DM Mono',monospace;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.15em;color:var(--muted);margin-bottom:0.75rem;">Read this when you lose hope</div>
+      <div style="font-size:1.6rem;font-weight:600;line-height:1.3;">Why It's Worth It</div>
+    </div>
+
+    <!-- ROADMAP -->
+    <div class="card" style="margin-bottom:1.25rem;">
+      <div class="card-header">Your Journey</div>
+      <div class="card-body">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;margin-bottom:1rem;" id="roadmap-steps">
+          <!-- Rendered by JS -->
+        </div>
+        <div style="font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--muted);text-align:center;" id="roadmap-status">Set your current stage below</div>
+        <div style="margin-top:1rem;display:flex;gap:0.5rem;flex-wrap:wrap;justify-content:center;" id="roadmap-btns"></div>
+      </div>
+    </div>
+
+    <!-- MILESTONES -->
+    <div class="card" style="margin-bottom:1.25rem;">
+      <div class="card-header">Milestones</div>
+      <div class="card-body">
+        <div style="display:flex;flex-direction:column;gap:0.75rem;">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:0.6rem 0;border-bottom:1px solid var(--border);">
+            <span style="font-size:0.85rem;">📚 Started learning to trade</span>
+            <input type="date" id="ms-learning" style="font-family:'DM Mono',monospace;font-size:0.75rem;background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:0.25rem 0.5rem;color:var(--text);" onchange="saveMilestone('ms-learning',this.value)">
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:0.6rem 0;border-bottom:1px solid var(--border);">
+            <span style="font-size:0.85rem;">🎯 First demo trade</span>
+            <input type="date" id="ms-demo" style="font-family:'DM Mono',monospace;font-size:0.75rem;background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:0.25rem 0.5rem;color:var(--text);" onchange="saveMilestone('ms-demo',this.value)">
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:0.6rem 0;border-bottom:1px solid var(--border);">
+            <span style="font-size:0.85rem;">✅ Passed the eval</span>
+            <input type="date" id="ms-eval" style="font-family:'DM Mono',monospace;font-size:0.75rem;background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:0.25rem 0.5rem;color:var(--text);" onchange="saveMilestone('ms-eval',this.value)">
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:0.6rem 0;">
+            <span style="font-size:0.85rem;">💰 First payout received</span>
+            <input type="date" id="ms-payout" style="font-family:'DM Mono',monospace;font-size:0.75rem;background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:0.25rem 0.5rem;color:var(--text);" onchange="saveMilestone('ms-payout',this.value)">
+          </div>
+        </div>
+        <!-- Total payouts -->
+        <div style="margin-top:1rem;padding:0.75rem;background:var(--green-bg);border:1px solid var(--green);border-radius:6px;display:flex;align-items:center;justify-content:space-between;">
+          <span style="font-size:0.85rem;color:var(--green);font-weight:500;">Total payouts received</span>
+          <div style="display:flex;align-items:center;gap:0.5rem;">
+            <span style="font-family:'DM Mono',monospace;font-size:0.75rem;color:var(--muted);">$</span>
+            <input type="number" id="ms-total-payouts" placeholder="0" style="font-family:'DM Mono',monospace;font-size:0.9rem;font-weight:600;color:var(--green);background:transparent;border:none;width:100px;text-align:right;" onchange="saveMilestone('ms-total-payouts',this.value)">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WHY IT'S WORTH IT -->
+    <div class="card" style="margin-bottom:1.25rem;border-left:3px solid var(--green);">
+      <div class="card-body">
+        <p style="font-size:0.95rem;line-height:1.8;color:var(--text);">You started with nothing — no strategy, no experience, no funded account.</p>
+        <p style="font-size:0.95rem;line-height:1.8;color:var(--text);margin-top:0.75rem;">In a few months you built a proven edge, a professional trading journal, a clear plan, and the discipline to execute it.</p>
+        <p style="font-size:0.95rem;line-height:1.8;color:var(--text);margin-top:0.75rem;">All of that from one hour per day.</p>
+      </div>
+    </div>
+
+    <!-- THE JOURNEY -->
+    <div class="card" style="margin-bottom:1.25rem;">
+      <div class="card-header">The Snowball</div>
+      <div class="card-body">
+        <div style="text-align:center;font-family:'DM Mono',monospace;font-size:1rem;color:var(--green);font-weight:500;margin-bottom:1.25rem;">£73 investment → 4 months of patience → first payout → snowball begins</div>
+        <p style="font-size:0.88rem;line-height:1.8;color:var(--muted);">The first 4 months are the hardest. No money coming in, just grinding through wins on the eval and funded account. Every trader who made it went through this exact phase. The ones who succeeded simply didn't quit.</p>
+        <div style="display:flex;flex-direction:column;gap:0.75rem;margin-top:1rem;">
+          <div style="display:flex;align-items:flex-start;gap:0.75rem;">
+            <span style="color:var(--green);font-size:1rem;margin-top:0.1rem;">→</span>
+            <span style="font-size:0.88rem;line-height:1.6;">Payouts every 2-3 weeks once the buffer is cleared</span>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:0.75rem;">
+            <span style="color:var(--green);font-size:1rem;margin-top:0.1rem;">→</span>
+            <span style="font-size:0.88rem;line-height:1.6;">Multiple prop firm accounts multiplying income without multiplying work</span>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:0.75rem;">
+            <span style="color:var(--green);font-size:1rem;margin-top:0.1rem;">→</span>
+            <span style="font-size:0.88rem;line-height:1.6;">A personal account compounding silently in the background</span>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:0.75rem;">
+            <span style="color:var(--green);font-size:1rem;margin-top:0.1rem;">→</span>
+            <span style="font-size:0.88rem;line-height:1.6;">A realistic destination of <strong style="color:var(--ink);">£100,000-£150,000 net per year within 5 years</strong></span>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:0.75rem;">
+            <span style="color:var(--green);font-size:1rem;margin-top:0.1rem;">→</span>
+            <span style="font-size:0.88rem;line-height:1.6;">From one hour per day</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUOTES -->
+    <div class="card" style="margin-bottom:1.25rem;">
+      <div class="card-header">Remember</div>
+      <div class="card-body">
+        <div style="display:flex;flex-direction:column;gap:1rem;">
+          <div style="padding:0.75rem 1rem;background:var(--bg3);border-radius:6px;border-left:3px solid var(--amber);">
+            <p style="font-size:0.88rem;line-height:1.7;color:var(--text);font-style:italic;">"The market rewards patience and punishes impatience."</p>
+          </div>
+          <div style="padding:0.75rem 1rem;background:var(--bg3);border-radius:6px;border-left:3px solid var(--amber);">
+            <p style="font-size:0.88rem;line-height:1.7;color:var(--text);font-style:italic;">"Your job is not to trade every day. Your job is to trade correctly."</p>
+          </div>
+          <div style="padding:0.75rem 1rem;background:var(--bg3);border-radius:6px;border-left:3px solid var(--amber);">
+            <p style="font-size:0.88rem;line-height:1.7;color:var(--text);font-style:italic;">"A skip is not a missed opportunity. It is a protected opportunity."</p>
+          </div>
+          <div style="padding:0.75rem 1rem;background:var(--bg3);border-radius:6px;border-left:3px solid var(--amber);">
+            <p style="font-size:0.88rem;line-height:1.7;color:var(--text);font-style:italic;">"A loss is not failure. It is the cost of doing business. Budget for it and move on."</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WHEN YOU WANT TO QUIT -->
+    <div class="card" style="margin-bottom:1.25rem;background:var(--green-bg);border:1px solid var(--green);">
+      <div class="card-header" style="color:var(--green);">When You Want To Quit — Read This</div>
+      <div class="card-body">
+        <div style="display:flex;flex-direction:column;gap:0.6rem;">
+          <p style="font-size:0.88rem;line-height:1.7;color:var(--text);">Every skip day is protecting your capital for the trade that matters.</p>
+          <p style="font-size:0.88rem;line-height:1.7;color:var(--text);">Every slow week is temporary. The snowball is permanent.</p>
+          <p style="font-size:0.88rem;line-height:1.7;color:var(--text);">3 wins per month is all it takes. That's it. Everything else follows.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- DAILY REMINDER -->
+    <div class="card" style="margin-bottom:1.25rem;text-align:center;border:1px solid var(--blue);background:var(--blue-bg);">
+      <div class="card-body">
+        <div style="font-size:0.72rem;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:0.1em;color:var(--blue);margin-bottom:0.5rem;">Daily Reminder</div>
+        <div style="font-size:0.95rem;line-height:1.7;color:var(--text);">"Did I follow the rules today?<br>Then today was a success regardless of outcome."</div>
+      </div>
+    </div>
+
+    <!-- ONE SENTENCE -->
+    <div class="card" style="margin-bottom:1.25rem;text-align:center;">
+      <div class="card-body">
+        <div style="font-family:'DM Mono',monospace;font-size:1rem;font-weight:500;color:var(--ink);line-height:1.8;">£73. One hour a day. Five years. Life changing.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
 </main>
 
 <!-- TRADE DETAIL MODAL -->
@@ -1423,6 +1570,7 @@ function showPage(id, el) {
   if (id==='dashboard') updateDash();
   if (id==='history')   renderTable();
   if (id==='weekly')    updateWeekStats();
+  if (id==='vision')    initVision();
 }
 window.showPage = showPage;
 
@@ -2587,6 +2735,73 @@ const now  = new Date(), yr = now.getFullYear();
 const jan4 = new Date(yr, 0, 4);
 const wk   = Math.ceil(((now - new Date(jan4.getTime() - ((jan4.getDay()||7)-1)*86400000)) / 86400000) / 7);
 document.getElementById('w-week').value = `${yr}-W${String(wk).padStart(2,'0')}`;
+
+// ── VISION PAGE ───────────────────────────────────────────────
+const ROADMAP_STAGES = [
+  { id:'learning',  label:'Learning' },
+  { id:'demo',      label:'Demo' },
+  { id:'eval',      label:'Eval' },
+  { id:'funded',    label:'Funded' },
+  { id:'150k',      label:'150K' },
+  { id:'multi',     label:'Multi Accounts' },
+  { id:'personal',  label:'Personal Account' }
+];
+
+function initVision() {
+  // Load milestones
+  const ms = JSON.parse(localStorage.getItem('vision_milestones') || '{}');
+  ['ms-learning','ms-demo','ms-eval','ms-payout'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el && ms[id]) el.value = ms[id];
+  });
+  const tp = document.getElementById('ms-total-payouts');
+  if (tp && ms['ms-total-payouts']) tp.value = ms['ms-total-payouts'];
+
+  // Render roadmap
+  const currentStage = ms['roadmap-stage'] || 'learning';
+  renderRoadmap(currentStage);
+}
+
+function saveMilestone(key, value) {
+  const ms = JSON.parse(localStorage.getItem('vision_milestones') || '{}');
+  ms[key] = value;
+  localStorage.setItem('vision_milestones', JSON.stringify(ms));
+}
+
+function setStage(stageId) {
+  saveMilestone('roadmap-stage', stageId);
+  renderRoadmap(stageId);
+}
+
+function renderRoadmap(currentStage) {
+  const currentIdx = ROADMAP_STAGES.findIndex(s => s.id === currentStage);
+  const stepsEl = document.getElementById('roadmap-steps');
+  const statusEl = document.getElementById('roadmap-status');
+  const btnsEl = document.getElementById('roadmap-btns');
+  if (!stepsEl) return;
+
+  stepsEl.innerHTML = ROADMAP_STAGES.map((s, i) => {
+    const done    = i < currentIdx;
+    const active  = i === currentIdx;
+    const future  = i > currentIdx;
+    const color   = done ? 'var(--green)' : active ? 'var(--ink)' : 'var(--subtle)';
+    const bg      = done ? 'var(--green-bg)' : active ? 'var(--bg3)' : 'transparent';
+    const border  = done ? 'var(--green)' : active ? 'var(--ink)' : 'var(--border)';
+    const arrow   = i < ROADMAP_STAGES.length-1 ? `<span style="color:var(--subtle);font-size:0.8rem;margin:0 0.2rem;">→</span>` : '';
+    return `<div style="display:flex;align-items:center;">
+      <div style="padding:0.3rem 0.6rem;border-radius:4px;border:1px solid ${border};background:${bg};font-family:'DM Mono',monospace;font-size:0.65rem;color:${color};font-weight:${active?'600':'400'};white-space:nowrap;">
+        ${done ? '✓ ' : active ? '● ' : ''}${s.label}
+      </div>${arrow}
+    </div>`;
+  }).join('');
+
+  const stage = ROADMAP_STAGES[currentIdx];
+  statusEl.textContent = `Current stage: ${stage.label}`;
+
+  btnsEl.innerHTML = ROADMAP_STAGES.map(s =>
+    `<button class="btn btn-ghost btn-sm" onclick="setStage('${s.id}')" style="font-size:0.65rem;">${s.label}</button>`
+  ).join('');
+}
 </script>
 </body>
 </html>
