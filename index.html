@@ -614,7 +614,7 @@ tr:hover .del-row { opacity:1; }
   </div>
 
   <div class="card" style="margin-bottom:1.5rem;">
-    <div class="card-header">Performance Summary <span style="font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--muted);font-weight:400;">P&L shown after fees ($9.10/trade)</span></div>
+    <div class="card-header">Performance Summary <span style="font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--muted);font-weight:400;">P&L shown after fees ($1.82/contract)</span></div>
     <div class="card-body">
       <div class="g5">
         <div class="stat-mini"><div class="stat-mini-num" id="s-wins">0</div><div class="stat-mini-lbl">Wins</div></div>
@@ -769,6 +769,13 @@ tr:hover .del-row { opacity:1; }
           <div class="form-group"><label>Entry Price</label><input type="number" id="f-entry" placeholder="e.g. 6897.00" step="0.25" oninput="calcPnl()"></div>
           <div class="form-group"><label>Exit Price</label><input type="number" id="f-exit" placeholder="e.g. 6877.00" step="0.25" oninput="calcPnl()"></div>
           <div class="form-group"><label>Stop Loss Price</label><input type="number" id="f-stop" placeholder="e.g. 6907.00" step="0.25"></div>
+          <div class="form-group"><label>Contracts</label><input type="number" id="f-contracts" placeholder="e.g. 5" min="1" max="40" value="5" oninput="calcPnl()"></div>
+          <div class="form-group"><label>Instrument</label>
+            <select id="f-instrument" oninput="calcPnl()">
+              <option value="MES">MES (Micro — $5/pt)</option>
+              <option value="ES">ES (Mini — $50/pt)</option>
+            </select>
+          </div>
           <div class="form-group"><label>Result</label>
             <select id="f-result">
               <option value="">— Select —</option>
@@ -1248,21 +1255,8 @@ tr:hover .del-row { opacity:1; }
       <div style="font-size:1.6rem;font-weight:600;line-height:1.3;">Why It's Worth It</div>
     </div>
 
-    <!-- ROADMAP -->
-    <div class="card" style="margin-bottom:1.25rem;">
-      <div class="card-header">Your Journey</div>
-      <div class="card-body">
-        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;margin-bottom:1rem;" id="roadmap-steps">
-          <!-- Rendered by JS -->
-        </div>
-        <div style="font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--muted);text-align:center;" id="roadmap-status">Set your current stage below</div>
-        <div style="margin-top:1rem;display:flex;gap:0.5rem;flex-wrap:wrap;justify-content:center;" id="roadmap-btns"></div>
-      </div>
-    </div>
 
-    <!-- MILESTONES -->
-    <div class="card" style="margin-bottom:1.25rem;">
-      <div class="card-header">Milestones</div>
+    <!-- MILESTONES -->\n    <div class=\"card\" style=\"margin-bottom:1.25rem;\">\n      <div class=\"card-header\">Milestones</div>
       <div class="card-body">
         <div style="display:flex;flex-direction:column;gap:0.75rem;">
           <div style="display:flex;align-items:center;justify-content:space-between;padding:0.6rem 0;border-bottom:1px solid var(--border);">
@@ -1471,6 +1465,7 @@ onAuthStateChanged(auth, user => {
     startTradesListener(user.uid);
     startBtListener(user.uid);
     loadWeeklyFromDB(user.uid);
+    loadVisionFromDB(user.uid);
     updateDash();
   } else {
     // Signed out — show login, hide app content
@@ -1653,13 +1648,16 @@ function calcPnl() {
   const en  = parseFloat(document.getElementById('f-entry').value);
   const ex  = parseFloat(document.getElementById('f-exit').value);
   const dir = document.getElementById('f-dir').value;
+  const cts = parseInt(document.getElementById('f-contracts').value) || 5;
+  const ins = document.getElementById('f-instrument').value || 'MES';
+  const mult = ins === 'ES' ? 50 : 5;
   const box = document.getElementById('calc-box');
   if (isNaN(en)||isNaN(ex)) { box.innerHTML = 'Enter entry &amp; exit prices above'; box.className = 'calc-box'; return; }
   const pts = dir==='Short' ? en-ex : ex-en;
-  const usd = pts * 25;
+  const usd = pts * mult * cts;
   const c   = usd >= 0 ? 'calc-pos' : 'calc-neg';
   const s   = usd >= 0 ? '+' : '';
-  box.innerHTML = `Points: <span class="${c}">${s}${pts.toFixed(2)}</span> &nbsp;·&nbsp; Dollar P&L (5 MES): <span class="${c}">${s}$${usd.toFixed(2)}</span>`;
+  box.innerHTML = `Points: <span class="${c}">${s}${pts.toFixed(2)}</span> &nbsp;·&nbsp; Dollar P&L (${cts} ${ins}): <span class="${c}">${s}$${usd.toFixed(2)}</span>`;
 }
 window.calcPnl = calcPnl;
 
@@ -1668,6 +1666,8 @@ function clearForm() {
     const el = document.getElementById(id);
     if (el) el.value = id === 'f-date' ? new Date().toISOString().split('T')[0] : '';
   });
+  document.getElementById('f-contracts').value = 5;
+  document.getElementById('f-instrument').value = 'MES';
   document.getElementById('calc-box').innerHTML = 'Enter entry &amp; exit prices above';
   clearEmotions();
   pending = []; renderPreviews();
@@ -1697,6 +1697,9 @@ async function saveTrade() {
   const dir = document.getElementById('f-dir').value;
   const en  = parseFloat(document.getElementById('f-entry').value) || 0;
   const ex  = parseFloat(document.getElementById('f-exit').value)  || 0;
+  const cts = parseInt(document.getElementById('f-contracts').value) || 5;
+  const ins = document.getElementById('f-instrument').value || 'MES';
+  const mult = ins === 'ES' ? 50 : 5;
   let pts   = 0;
   if (dir==='Short' && en && ex) pts = en - ex;
   if (dir==='Long'  && en && ex) pts = ex - en;
@@ -1707,7 +1710,9 @@ async function saveTrade() {
     setup:  document.getElementById('f-setup').value,
     entry: en, exit: ex,
     stop:  parseFloat(document.getElementById('f-stop').value) || 0,
-    pts, usd: pts * 25, result,
+    contracts: cts,
+    instrument: ins,
+    pts, usd: pts * mult * cts, result,
     trigger: document.getElementById('f-trigger').value,
     improve: document.getElementById('f-improve').value,
     notes:  [document.getElementById('f-trigger').value, document.getElementById('f-improve').value].filter(Boolean).join(' | '),
@@ -1735,9 +1740,12 @@ function updateDash() {
   const bes     = trades.filter(t => t.result==='Breakeven').length;
   const actual  = wins + losses + bes;
 
-  // Fees: $9.10 per trade (sim slippage/spread)
-  const FEE_PER_TRADE = 9.10;
-  const totalFees = actual * FEE_PER_TRADE;
+  // Fees: $1.82 per MES contract, $18.20 per ES contract (sim slippage/spread)
+  const enteredTrades = trades.filter(t => t.result !== 'Skip');
+  const totalFees = enteredTrades.reduce((s,t) => {
+    const feePerContract = (t.instrument||'MES') === 'ES' ? 18.20 : 1.82;
+    return s + ((t.contracts||5) * feePerContract);
+  }, 0);
   const grossTotal = trades.reduce((s,t) => s+(t.usd||0), 0);
   const total = grossTotal - totalFees;
   let run = 0, worst = 0;
@@ -1980,6 +1988,7 @@ function viewTrade(fid) {
       <div class="modal-row"><span class="modal-key">Entry</span><span class="modal-val">${t.entry||'—'}</span></div>
       <div class="modal-row"><span class="modal-key">Exit</span><span class="modal-val">${t.exit||'—'}</span></div>
       <div class="modal-row"><span class="modal-key">Stop Loss</span><span class="modal-val">${t.stop||'—'}</span></div>
+      <div class="modal-row"><span class="modal-key">Contracts</span><span class="modal-val">${t.contracts||5} ${t.instrument||'MES'}</span></div>
       <div class="modal-row"><span class="modal-key">Points</span><span class="modal-val">${t.pts?(t.pts>0?'+':'')+t.pts.toFixed(2):'—'}</span></div>
       <div class="modal-row"><span class="modal-key">Result</span><span class="modal-val">${tag(t.result)}</span></div>
       <div class="modal-row"><span class="modal-key">P&L</span><span class="modal-val ${(t.usd||0)>=0?'pnl-pos':'pnl-neg'}">${(t.usd>=0?'+':'')+'$'+(t.usd||0).toFixed(2)}</span></div>
@@ -2041,6 +2050,13 @@ function editTrade(fid) {
       <div class="form-group"><label>Entry</label><input type="number" id="e-entry" value="${t.entry||''}" step="0.25"></div>
       <div class="form-group"><label>Exit</label><input type="number" id="e-exit" value="${t.exit||''}" step="0.25"></div>
       <div class="form-group"><label>Stop</label><input type="number" id="e-stop" value="${t.stop||''}" step="0.25"></div>
+      <div class="form-group"><label>Contracts</label><input type="number" id="e-contracts" value="${t.contracts||5}" min="1" max="40"></div>
+      <div class="form-group"><label>Instrument</label>
+        <select id="e-instrument">
+          <option value="MES" ${(t.instrument||'MES')==='MES'?'selected':''}>MES (Micro — $5/pt)</option>
+          <option value="ES" ${t.instrument==='ES'?'selected':''}>ES (Mini — $50/pt)</option>
+        </select>
+      </div>
       <div class="form-group"><label>Result</label>
         <select id="e-result">
           ${['Win','Loss','Breakeven','Skip'].map(v=>`<option value="${v}" ${t.result===v?'selected':''}>${v}</option>`).join('')}
@@ -2084,7 +2100,9 @@ async function saveEditedTrade(fid) {
     setup:         document.getElementById('e-setup').value,
     entry: en, exit: ex,
     stop:          parseFloat(document.getElementById('e-stop').value) || 0,
-    pts, usd: pts * 25,
+    contracts:     parseInt(document.getElementById('e-contracts').value) || 5,
+    instrument:    document.getElementById('e-instrument').value || 'MES',
+    pts, usd: pts * (document.getElementById('e-instrument').value === 'ES' ? 50 : 5) * (parseInt(document.getElementById('e-contracts').value) || 5),
     result:        document.getElementById('e-result').value,
     trigger:       document.getElementById('e-trigger').value,
     improve:       document.getElementById('e-improve').value,
@@ -2737,23 +2755,11 @@ const wk   = Math.ceil(((now - new Date(jan4.getTime() - ((jan4.getDay()||7)-1)*
 document.getElementById('w-week').value = `${yr}-W${String(wk).padStart(2,'0')}`;
 
 // ── VISION PAGE ───────────────────────────────────────────────
-const ROADMAP_STAGES = [
-  { id:'learning',  label:'Learning' },
-  { id:'demo',      label:'Demo' },
-  { id:'eval',      label:'Eval' },
-  { id:'funded',    label:'Funded' },
-  { id:'150k',      label:'150K' },
-  { id:'multi',     label:'Multi Accounts' },
-  { id:'personal',  label:'Personal Account' }
-];
-
 function visionRef(uid) { return doc(db, 'users', uid, 'vision', 'data'); }
 
-async function initVision() {
-  const u = auth.currentUser;
-  if (!u) return;
+async function loadVisionFromDB(uid) {
   try {
-    const snap = await getDoc(visionRef(u.uid));
+    const snap = await getDoc(doc(db, 'users', uid, 'vision', 'data'));
     const ms = snap.exists() ? snap.data() : {};
     ['ms-learning','ms-demo','ms-eval','ms-payout'].forEach(id => {
       const el = document.getElementById(id);
@@ -2761,56 +2767,25 @@ async function initVision() {
     });
     const tp = document.getElementById('ms-total-payouts');
     if (tp && ms['ms-total-payouts']) tp.value = ms['ms-total-payouts'];
-    const currentStage = ms['roadmap-stage'] || 'learning';
-    renderRoadmap(currentStage);
-  } catch(e) {
-    renderRoadmap('learning');
-  }
+  } catch(e) { console.error('Vision load error:', e); }
+}
+
+async function initVision() {
+  const u = auth.currentUser;
+  if (!u) return;
+  await loadVisionFromDB(u.uid);
 }
 
 async function saveMilestone(key, value) {
   const u = auth.currentUser;
   if (!u) return;
   try {
-    const snap = await getDoc(visionRef(u.uid));
+    const ref = doc(db, 'users', u.uid, 'vision', 'data');
+    const snap = await getDoc(ref);
     const ms = snap.exists() ? snap.data() : {};
     ms[key] = value;
-    await setDoc(visionRef(u.uid), ms);
-  } catch(e) { console.error(e); }
-}
-
-async function setStage(stageId) {
-  await saveMilestone('roadmap-stage', stageId);
-  renderRoadmap(stageId);
-}
-
-function renderRoadmap(currentStage) {
-  const currentIdx = ROADMAP_STAGES.findIndex(s => s.id === currentStage);
-  const stepsEl = document.getElementById('roadmap-steps');
-  const statusEl = document.getElementById('roadmap-status');
-  const btnsEl = document.getElementById('roadmap-btns');
-  if (!stepsEl) return;
-
-  stepsEl.innerHTML = ROADMAP_STAGES.map((s, i) => {
-    const done    = i < currentIdx;
-    const active  = i === currentIdx;
-    const color   = done ? 'var(--green)' : active ? 'var(--ink)' : 'var(--subtle)';
-    const bg      = done ? 'var(--green-bg)' : active ? 'var(--bg3)' : 'transparent';
-    const border  = done ? 'var(--green)' : active ? 'var(--ink)' : 'var(--border)';
-    const arrow   = i < ROADMAP_STAGES.length-1 ? `<span style="color:var(--subtle);font-size:0.8rem;margin:0 0.2rem;">→</span>` : '';
-    return `<div style="display:flex;align-items:center;">
-      <div style="padding:0.3rem 0.6rem;border-radius:4px;border:1px solid ${border};background:${bg};font-family:'DM Mono',monospace;font-size:0.65rem;color:${color};font-weight:${active?'600':'400'};white-space:nowrap;">
-        ${done ? '✓ ' : active ? '● ' : ''}${s.label}
-      </div>${arrow}
-    </div>`;
-  }).join('');
-
-  const stage = ROADMAP_STAGES[currentIdx];
-  statusEl.textContent = `Current stage: ${stage.label}`;
-
-  btnsEl.innerHTML = ROADMAP_STAGES.map(s =>
-    `<button class="btn btn-ghost btn-sm" onclick="setStage('${s.id}')" style="font-size:0.65rem;">${s.label}</button>`
-  ).join('');
+    await setDoc(ref, ms);
+  } catch(e) { console.error('Vision save error:', e); }
 }
 </script>
 </body>
