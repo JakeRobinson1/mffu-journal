@@ -2747,29 +2747,40 @@ const ROADMAP_STAGES = [
   { id:'personal',  label:'Personal Account' }
 ];
 
-function initVision() {
-  // Load milestones
-  const ms = JSON.parse(localStorage.getItem('vision_milestones') || '{}');
-  ['ms-learning','ms-demo','ms-eval','ms-payout'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el && ms[id]) el.value = ms[id];
-  });
-  const tp = document.getElementById('ms-total-payouts');
-  if (tp && ms['ms-total-payouts']) tp.value = ms['ms-total-payouts'];
+function visionRef(uid) { return doc(db, 'users', uid, 'vision', 'data'); }
 
-  // Render roadmap
-  const currentStage = ms['roadmap-stage'] || 'learning';
-  renderRoadmap(currentStage);
+async function initVision() {
+  const u = auth.currentUser;
+  if (!u) return;
+  try {
+    const snap = await getDoc(visionRef(u.uid));
+    const ms = snap.exists() ? snap.data() : {};
+    ['ms-learning','ms-demo','ms-eval','ms-payout'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el && ms[id]) el.value = ms[id];
+    });
+    const tp = document.getElementById('ms-total-payouts');
+    if (tp && ms['ms-total-payouts']) tp.value = ms['ms-total-payouts'];
+    const currentStage = ms['roadmap-stage'] || 'learning';
+    renderRoadmap(currentStage);
+  } catch(e) {
+    renderRoadmap('learning');
+  }
 }
 
-function saveMilestone(key, value) {
-  const ms = JSON.parse(localStorage.getItem('vision_milestones') || '{}');
-  ms[key] = value;
-  localStorage.setItem('vision_milestones', JSON.stringify(ms));
+async function saveMilestone(key, value) {
+  const u = auth.currentUser;
+  if (!u) return;
+  try {
+    const snap = await getDoc(visionRef(u.uid));
+    const ms = snap.exists() ? snap.data() : {};
+    ms[key] = value;
+    await setDoc(visionRef(u.uid), ms);
+  } catch(e) { console.error(e); }
 }
 
-function setStage(stageId) {
-  saveMilestone('roadmap-stage', stageId);
+async function setStage(stageId) {
+  await saveMilestone('roadmap-stage', stageId);
   renderRoadmap(stageId);
 }
 
@@ -2783,7 +2794,6 @@ function renderRoadmap(currentStage) {
   stepsEl.innerHTML = ROADMAP_STAGES.map((s, i) => {
     const done    = i < currentIdx;
     const active  = i === currentIdx;
-    const future  = i > currentIdx;
     const color   = done ? 'var(--green)' : active ? 'var(--ink)' : 'var(--subtle)';
     const bg      = done ? 'var(--green-bg)' : active ? 'var(--bg3)' : 'transparent';
     const border  = done ? 'var(--green)' : active ? 'var(--ink)' : 'var(--border)';
