@@ -2117,8 +2117,10 @@ function renderMonthlySummary() {
     if (!t.date) return;
     const key = t.date.slice(0,7); // YYYY-MM
     if (!months[key]) months[key] = { wins:0, losses:0, bes:0, pnl:0, trades:0 };
+    const feePerContract = (t.instrument||'MES') === 'ES' ? 18.20 : 1.82;
+    const fees = (t.contracts||5) * feePerContract;
     months[key].trades++;
-    months[key].pnl += (t.usd||0);
+    months[key].pnl += (t.usd||0) - fees;
     if (t.result==='Win') months[key].wins++;
     else if (t.result==='Loss') months[key].losses++;
     else if (t.result==='Breakeven') months[key].bes++;
@@ -2167,7 +2169,7 @@ function renderMonthlySummary() {
             <td style="padding:0.6rem 0.75rem;text-align:center;color:var(--red);">${trades.filter(t=>t.result==='Loss').length}</td>
             <td style="padding:0.6rem 0.75rem;text-align:center;color:var(--amber);">${trades.filter(t=>t.result==='Breakeven').length}</td>
             <td style="padding:0.6rem 0.75rem;text-align:center;font-family:'DM Mono',monospace;">${trades.filter(t=>t.result!=='Breakeven').length > 0 ? Math.round(trades.filter(t=>t.result==='Win').length/trades.filter(t=>t.result!=='Breakeven'&&t.result!=='Skip').length*100)+'%' : '—'}</td>
-            <td style="padding:0.6rem 0.75rem;text-align:right;font-family:'DM Mono',monospace;font-weight:600;color:${trades.reduce((s,t)=>s+(t.usd||0),0)>=0?'var(--green)':'var(--red)'};">${(trades.reduce((s,t)=>s+(t.usd||0),0)>=0?'+':'')+'$'+trades.reduce((s,t)=>s+(t.usd||0),0).toFixed(2)}</td>
+            <td style="padding:0.6rem 0.75rem;text-align:right;font-family:'DM Mono',monospace;font-weight:600;color:${Object.values(months).reduce((s,m)=>s+m.pnl,0)>=0?'var(--green)':'var(--red)'};">${(Object.values(months).reduce((s,m)=>s+m.pnl,0)>=0?'+':'')+'$'+Object.values(months).reduce((s,m)=>s+m.pnl,0).toFixed(2)}</td>
           </tr>
         </tfoot>
       </table>
