@@ -2873,7 +2873,7 @@ window.startBtListener = startBtListener;
 
 function showBtForm() {
   document.getElementById('bt-form-card').style.display = 'block';
-  document.getElementById('bt-date').value = new Date().toISOString().split('T')[0];
+  document.getElementById('bt-date').value = localStorage.getItem('bt-last-date') || new Date().toISOString().split('T')[0];
   document.getElementById('bt-form-card').scrollIntoView({ behavior:'smooth', block:'start' });
 }
 window.showBtForm = showBtForm;
@@ -2899,7 +2899,7 @@ function clearBtForm() {
   ['bt-date','bt-dir','bt-sess','bt-setup','bt-entry','bt-exit','bt-stop','bt-result',
    'bt-oh','bt-ol','bt-orh','bt-orl','bt-retest','bt-would-take','bt-notes','bt-improve'].forEach(id => {
     const el = document.getElementById(id);
-    if (el) el.value = id==='bt-date' ? new Date().toISOString().split('T')[0] : '';
+    if (el) el.value = id==='bt-date' ? (localStorage.getItem('bt-last-date') || new Date().toISOString().split('T')[0]) : '';
   });
   document.getElementById('bt-calc-box').innerHTML = 'Enter entry &amp; exit prices above';
 }
@@ -2936,6 +2936,7 @@ async function saveBtTrade() {
   toast('Saving…');
   try {
     await addDoc(btTradesRef(uid), trade);
+    localStorage.setItem('bt-last-date', date);
     clearBtForm();
     hideBtForm();
     toast('Backtest saved ✓');
