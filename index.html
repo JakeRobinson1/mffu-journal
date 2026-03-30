@@ -548,6 +548,19 @@ tr:hover .del-row { opacity:1; }
 .score-row-bar { height:100%; border-radius:3px; transition:width 0.5s ease; }
 .score-row-pts { font-family:'DM Mono',monospace; font-size:0.7rem; color:var(--muted); min-width:40px; text-align:right; }
 .score-verdict { margin-top:1rem; padding:0.65rem 0.9rem; border-radius:5px; font-size:0.8rem; font-weight:500; text-align:center; }
+
+/* BACKTEST CALENDAR */
+.bt-cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:3px; }
+.bt-cal-dow { font-family:'DM Mono',monospace; font-size:0.6rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--subtle); text-align:center; padding:0.2rem 0 0.4rem; }
+.bt-cal-day { aspect-ratio:1; border-radius:4px; display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:'DM Mono',monospace; font-size:0.7rem; color:var(--muted); background:var(--bg3); border:1px solid transparent; cursor:default; min-height:38px; gap:2px; }
+.bt-cal-day.empty { background:transparent; border-color:transparent; }
+.bt-cal-day.win { background:var(--green-bg); border-color:var(--green); color:var(--green); font-weight:600; }
+.bt-cal-day.loss { background:var(--red-bg); border-color:var(--red); color:var(--red); font-weight:600; }
+.bt-cal-day.be { background:var(--amber-bg); border-color:var(--amber); color:var(--amber); font-weight:600; }
+.bt-cal-day.skip { background:var(--bg3); border-color:var(--border); color:var(--subtle); }
+.bt-cal-day.nosetup { background:var(--bg3); border-color:var(--border); color:var(--subtle); }
+.bt-cal-day.weekend { opacity:0.35; }
+.bt-cal-pts { font-size:0.58rem; font-weight:400; opacity:0.85; }
 </style>
 </head>
 <body>
@@ -866,6 +879,27 @@ tr:hover .del-row { opacity:1; }
 
 <!-- HISTORY -->
 <div class="page" id="page-history">
+
+  <!-- Live Trades Calendar -->
+  <div class="card" style="margin-bottom:1.5rem;">
+    <div class="card-header">
+      <span>Monthly Calendar</span>
+      <div style="display:flex;align-items:center;gap:0.75rem;">
+        <button class="btn btn-ghost btn-sm" onclick="liveCalPrev()">&#8249; Prev</button>
+        <span id="live-cal-label" style="font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--ink);min-width:90px;text-align:center;">&#8212;</span>
+        <button class="btn btn-ghost btn-sm" onclick="liveCalNext()">Next &#8250;</button>
+      </div>
+    </div>
+    <div class="card-body" style="padding:1rem;">
+      <div id="live-calendar"></div>
+      <div style="display:flex;gap:1.25rem;margin-top:0.85rem;flex-wrap:wrap;">
+        <span style="display:flex;align-items:center;gap:0.4rem;font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--muted);"><span style="width:12px;height:12px;border-radius:2px;background:var(--green);display:inline-block;"></span>Win</span>
+        <span style="display:flex;align-items:center;gap:0.4rem;font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--muted);"><span style="width:12px;height:12px;border-radius:2px;background:var(--red);display:inline-block;"></span>Loss</span>
+        <span style="display:flex;align-items:center;gap:0.4rem;font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--muted);"><span style="width:12px;height:12px;border-radius:2px;background:var(--amber);display:inline-block;"></span>Breakeven</span>
+        <span style="display:flex;align-items:center;gap:0.4rem;font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--muted);"><span style="width:12px;height:12px;border-radius:2px;background:var(--bg3);border:1px solid var(--border);display:inline-block;"></span>Skip / No trade</span>
+      </div>
+    </div>
+  </div>
 
   <!-- Monthly P&L Summary -->
   <div class="card" style="margin-bottom:1.25rem;">
@@ -1241,18 +1275,56 @@ tr:hover .del-row { opacity:1; }
     </div>
   </div>
 
-  <!-- History table -->
-  <div class="table-wrap">
-    <table class="bt-table">
-      <thead><tr>
-        <th>Date</th><th>Session</th><th>Setup</th><th>Dir</th>
-        <th>Entry</th><th>Exit</th><th>Pts</th><th>Result</th>
-        <th>Retest</th><th>Would Take Live?</th><th>Notes</th><th></th>
-      </tr></thead>
-      <tbody id="bt-body">
-        <tr><td colspan="12"><div class="empty-state"><div class="empty-icon">📊</div>No backtests yet — press Log Backtest to start</div></td></tr>
-      </tbody>
-    </table>
+  <!-- Monthly Calendar -->
+  <div class="card" style="margin-bottom:1.5rem;">
+    <div class="card-header">
+      <span>Monthly Calendar</span>
+      <div style="display:flex;align-items:center;gap:0.75rem;">
+        <button class="btn btn-ghost btn-sm" onclick="btCalPrev()">&#8249; Prev</button>
+        <span id="bt-cal-label" style="font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--ink);min-width:90px;text-align:center;">&#8212;</span>
+        <button class="btn btn-ghost btn-sm" onclick="btCalNext()">Next &#8250;</button>
+      </div>
+    </div>
+    <div class="card-body" style="padding:1rem;">
+      <div id="bt-calendar"></div>
+      <div style="display:flex;gap:1.25rem;margin-top:0.85rem;flex-wrap:wrap;">
+        <span style="display:flex;align-items:center;gap:0.4rem;font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--muted);"><span style="width:12px;height:12px;border-radius:2px;background:var(--green);display:inline-block;"></span>Win</span>
+        <span style="display:flex;align-items:center;gap:0.4rem;font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--muted);"><span style="width:12px;height:12px;border-radius:2px;background:var(--red);display:inline-block;"></span>Loss</span>
+        <span style="display:flex;align-items:center;gap:0.4rem;font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--muted);"><span style="width:12px;height:12px;border-radius:2px;background:var(--amber);display:inline-block;"></span>Breakeven</span>
+        <span style="display:flex;align-items:center;gap:0.4rem;font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--muted);"><span style="width:12px;height:12px;border-radius:2px;background:var(--bg3);border:1px solid var(--border);display:inline-block;"></span>Skip / No trade</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Date Range Filter + History table -->
+  <div class="card" style="margin-bottom:1.5rem;">
+    <div class="card-header">
+      <span>History</span>
+      <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:0.4rem;">
+          <label style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);white-space:nowrap;margin:0;">From</label>
+          <input type="date" id="bt-filter-from" style="padding:0.3rem 0.5rem;font-size:0.72rem;width:130px;" onchange="renderBtTable()">
+        </div>
+        <div style="display:flex;align-items:center;gap:0.4rem;">
+          <label style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);white-space:nowrap;margin:0;">To</label>
+          <input type="date" id="bt-filter-to" style="padding:0.3rem 0.5rem;font-size:0.72rem;width:130px;" onchange="renderBtTable()">
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="clearBtFilter()">Clear</button>
+        <span id="bt-filter-count" style="font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--muted);"></span>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table class="bt-table">
+        <thead><tr>
+          <th>Date</th><th>Session</th><th>Setup</th><th>Dir</th>
+          <th>Entry</th><th>Exit</th><th>Pts</th><th>Result</th>
+          <th>Retest</th><th>Would Take Live?</th><th>Notes</th><th></th>
+        </tr></thead>
+        <tbody id="bt-body">
+          <tr><td colspan="12"><div class="empty-state"><div class="empty-icon">&#128202;</div>No backtests yet &#8212; press Log Backtest to start</div></td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
 
@@ -2002,6 +2074,89 @@ let _weekly  = {};
 function tradesRef(uid)  { return collection(db, 'users', uid, 'trades'); }
 function weeklyRef(uid)  { return doc(db, 'users', uid, 'weekly', 'data'); }
 
+// ── LIVE TRADES CALENDAR ─────────────────────────────────────
+let _liveCalYear  = new Date().getFullYear();
+let _liveCalMonth = new Date().getMonth();
+
+function liveCalPrev() {
+  _liveCalMonth--;
+  if (_liveCalMonth < 0) { _liveCalMonth = 11; _liveCalYear--; }
+  renderLiveCalendar();
+}
+function liveCalNext() {
+  _liveCalMonth++;
+  if (_liveCalMonth > 11) { _liveCalMonth = 0; _liveCalYear++; }
+  renderLiveCalendar();
+}
+window.liveCalPrev = liveCalPrev;
+window.liveCalNext = liveCalNext;
+
+function syncLiveCalToLastEntry() {
+  if (!_trades.length) return;
+  const last = _trades[_trades.length - 1];
+  if (last && last.date) {
+    const d = new Date(last.date + 'T12:00');
+    _liveCalYear  = d.getFullYear();
+    _liveCalMonth = d.getMonth();
+  }
+}
+
+function renderLiveCalendar() {
+  const el  = document.getElementById('live-calendar');
+  const lbl = document.getElementById('live-cal-label');
+  if (!el) return;
+
+  const year = _liveCalYear, month = _liveCalMonth;
+  const monthName = new Date(year, month, 1).toLocaleString('en-GB', { month: 'long', year: 'numeric' });
+  if (lbl) lbl.textContent = monthName;
+
+  // Build date -> trade map
+  const tradeMap = {};
+  _trades.forEach(t => { if (t.date) tradeMap[t.date] = t; });
+
+  const firstDay   = new Date(year, month, 1).getDay();
+  const startOffset = (firstDay === 0) ? 6 : firstDay - 1;
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  let html = '<div class="bt-cal-grid">';
+  days.forEach(d => { html += `<div class="bt-cal-dow">${d}</div>`; });
+
+  for (let i = 0; i < startOffset; i++) html += '<div class="bt-cal-day empty"></div>';
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const dow = new Date(year, month, d).getDay();
+    const isWeekend = dow === 0 || dow === 6;
+    const trade = tradeMap[dateStr];
+
+    let cls = 'bt-cal-day';
+    let ptsHtml = '';
+    if (isWeekend) cls += ' weekend';
+
+    if (trade) {
+      const r = trade.result;
+      if (r === 'Win')            { cls += ' win';  ptsHtml = `<span class="bt-cal-pts">+${(trade.pts||0).toFixed(0)}pts</span>`; }
+      else if (r === 'Loss')      { cls += ' loss'; ptsHtml = `<span class="bt-cal-pts">${(trade.pts||0).toFixed(0)}pts</span>`; }
+      else if (r === 'Breakeven') { cls += ' be';   ptsHtml = `<span class="bt-cal-pts">BE</span>`; }
+      else if (r === 'Skip')      { cls += ' skip'; }
+      else                        { cls += ' nosetup'; }
+    }
+
+    html += `<div class="${cls}" title="${dateStr}${trade ? ' — ' + (trade.result||'') : ''}">${d}${ptsHtml}</div>`;
+  }
+
+  const total = startOffset + daysInMonth;
+  const remainder = total % 7;
+  if (remainder !== 0) {
+    for (let i = 0; i < 7 - remainder; i++) html += '<div class="bt-cal-day empty"></div>';
+  }
+
+  html += '</div>';
+  el.innerHTML = html;
+}
+window.renderLiveCalendar = renderLiveCalendar;
+
 function startTradesListener(uid) {
   if (_unsubscribeTrades) _unsubscribeTrades();
   const q = query(tradesRef(uid), orderBy('date', 'asc'));
@@ -2011,6 +2166,8 @@ function startTradesListener(uid) {
     renderTable();
     renderMonthlySummary();
     updateWeekStats();
+    syncLiveCalToLastEntry();
+    renderLiveCalendar();
   }, err => console.error('Firestore listener error', err));
 }
 
@@ -2865,6 +3022,8 @@ function startBtListener(uid) {
   const q = query(btTradesRef(uid), orderBy('date','asc'));
   onSnapshot(q, snap => {
     _btTrades = snap.docs.map(d => ({ _fid: d.id, ...d.data() }));
+    syncCalendarToLastEntry();
+    renderBtCalendar();
     renderBtTable();
     updateBtStats();
   }, err => console.error('BT listener error', err));
@@ -3103,15 +3262,133 @@ async function saveEditedBtTrade(fid) {
 }
 window.saveEditedBtTrade = saveEditedBtTrade;
 
+// ── BACKTEST CALENDAR ────────────────────────────────────────
+let _btCalYear  = new Date().getFullYear();
+let _btCalMonth = new Date().getMonth(); // 0-indexed
+
+function btCalPrev() {
+  _btCalMonth--;
+  if (_btCalMonth < 0) { _btCalMonth = 11; _btCalYear--; }
+  renderBtCalendar();
+}
+function btCalNext() {
+  _btCalMonth++;
+  if (_btCalMonth > 11) { _btCalMonth = 0; _btCalYear++; }
+  renderBtCalendar();
+}
+window.btCalPrev = btCalPrev;
+window.btCalNext = btCalNext;
+
+function renderBtCalendar() {
+  const el = document.getElementById('bt-calendar');
+  const lbl = document.getElementById('bt-cal-label');
+  if (!el) return;
+
+  const year = _btCalYear, month = _btCalMonth;
+  const monthName = new Date(year, month, 1).toLocaleString('en-GB', { month: 'long', year: 'numeric' });
+  if (lbl) lbl.textContent = monthName;
+
+  // Build a map of date -> trade
+  const tradeMap = {};
+  _btTrades.forEach(t => {
+    if (t.date) tradeMap[t.date] = t;
+  });
+
+  const firstDay = new Date(year, month, 1).getDay(); // 0=Sun
+  const startOffset = (firstDay === 0) ? 6 : firstDay - 1; // Mon-start
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  let html = '<div class="bt-cal-grid">';
+  days.forEach(d => { html += `<div class="bt-cal-dow">${d}</div>`; });
+
+  // Empty cells before first day
+  for (let i = 0; i < startOffset; i++) html += '<div class="bt-cal-day empty"></div>';
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const dow = new Date(year, month, d).getDay(); // 0=Sun,6=Sat
+    const isWeekend = dow === 0 || dow === 6;
+    const trade = tradeMap[dateStr];
+
+    let cls = 'bt-cal-day';
+    let ptsHtml = '';
+    if (isWeekend) cls += ' weekend';
+
+    if (trade) {
+      const r = trade.result;
+      if (r === 'Win')        { cls += ' win';     ptsHtml = `<span class="bt-cal-pts">+${(trade.pts||0).toFixed(0)}pts</span>`; }
+      else if (r === 'Loss')  { cls += ' loss';    ptsHtml = `<span class="bt-cal-pts">${(trade.pts||0).toFixed(0)}pts</span>`; }
+      else if (r === 'Breakeven') { cls += ' be';  ptsHtml = `<span class="bt-cal-pts">BE</span>`; }
+      else if (r === 'Skip')  { cls += ' skip'; }
+      else                    { cls += ' nosetup'; }
+    }
+
+    html += `<div class="${cls}" title="${dateStr}${trade ? ' — ' + (trade.result||'') : ''}">${d}${ptsHtml}</div>`;
+  }
+
+  // Pad end to complete last row
+  const total = startOffset + daysInMonth;
+  const remainder = total % 7;
+  if (remainder !== 0) {
+    for (let i = 0; i < 7 - remainder; i++) html += '<div class="bt-cal-day empty"></div>';
+  }
+
+  html += '</div>';
+  el.innerHTML = html;
+}
+window.renderBtCalendar = renderBtCalendar;
+
+// Auto-navigate calendar to the month of the last backtest entry
+function syncCalendarToLastEntry() {
+  if (!_btTrades.length) return;
+  const last = _btTrades[_btTrades.length - 1];
+  if (last && last.date) {
+    const d = new Date(last.date + 'T12:00');
+    _btCalYear  = d.getFullYear();
+    _btCalMonth = d.getMonth();
+  }
+}
+
+// ── DATE RANGE FILTER ────────────────────────────────────────
+function clearBtFilter() {
+  document.getElementById('bt-filter-from').value = '';
+  document.getElementById('bt-filter-to').value   = '';
+  renderBtTable();
+}
+window.clearBtFilter = clearBtFilter;
+
+function getFilteredBtTrades() {
+  const from = document.getElementById('bt-filter-from')?.value || '';
+  const to   = document.getElementById('bt-filter-to')?.value   || '';
+  return _btTrades.filter(t => {
+    if (!t.date) return true;
+    if (from && t.date < from) return false;
+    if (to   && t.date > to)   return false;
+    return true;
+  });
+}
+
 function renderBtTable() {
   const tbody = document.getElementById('bt-body');
-  if (!_btTrades.length) {
-    tbody.innerHTML = '<tr><td colspan="13"><div class="empty-state"><div class="empty-icon">📊</div>No backtests yet</div></td></tr>';
+  const filtered = getFilteredBtTrades();
+  const countEl = document.getElementById('bt-filter-count');
+  if (countEl) {
+    const from = document.getElementById('bt-filter-from')?.value || '';
+    const to   = document.getElementById('bt-filter-to')?.value   || '';
+    if (from || to) {
+      countEl.textContent = filtered.length + ' of ' + _btTrades.length + ' trades';
+    } else {
+      countEl.textContent = '';
+    }
+  }
+  if (!filtered.length) {
+    tbody.innerHTML = '<tr><td colspan="13"><div class="empty-state"><div class="empty-icon">📊</div>' + (!_btTrades.length ? 'No backtests yet' : 'No trades in selected date range') + '</div></td></tr>';
     return;
   }
   const tag = r => r==='Win'?'<span class="tag win">Win</span>':r==='Loss'?'<span class="tag loss">Loss</span>':r==='Skip'?'<span class="tag skip">Skip</span>':'<span class="tag be">BE</span>';
   const wtc  = v => v==='Yes'?`<span style="color:var(--green);font-family:'DM Mono',monospace;font-size:0.72rem;">Yes</span>`:v==='No'?`<span style="color:var(--red);font-family:'DM Mono',monospace;font-size:0.72rem;">No</span>`:v?`<span style="color:var(--amber);font-family:'DM Mono',monospace;font-size:0.72rem;">${v}</span>`:'—';
-  tbody.innerHTML = _btTrades.map(t => {
+  tbody.innerHTML = filtered.map(t => {
     const ds  = t.date ? new Date(t.date+'T12:00').toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'2-digit'}) : '—';
     const pc  = (t.pts||0)>=0?'pnl-pos':'pnl-neg';
     const fid = t._fid||'';
