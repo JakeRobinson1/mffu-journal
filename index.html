@@ -2136,10 +2136,10 @@ function renderLiveCalendar() {
 
     if (trade) {
       const r = trade.result;
-      if (r === 'Win')            { cls += ' win';  ptsHtml = `<span class="bt-cal-pts">+${(trade.pts||0).toFixed(0)}pts</span>`; }
-      else if (r === 'Loss')      { cls += ' loss'; ptsHtml = `<span class="bt-cal-pts">${(trade.pts||0).toFixed(0)}pts</span>`; }
+      if (r === 'Win')            { cls += ' win';  ptsHtml = `<span class="bt-cal-pts">+$${(trade.usd||0).toFixed(0)}</span>`; }
+      else if (r === 'Loss')      { cls += ' loss'; ptsHtml = `<span class="bt-cal-pts">-$${Math.abs(trade.usd||0).toFixed(0)}</span>`; }
       else if (r === 'Breakeven') { cls += ' be';   ptsHtml = `<span class="bt-cal-pts">BE</span>`; }
-      else if (r === 'Skip')      { cls += ' skip'; }
+      else if (r === 'Skip')      { cls += ' skip'; ptsHtml = `<span class="bt-cal-pts">skip</span>`; }
       else                        { cls += ' nosetup'; }
     }
 
@@ -3317,10 +3317,10 @@ function renderBtCalendar() {
 
     if (trade) {
       const r = trade.result;
-      if (r === 'Win')        { cls += ' win';     ptsHtml = `<span class="bt-cal-pts">+${(trade.pts||0).toFixed(0)}pts</span>`; }
-      else if (r === 'Loss')  { cls += ' loss';    ptsHtml = `<span class="bt-cal-pts">${(trade.pts||0).toFixed(0)}pts</span>`; }
+      if (r === 'Win')        { cls += ' win';     ptsHtml = `<span class="bt-cal-pts">+$${(trade.usd||0).toFixed(0)}</span>`; }
+      else if (r === 'Loss')  { cls += ' loss';    ptsHtml = `<span class="bt-cal-pts">-$${Math.abs(trade.usd||0).toFixed(0)}</span>`; }
       else if (r === 'Breakeven') { cls += ' be';  ptsHtml = `<span class="bt-cal-pts">BE</span>`; }
-      else if (r === 'Skip')  { cls += ' skip'; }
+      else if (r === 'Skip')  { cls += ' skip';    ptsHtml = `<span class="bt-cal-pts">skip</span>`; }
       else                    { cls += ' nosetup'; }
     }
 
