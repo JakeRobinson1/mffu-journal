@@ -1168,7 +1168,16 @@ tr:hover .del-row { opacity:1; }
 
   <!-- PROFITABILITY SCORE -->
   <div class="card" style="margin-bottom:1.5rem;">
-    <div class="card-header">Profitability Score</div>
+    <div class="card-header" style="display:flex;align-items:center;justify-content:space-between;">
+      <span>Profitability Score</span>
+      <select id="bt-score-grade-filter" onchange="updateBtStats()" style="background:var(--bg2);color:var(--text);border:1px solid var(--bg3);border-radius:6px;padding:0.25rem 0.5rem;font-size:0.78rem;cursor:pointer;">
+        <option value="All">All Grades</option>
+        <option value="A+">A+ Only</option>
+        <option value="A">A Only</option>
+        <option value="B">B Only</option>
+        <option value="C">C Only</option>
+      </select>
+    </div>
     <div class="card-body" id="bt-score-body">
       <div style="text-align:center;padding:1.5rem;color:var(--subtle);font-size:0.78rem;">Log at least 5 backtests to generate your profitability score.</div>
     </div>
@@ -1226,7 +1235,6 @@ tr:hover .del-row { opacity:1; }
         <div class="form-group"><label>Entry Price</label><input type="number" id="bt-entry" placeholder="e.g. 6897.00" step="0.25" oninput="calcBtPnl()"></div>
         <div class="form-group"><label>Exit Price</label><input type="number" id="bt-exit" placeholder="e.g. 6877.00" step="0.25" oninput="calcBtPnl()"></div>
         <div class="form-group"><label>Stop Loss Price</label><input type="number" id="bt-stop" placeholder="e.g. 6907.00" step="0.25"></div>
-        <div class="form-group"><label>Contracts</label><input type="number" id="bt-contracts" placeholder="e.g. 8" min="1" max="40" value="8" oninput="calcBtPnl()"></div>
         <div class="form-group"><label>Result</label>
           <select id="bt-result">
             <option value="">— Select —</option>
@@ -3047,22 +3055,19 @@ function calcBtPnl() {
   const dir = document.getElementById('bt-dir').value;
   const box = document.getElementById('bt-calc-box');
   if (isNaN(en)||isNaN(ex)) { box.innerHTML='Enter entry &amp; exit prices above'; box.className='calc-box'; return; }
-  const cts = parseInt(document.getElementById('bt-contracts')?.value) || 8;
   const pts = dir==='Short' ? en-ex : ex-en;
-  const usd = pts * 5 * cts;
+  const usd = pts*25;
   const c   = usd>=0?'calc-pos':'calc-neg';
   const s   = usd>=0?'+':'';
-  box.innerHTML = `Points: <span class="${c}">${s}${pts.toFixed(2)}</span> &nbsp;·&nbsp; Simulated P&L (${cts} MES): <span class="${c}">${s}$${usd.toFixed(2)}</span>`;
+  box.innerHTML = `Points: <span class="${c}">${s}${pts.toFixed(2)}</span> &nbsp;·&nbsp; Simulated P&L (5 MES): <span class="${c}">${s}$${usd.toFixed(2)}</span>`;
 }
 window.calcBtPnl = calcBtPnl;
 
 function clearBtForm() {
-  ['bt-date','bt-dir','bt-sess','bt-setup','bt-entry','bt-exit','bt-stop','bt-contracts','bt-result',
+  ['bt-date','bt-dir','bt-sess','bt-setup','bt-entry','bt-exit','bt-stop','bt-result',
    'bt-oh','bt-ol','bt-orh','bt-orl','bt-retest','bt-would-take','bt-notes','bt-improve'].forEach(id => {
     const el = document.getElementById(id);
-    if (id==='bt-date') { if (el) el.value = localStorage.getItem('bt-last-date') || new Date().toISOString().split('T')[0]; }
-    else if (id==='bt-contracts') { if (el) el.value = localStorage.getItem('bt-last-contracts') || '8'; }
-    else { if (el) el.value = ''; }
+    if (el) el.value = id==='bt-date' ? (localStorage.getItem('bt-last-date') || new Date().toISOString().split('T')[0]) : '';
   });
   document.getElementById('bt-calc-box').innerHTML = 'Enter entry &amp; exit prices above';
 }
@@ -3086,8 +3091,7 @@ async function saveBtTrade() {
     setup:      document.getElementById('bt-setup').value,
     entry: en, exit: ex,
     stop:       parseFloat(document.getElementById('bt-stop').value)||0,
-    contracts:  parseInt(document.getElementById('bt-contracts').value)||8,
-    pts, usd:   pts * 5 * (parseInt(document.getElementById('bt-contracts').value)||8), result,
+    pts, usd:   pts*25, result,
     oh:         parseFloat(document.getElementById('bt-oh').value)||0,
     ol:         parseFloat(document.getElementById('bt-ol').value)||0,
     orh:        parseFloat(document.getElementById('bt-orh').value)||0,
@@ -3101,7 +3105,6 @@ async function saveBtTrade() {
   try {
     await addDoc(btTradesRef(uid), trade);
     localStorage.setItem('bt-last-date', date);
-    localStorage.setItem('bt-last-contracts', document.getElementById('bt-contracts').value||'8');
     clearBtForm();
     hideBtForm();
     toast('Backtest saved ✓');
@@ -3194,7 +3197,6 @@ function editBtTrade(fid) {
       <div class="form-group"><label>Entry</label><input type="number" id="ebt-entry" value="${t.entry||''}" step="0.25"></div>
       <div class="form-group"><label>Exit</label><input type="number" id="ebt-exit" value="${t.exit||''}" step="0.25"></div>
       <div class="form-group"><label>Stop Loss</label><input type="number" id="ebt-stop" value="${t.stop||''}" step="0.25"></div>
-      <div class="form-group"><label>Contracts</label><input type="number" id="ebt-contracts" value="${t.contracts||8}" min="1" max="40"></div>
       <div class="form-group"><label>Result</label>
         <select id="ebt-result">
           <option value="">—</option>
@@ -3249,8 +3251,7 @@ async function saveEditedBtTrade(fid) {
     setup:     document.getElementById('ebt-setup').value,
     entry: en, exit: ex,
     stop:      parseFloat(document.getElementById('ebt-stop').value)||0,
-    contracts: parseInt(document.getElementById('ebt-contracts').value)||8,
-    pts,       usd: pts * 5 * (parseInt(document.getElementById('ebt-contracts').value)||8),
+    pts,       usd: pts*25,
     result:    document.getElementById('ebt-result').value,
     orh:       parseFloat(document.getElementById('ebt-orh').value)||0,
     orl:       parseFloat(document.getElementById('ebt-orl').value)||0,
@@ -3446,14 +3447,21 @@ function updateBtStats() {
 
   // ── PROFITABILITY SCORE ───────────────────────────────────────
   const scoreEl = document.getElementById('bt-score-body');
-  if (actual.length < 5) {
-    scoreEl.innerHTML = '<div style="text-align:center;padding:1.5rem;color:var(--subtle);font-size:0.78rem;">Log at least 5 backtests to generate your profitability score.</div>';
+  const gradeFilterEl = document.getElementById('bt-score-grade-filter');
+  const selectedGrade = gradeFilterEl ? gradeFilterEl.value : 'All';
+  const scoreActual = selectedGrade === 'All' ? actual : actual.filter(t => t.setup === selectedGrade);
+  const scoreWins   = scoreActual.filter(t => t.result==='Win');
+  const scoreLosses = scoreActual.filter(t => t.result==='Loss');
+  const scoreTotPts = scoreActual.reduce((s,t) => s+(t.pts||0), 0);
+  const gradeLabelStr = selectedGrade === 'All' ? 'All Grades' : `Grade ${selectedGrade}`;
+  if (scoreActual.length < 5) {
+    scoreEl.innerHTML = `<div style="text-align:center;padding:1.5rem;color:var(--subtle);font-size:0.78rem;">Log at least 5 ${selectedGrade==='All'?'backtests':`Grade ${selectedGrade} backtests`} to generate your profitability score.</div>`;
   } else {
-    const avgWin     = wins.length   ? wins.reduce((s,t)=>s+(t.pts||0),0)/wins.length     : 0;
-    const avgLoss    = losses.length ? Math.abs(losses.reduce((s,t)=>s+(t.pts||0),0)/losses.length) : 0;
+    const avgWin     = scoreWins.length   ? scoreWins.reduce((s,t)=>s+(t.pts||0),0)/scoreWins.length     : 0;
+    const avgLoss    = scoreLosses.length ? Math.abs(scoreLosses.reduce((s,t)=>s+(t.pts||0),0)/scoreLosses.length) : 0;
     const rr         = avgLoss > 0 ? avgWin / avgLoss : avgWin > 0 ? 3 : 0;
-    const wrRaw      = wins.length / actual.length; // 0–1
-    const expectancy = totPts / actual.length;       // pts per trade
+    const wrRaw      = scoreWins.length / scoreActual.length; // 0–1
+    const expectancy = scoreTotPts / scoreActual.length;       // pts per trade
 
     // ── Scoring components (each out of stated max) ──────────────
     // 1. Win Rate (25pts) — 40% = 0, 50% = 10, 60% = 18, 70% = 25
@@ -3466,17 +3474,17 @@ function updateBtStats() {
     const expScore = Math.min(20, Math.max(0, expectancy <= 0 ? 0 : 5 + (expectancy / 10) * 15));
 
     // 4. Consistency — profit factor (15pts) — wins_pts / loss_pts
-    const totalWinPts  = wins.reduce((s,t)=>s+(t.pts||0),0);
-    const totalLossPts = Math.abs(losses.reduce((s,t)=>s+(t.pts||0),0)) || 0.001;
+    const totalWinPts  = scoreWins.reduce((s,t)=>s+(t.pts||0),0);
+    const totalLossPts = Math.abs(scoreLosses.reduce((s,t)=>s+(t.pts||0),0)) || 0.001;
     const pf           = totalWinPts / totalLossPts;
     const pfScore      = Math.min(15, Math.max(0, (pf - 1) / 1.5 * 15));
 
     // 5. Sample size confidence (10pts) — 5 trades=2, 20=7, 50+=10
-    const sampleScore  = Math.min(10, Math.max(2, actual.length >= 50 ? 10 : actual.length >= 20 ? 7 : 2 + (actual.length-5)/15*5));
+    const sampleScore  = Math.min(10, Math.max(2, scoreActual.length >= 50 ? 10 : scoreActual.length >= 20 ? 7 : 2 + (scoreActual.length-5)/15*5));
 
     // 6. Max drawdown resilience (10pts) — longest loss streak
     let maxLossStreak=0, lsCur=0;
-    actual.forEach(t=>{ if(t.result==='Loss'){lsCur++;maxLossStreak=Math.max(maxLossStreak,lsCur);}else lsCur=0; });
+    scoreActual.forEach(t=>{ if(t.result==='Loss'){lsCur++;maxLossStreak=Math.max(maxLossStreak,lsCur);}else lsCur=0; });
     const ddScore = Math.min(10, Math.max(0, (5 - maxLossStreak) / 4 * 10));
 
     const total  = Math.round(wrScore + rrScore + expScore + pfScore + sampleScore + ddScore);
@@ -3508,8 +3516,10 @@ function updateBtStats() {
       `R:R <strong>${rr.toFixed(2)}</strong> · Profit factor <strong>${pf.toFixed(2)}</strong>`,
       `Expectancy <strong>${expectancy>=0?'+':''}${expectancy.toFixed(1)} pts/trade</strong>`,
     ];
+    const gradeNotice = selectedGrade !== 'All' ? `<div style="font-size:0.72rem;color:var(--amber);margin-bottom:0.5rem;">Showing Grade ${selectedGrade} trades only (${scoreActual.length} trades)</div>` : '';
 
     scoreEl.innerHTML = `
+      ${gradeNotice}
       <div class="score-wrap">
         <div class="score-dial">
           <svg width="130" height="130" viewBox="0 0 130 130">
