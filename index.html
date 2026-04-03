@@ -2524,6 +2524,7 @@ function updateGradeBreakdown(trades) {
 // ── ECONOMIC CALENDAR ────────────────────────────────────────
 function updateCalendar() {
   const today = new Date(); today.setHours(0,0,0,0);
+  const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
   const events = [
     { date:'2026-03-06', label:'NFP — Non-Farm Payrolls', tag:'high' },
     { date:'2026-03-11', label:'CPI — Consumer Price Index', tag:'high' },
@@ -2556,14 +2557,13 @@ function updateCalendar() {
     { date:'2026-12-15', label:'FOMC Meeting', tag:'high' },
     { date:'2026-12-16', label:'FOMC Rate Decision + Press Conference', tag:'high' },
   ];
-  const todayStr    = today.toISOString().split('T')[0];
   const todayEvents = events.filter(e => e.date === todayStr);
   const banner      = document.getElementById('news-today-banner');
   if (todayEvents.length) {
     banner.innerHTML = `<div class="news-banner danger"><div class="news-banner-icon">🚫</div><div><strong>DO NOT TRADE TODAY</strong> — ${todayEvents.map(e=>e.label).join(', ')} scheduled. Log as Skip.</div></div>`;
   } else {
     const tmr     = new Date(today); tmr.setDate(today.getDate()+1);
-    const tmrStr  = tmr.toISOString().split('T')[0];
+    const tmrStr  = `${tmr.getFullYear()}-${String(tmr.getMonth()+1).padStart(2,'0')}-${String(tmr.getDate()).padStart(2,'0')}`;
     const tmrEvts = events.filter(e => e.date === tmrStr);
     if (tmrEvts.length) {
       banner.innerHTML = `<div class="news-banner warning"><div class="news-banner-icon">⚠</div><div><strong>News tomorrow</strong> — ${tmrEvts.map(e=>e.label).join(', ')}. Plan accordingly.</div></div>`;
@@ -2571,7 +2571,7 @@ function updateCalendar() {
       banner.innerHTML = `<div class="news-banner clear"><div class="news-banner-icon">✓</div><div><strong>Clear today</strong> — No major US events. Always verify at forexfactory.com</div></div>`;
     }
   }
-  const upcoming = events.map(e => ({...e, d:new Date(e.date+'T12:00')})).filter(e => e.d >= today).sort((a,b) => a.d-b.d).slice(0,6);
+  const upcoming = events.map(e => ({...e, d:new Date(e.date+'T12:00')})).filter(e => e.date >= todayStr).sort((a,b) => a.d-b.d).slice(0,6);
   document.getElementById('news-list').innerHTML = upcoming.map(e => {
     const ds = e.d.toLocaleDateString('en-GB', {weekday:'short',day:'2-digit',month:'short'});
     return `<div class="news-day-row">
@@ -3347,6 +3347,7 @@ function renderBtCalendar() {
   el.innerHTML = html;
 }
 window.renderBtCalendar = renderBtCalendar;
+window.updateBtStats = updateBtStats;
 
 // Auto-navigate calendar to the month of the last backtest entry
 function syncCalendarToLastEntry() {
