@@ -3204,6 +3204,7 @@ function editBtTrade(fid) {
       <div class="form-group"><label>Entry</label><input type="number" id="ebt-entry" value="${t.entry||''}" step="0.25"></div>
       <div class="form-group"><label>Exit</label><input type="number" id="ebt-exit" value="${t.exit||''}" step="0.25"></div>
       <div class="form-group"><label>Stop Loss</label><input type="number" id="ebt-stop" value="${t.stop||''}" step="0.25"></div>
+      <div class="form-group"><label>Contracts</label><input type="number" id="ebt-contracts" value="${t.contracts||8}" min="1" max="40"></div>
       <div class="form-group"><label>Result</label>
         <select id="ebt-result">
           <option value="">—</option>
@@ -3247,6 +3248,7 @@ async function saveEditedBtTrade(fid) {
   const dir  = document.getElementById('ebt-dir').value;
   const en   = parseFloat(document.getElementById('ebt-entry').value)||0;
   const ex   = parseFloat(document.getElementById('ebt-exit').value)||0;
+  const cts  = parseInt(document.getElementById('ebt-contracts').value)||8;
   let pts    = 0;
   if (dir==='Short'&&en&&ex) pts = en-ex;
   if (dir==='Long' &&en&&ex) pts = ex-en;
@@ -3258,7 +3260,8 @@ async function saveEditedBtTrade(fid) {
     setup:     document.getElementById('ebt-setup').value,
     entry: en, exit: ex,
     stop:      parseFloat(document.getElementById('ebt-stop').value)||0,
-    pts,       usd: pts*25,
+    contracts: cts,
+    pts,       usd: pts*5*cts,
     result:    document.getElementById('ebt-result').value,
     orh:       parseFloat(document.getElementById('ebt-orh').value)||0,
     orl:       parseFloat(document.getElementById('ebt-orl').value)||0,
