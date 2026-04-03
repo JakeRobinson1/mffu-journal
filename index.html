@@ -1235,6 +1235,7 @@ tr:hover .del-row { opacity:1; }
         <div class="form-group"><label>Entry Price</label><input type="number" id="bt-entry" placeholder="e.g. 6897.00" step="0.25" oninput="calcBtPnl()"></div>
         <div class="form-group"><label>Exit Price</label><input type="number" id="bt-exit" placeholder="e.g. 6877.00" step="0.25" oninput="calcBtPnl()"></div>
         <div class="form-group"><label>Stop Loss Price</label><input type="number" id="bt-stop" placeholder="e.g. 6907.00" step="0.25"></div>
+        <div class="form-group"><label>Contracts</label><input type="number" id="bt-contracts" placeholder="e.g. 8" min="1" max="40" value="8" oninput="calcBtPnl()"></div>
         <div class="form-group"><label>Result</label>
           <select id="bt-result">
             <option value="">— Select —</option>
@@ -3053,13 +3054,14 @@ function calcBtPnl() {
   const en  = parseFloat(document.getElementById('bt-entry').value);
   const ex  = parseFloat(document.getElementById('bt-exit').value);
   const dir = document.getElementById('bt-dir').value;
+  const cts = parseInt(document.getElementById('bt-contracts').value) || 8;
   const box = document.getElementById('bt-calc-box');
   if (isNaN(en)||isNaN(ex)) { box.innerHTML='Enter entry &amp; exit prices above'; box.className='calc-box'; return; }
   const pts = dir==='Short' ? en-ex : ex-en;
-  const usd = pts*25;
+  const usd = pts*5*cts;
   const c   = usd>=0?'calc-pos':'calc-neg';
   const s   = usd>=0?'+':'';
-  box.innerHTML = `Points: <span class="${c}">${s}${pts.toFixed(2)}</span> &nbsp;·&nbsp; Simulated P&L (5 MES): <span class="${c}">${s}$${usd.toFixed(2)}</span>`;
+  box.innerHTML = `Points: <span class="${c}">${s}${pts.toFixed(2)}</span> &nbsp;·&nbsp; Simulated P&L (${cts} MES): <span class="${c}">${s}$${usd.toFixed(2)}</span>`;
 }
 window.calcBtPnl = calcBtPnl;
 
@@ -3069,6 +3071,8 @@ function clearBtForm() {
     const el = document.getElementById(id);
     if (el) el.value = id==='bt-date' ? (localStorage.getItem('bt-last-date') || new Date().toISOString().split('T')[0]) : '';
   });
+  const ctsEl = document.getElementById('bt-contracts');
+  if (ctsEl) ctsEl.value = localStorage.getItem('bt-last-contracts') || '8';
   document.getElementById('bt-calc-box').innerHTML = 'Enter entry &amp; exit prices above';
 }
 window.clearBtForm = clearBtForm;
@@ -3082,6 +3086,7 @@ async function saveBtTrade() {
   const dir = document.getElementById('bt-dir').value;
   const en  = parseFloat(document.getElementById('bt-entry').value)||0;
   const ex  = parseFloat(document.getElementById('bt-exit').value)||0;
+  const cts = parseInt(document.getElementById('bt-contracts').value)||8;
   let pts   = 0;
   if (dir==='Short'&&en&&ex) pts = en-ex;
   if (dir==='Long' &&en&&ex) pts = ex-en;
@@ -3091,7 +3096,8 @@ async function saveBtTrade() {
     setup:      document.getElementById('bt-setup').value,
     entry: en, exit: ex,
     stop:       parseFloat(document.getElementById('bt-stop').value)||0,
-    pts, usd:   pts*25, result,
+    contracts:  cts,
+    pts, usd:   pts*5*cts, result,
     oh:         parseFloat(document.getElementById('bt-oh').value)||0,
     ol:         parseFloat(document.getElementById('bt-ol').value)||0,
     orh:        parseFloat(document.getElementById('bt-orh').value)||0,
@@ -3105,6 +3111,7 @@ async function saveBtTrade() {
   try {
     await addDoc(btTradesRef(uid), trade);
     localStorage.setItem('bt-last-date', date);
+    localStorage.setItem('bt-last-contracts', String(cts));
     clearBtForm();
     hideBtForm();
     toast('Backtest saved ✓');
