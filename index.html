@@ -3449,13 +3449,14 @@ function updateBtStats() {
   const scoreEl = document.getElementById('bt-score-body');
   const gradeFilterEl = document.getElementById('bt-score-grade-filter');
   const selectedGrade = gradeFilterEl ? gradeFilterEl.value : 'All';
-  const scoreActual = selectedGrade === 'All' ? actual : actual.filter(t => t.setup === selectedGrade);
+  const scoreActual = selectedGrade === 'All' ? actual : actual.filter(t => (t.setup || '').trim() === selectedGrade);
   const scoreWins   = scoreActual.filter(t => t.result==='Win');
   const scoreLosses = scoreActual.filter(t => t.result==='Loss');
   const scoreTotPts = scoreActual.reduce((s,t) => s+(t.pts||0), 0);
   const gradeLabelStr = selectedGrade === 'All' ? 'All Grades' : `Grade ${selectedGrade}`;
   if (scoreActual.length < 5) {
-    scoreEl.innerHTML = `<div style="text-align:center;padding:1.5rem;color:var(--subtle);font-size:0.78rem;">Log at least 5 ${selectedGrade==='All'?'backtests':`Grade ${selectedGrade} backtests`} to generate your profitability score.</div>`;
+    const countMsg = scoreActual.length > 0 ? ` (${scoreActual.length} found, need 5)` : '';
+    scoreEl.innerHTML = `<div style="text-align:center;padding:1.5rem;color:var(--subtle);font-size:0.78rem;">Log at least 5 ${selectedGrade==='All'?'backtests':`Grade ${selectedGrade} backtests`} to generate your profitability score.${countMsg}</div>`;
   } else {
     const avgWin     = scoreWins.length   ? scoreWins.reduce((s,t)=>s+(t.pts||0),0)/scoreWins.length     : 0;
     const avgLoss    = scoreLosses.length ? Math.abs(scoreLosses.reduce((s,t)=>s+(t.pts||0),0)/scoreLosses.length) : 0;
