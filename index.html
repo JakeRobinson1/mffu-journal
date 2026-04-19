@@ -1148,9 +1148,20 @@ tr:hover .del-row { opacity:1; }
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;">
     <div>
       <div style="font-size:0.95rem;font-weight:600;color:var(--ink);">Backtest Log</div>
-      <div style="font-size:0.75rem;color:var(--muted);margin-top:0.15rem;">ORB Strategy — Historical Trade Review</div>
+      <div style="font-size:0.75rem;color:var(--muted);margin-top:0.15rem;">Historical Trade Review — All Strategies</div>
     </div>
-    <button class="btn btn-dark" onclick="showBtForm()">+ Log Backtest</button>
+    <div style="display:flex;align-items:center;gap:0.75rem;">
+      <div style="display:flex;align-items:center;gap:0.4rem;">
+        <label style="font-family:'DM Mono',monospace;font-size:0.65rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);white-space:nowrap;margin:0;">Strategy</label>
+        <select id="bt-strategy-filter" style="padding:0.3rem 0.5rem;font-size:0.72rem;width:160px;" onchange="updateBtStats();renderBtTable();renderBtCalendar()">
+          <option value="All">All Strategies</option>
+          <option value="ORB">ORB</option>
+          <option value="VWAP">VWAP Scalp</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <button class="btn btn-dark" onclick="showBtForm()">+ Log Backtest</button>
+    </div>
   </div>
 
   <!-- Stats bar -->
@@ -1205,6 +1216,13 @@ tr:hover .del-row { opacity:1; }
     <div class="card-header">Log Backtest Trade <button class="btn btn-ghost btn-sm" style="float:right;" onclick="hideBtForm()">Cancel</button></div>
     <div class="card-body">
       <div class="form-grid">
+        <div class="form-group"><label>Strategy</label>
+          <select id="bt-strategy">
+            <option value="ORB">ORB</option>
+            <option value="VWAP">VWAP Scalp</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
         <div class="form-group"><label>Date</label><input type="date" id="bt-date"></div>
         <div class="form-group"><label>Direction</label>
           <select id="bt-dir">
@@ -1326,7 +1344,7 @@ tr:hover .del-row { opacity:1; }
     <div class="table-wrap">
       <table class="bt-table">
         <thead><tr>
-          <th>Date</th><th>Session</th><th>Setup</th><th>Dir</th>
+          <th>Date</th><th>Strategy</th><th>Session</th><th>Setup</th><th>Dir</th>
           <th>Entry</th><th>Exit</th><th>Pts</th><th>Result</th>
           <th>Retest</th><th>Would Take Live?</th><th>Notes</th><th></th>
         </tr></thead>
@@ -3098,6 +3116,7 @@ async function saveBtTrade() {
     stop:       parseFloat(document.getElementById('bt-stop').value)||0,
     contracts:  cts,
     pts, usd:   pts*5*cts, result,
+    strategy:   document.getElementById('bt-strategy').value || 'ORB',
     oh:         parseFloat(document.getElementById('bt-oh').value)||0,
     ol:         parseFloat(document.getElementById('bt-ol').value)||0,
     orh:        parseFloat(document.getElementById('bt-orh').value)||0,
@@ -3142,6 +3161,7 @@ function viewBtTrade(fid) {
     <div class="modal-section">
       <div class="modal-section-title">Trade Details</div>
       ${row('Date', ds)}
+      ${row('Strategy', t.strategy||'ORB')}
       ${row('Direction', t.dir)}
       ${row('Session Quality', t.sess)}
       ${row('Setup Grade', t.setup)}
@@ -3180,6 +3200,13 @@ function editBtTrade(fid) {
   document.getElementById('modal-title').textContent = 'Edit Backtest';
   document.getElementById('modal-body').innerHTML = `
     <div class="modal-form-grid">
+      <div class="form-group"><label>Strategy</label>
+        <select id="ebt-strategy">
+          <option ${(t.strategy||'ORB')==='ORB'?'selected':''} value="ORB">ORB</option>
+          <option ${t.strategy==='VWAP'?'selected':''} value="VWAP">VWAP Scalp</option>
+          <option ${t.strategy==='Other'?'selected':''} value="Other">Other</option>
+        </select>
+      </div>
       <div class="form-group"><label>Date</label><input type="date" id="ebt-date" value="${t.date||''}"></div>
       <div class="form-group"><label>Direction</label>
         <select id="ebt-dir">
@@ -3254,6 +3281,7 @@ async function saveEditedBtTrade(fid) {
   if (dir==='Long' &&en&&ex) pts = ex-en;
   const updated = {
     ...t,
+    strategy:  document.getElementById('ebt-strategy')?.value || t.strategy || 'ORB',
     date:      document.getElementById('ebt-date').value,
     dir,
     sess:      document.getElementById('ebt-sess').value,
@@ -3307,10 +3335,13 @@ function renderBtCalendar() {
   const monthName = new Date(year, month, 1).toLocaleString('en-GB', { month: 'long', year: 'numeric' });
   if (lbl) lbl.textContent = monthName;
 
-  // Build a map of date -> trade
+  // Build a map of date -> trade (filtered by strategy)
+  const stratFilter = document.getElementById('bt-strategy-filter')?.value || 'All';
   const tradeMap = {};
   _btTrades.forEach(t => {
-    if (t.date) tradeMap[t.date] = t;
+    if (!t.date) return;
+    if (stratFilter !== 'All' && (t.strategy||'ORB') !== stratFilter) return;
+    tradeMap[t.date] = t;
   });
 
   const firstDay = new Date(year, month, 1).getDay(); // 0=Sun
@@ -3379,12 +3410,14 @@ function clearBtFilter() {
 window.clearBtFilter = clearBtFilter;
 
 function getFilteredBtTrades() {
-  const from = document.getElementById('bt-filter-from')?.value || '';
-  const to   = document.getElementById('bt-filter-to')?.value   || '';
+  const from     = document.getElementById('bt-filter-from')?.value || '';
+  const to       = document.getElementById('bt-filter-to')?.value   || '';
+  const strategy = document.getElementById('bt-strategy-filter')?.value || 'All';
   return _btTrades.filter(t => {
     if (!t.date) return true;
     if (from && t.date < from) return false;
     if (to   && t.date > to)   return false;
+    if (strategy !== 'All' && (t.strategy || 'ORB') !== strategy) return false;
     return true;
   });
 }
@@ -3403,17 +3436,23 @@ function renderBtTable() {
     }
   }
   if (!filtered.length) {
-    tbody.innerHTML = '<tr><td colspan="13"><div class="empty-state"><div class="empty-icon">📊</div>' + (!_btTrades.length ? 'No backtests yet' : 'No trades in selected date range') + '</div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="14"><div class="empty-state"><div class="empty-icon">📊</div>' + (!_btTrades.length ? 'No backtests yet' : 'No trades in selected date range / strategy') + '</div></td></tr>';
     return;
   }
   const tag = r => r==='Win'?'<span class="tag win">Win</span>':r==='Loss'?'<span class="tag loss">Loss</span>':r==='Skip'?'<span class="tag skip">Skip</span>':'<span class="tag be">BE</span>';
   const wtc  = v => v==='Yes'?`<span style="color:var(--green);font-family:'DM Mono',monospace;font-size:0.72rem;">Yes</span>`:v==='No'?`<span style="color:var(--red);font-family:'DM Mono',monospace;font-size:0.72rem;">No</span>`:v?`<span style="color:var(--amber);font-family:'DM Mono',monospace;font-size:0.72rem;">${v}</span>`:'—';
+  const strat = s => {
+    if (s==='VWAP') return `<span style="font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--blue);background:var(--blue-bg);padding:0.1rem 0.4rem;border-radius:3px;">VWAP</span>`;
+    if (s==='Other') return `<span style="font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--muted);">Other</span>`;
+    return `<span style="font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--green);background:var(--green-bg);padding:0.1rem 0.4rem;border-radius:3px;">ORB</span>`;
+  };
   tbody.innerHTML = filtered.map(t => {
     const ds  = t.date ? new Date(t.date+'T12:00').toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'2-digit'}) : '—';
     const pc  = (t.pts||0)>=0?'pnl-pos':'pnl-neg';
     const fid = t._fid||'';
     return `<tr>
       <td>${ds}</td>
+      <td>${strat(t.strategy||'ORB')}</td>
       <td>${t.sess||'—'}</td>
       <td>${t.setup||'—'}</td>
       <td>${t.dir||'—'}</td>
@@ -3434,7 +3473,8 @@ function renderBtTable() {
 }
 
 function updateBtStats() {
-  const trades  = _btTrades;
+  const stratFilter = document.getElementById('bt-strategy-filter')?.value || 'All';
+  const trades  = stratFilter === 'All' ? _btTrades : _btTrades.filter(t => (t.strategy||'ORB') === stratFilter);
   const actual  = trades.filter(t => t.result!=='Skip');
   const wins    = actual.filter(t => t.result==='Win');
   const losses  = actual.filter(t => t.result==='Loss');
